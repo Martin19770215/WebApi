@@ -34,7 +34,7 @@ namespace WebApi.Models
         public PluginServerInfo server { get; set; }
         public string startDate { get; set; }
         public string endDate { get; set; }
-        public string availableDay { get; set; }
+        public int availableDay { get; set; }
         public string restartKey { get; set; }
         public string enable { get; set; }
     }

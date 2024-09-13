@@ -62,6 +62,7 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Web.Services" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Web" />
@@ -167,6 +168,7 @@
     <Compile Include="Controllers\MonitorController.cs" />
     <Compile Include="Controllers\MTWebApiController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
+    <Compile Include="Dals\CommonDAL.cs" />
     <Compile Include="Dals\CRMWebApiDAL.cs" />
     <Compile Include="Dals\MonitorWebApiDAL.cs" />
     <Compile Include="Dals\MTWebApiDAL.cs" />
@@ -175,6 +177,7 @@
     </Compile>
     <Compile Include="Models\DataEnums.cs" />
     <Compile Include="Models\DataModels.cs" />
+    <Compile Include="Models\PublicConst.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>

@@ -24,6 +24,18 @@ namespace WebApi.Models
         public int symbolMarginMode { get; set; }
     }
 
+    public class ErrMsg {
+        public string RouteName { get; set; }
+        public string ErrorMsg { get; set; }
+    }
+
+    public class ReturnModel<T> {
+        public ReturnCode ReturnCode { get; set; }
+        public string CnDescription { get; set; }
+        public string EnDescription { get; set; }
+        public string NextURL { get; set; }
+        public T Values { get; set; }
+    }
     #endregion
 
     #region MONITOR
@@ -32,11 +44,12 @@ namespace WebApi.Models
     public class MonitorDynamicLeveragePluginInfoRet
     {
         public PluginServerInfo server { get; set; }
+        public string WhiteLableName { get; set; }
         public string startDate { get; set; }
         public string endDate { get; set; }
         public int availableDay { get; set; }
         public string restartKey { get; set; }
-        public string enable { get; set; }
+        public bool enable { get; set; }
     }
 
     [Serializable]
@@ -47,6 +60,7 @@ namespace WebApi.Models
         public int Lever { get; set; }
     }
 
+    [Serializable]
     public class MonitorDynamicLeverageAccountInfo
     {
         //public int accountSetId { get; set; }
@@ -75,7 +89,7 @@ namespace WebApi.Models
     [Serializable]
     public class MonitorDynamicLeverageLevelInfo
     {
-        //public int levelId { get; set; }
+        public int levelId { get; set; }
         ////public string patternType { get; set; }
         ////public string leverName { get; set; }
         //public string explain { get; set; }
@@ -87,7 +101,7 @@ namespace WebApi.Models
     {
         //public string ruleName { get; set; }
         public string Status { get; set; }
-        public MonitorDynamicLeverageLevelInfo Level { get; set; }
+        public List<MonitorDynamicLeverageLevelInfo> Level { get; set; }
         public List<MonitorDynamicLeverageAccountInfo> Accounts { get; set; }
         public List<MonitorDynamicLeverageSymbolInfo> Symbols { get; set; }
     }
@@ -103,7 +117,7 @@ namespace WebApi.Models
     #region MT SYSTEM
 
     #region Dynamic Leverage
-    public class RiskManageDynamicLeveragePositionInfo
+    public class DynamicLeveragePositionInfo
     {
         public int OrderID { get; set; }
         public int Login { get; set; }
@@ -116,7 +130,7 @@ namespace WebApi.Models
     }
 
     [Serializable]
-    public class RiskManageDynamicLeverageSettingRangeInfo
+    public class DynamicLeverageSettingRangeInfo
     {
         public int InfoID { get; set; }
         public int From { get; set; }
@@ -125,22 +139,22 @@ namespace WebApi.Models
     }
 
     [Serializable]
-    public class RiskManageDynamicLeverageSettingInfo
+    public class DynamicLeverageSettingInfo
     {
         public int SettingID { get; set; }
         public string Sec { get; set; }     //商品类别
         public string Symbol { get; set; }
-        public List<RiskManageDynamicLeverageSettingRangeInfo> Ranges { get; set; }
+        public List<DynamicLeverageSettingRangeInfo> Ranges { get; set; }
     }
 
-    public class RiskManageDynamicLeverageSetting
+    public class DynamicLeverageSetting
     {
         public string Name { get; set; }            //组名
         public int Login { get; set; }              //账号
-        public List<RiskManageDynamicLeverageSettingInfo> Settings { get; set; }
+        public List<DynamicLeverageSettingInfo> Settings { get; set; }
     }
 
-    public class RiskManageDynamicLeverageEquityInfo
+    public class DynamicLeverageEquityInfo
     {
         public int Login { get; set; }
         public double EquityDaily { get; set; }

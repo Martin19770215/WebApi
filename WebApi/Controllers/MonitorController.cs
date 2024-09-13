@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using WebApi.Models;
 using System.Web.Http;
 using Newtonsoft.Json;
+using WebApi.Dals;
 
 namespace WebApi.Controllers
 {
@@ -19,10 +20,13 @@ namespace WebApi.Controllers
 
         #region GET Method
         [System.Web.Mvc.AcceptVerbs(HttpVerbs.Get)]
-        public MonitorDynamicLeveragePluginInfoRet getPluginInfo(PluginServerInfo server)
+        public object getPluginInfo(PluginServerInfo server)
         {
-            return new MonitorDynamicLeveragePluginInfoRet { server = server,startDate="2024-09-01",endDate="2024-09-30",availableDay=18 };
+            ReturnModel<List<MonitorDynamicLeveragePluginInfoRet>> Result = new MonitorWebApiDAL().getPluginInfo(server);
+            return new { code = Result.ReturnCode, description = Result.CnDescription,total=Result.Values.Count, rows = Result.Values };
         }
+
+
         #endregion
     }
 }

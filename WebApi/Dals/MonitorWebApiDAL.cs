@@ -109,11 +109,12 @@ namespace WebApi.Dals
             List<DynamicLeverageSettingRangeInfo> lstRange = new List<DynamicLeverageSettingRangeInfo>();
 
             List<string> lstLastUpdateTime = new List<string>() { "19700101"};
+
             List<string> lstSymbol = new List<string>();
             List<string> lstAccount = new List<string>();
+            List<int> lstLevelID = new List<int>();
 
             DateTime dtLastUpdateTime;
-
 
             try
             {
@@ -122,15 +123,18 @@ namespace WebApi.Dals
                 //List < MonitorDynamicLeverageRuleInfo> lstRule = JsonConvert.DeserializeObject<List<MonitorDynamicLeverageRuleInfo>>(joRules["rows"].ToString());
                 List<MonitorDynamicLeverageRuleInfo> lstRule = new JavaScriptSerializer().Deserialize<List<MonitorDynamicLeverageRuleInfo>>(joRules["rows"].ToString());
 
-                lstRule.ForEach(Rule => {
+                lstRule.ForEach(Rule =>
+                {
                     if (Rule.Status == "1")
                     {
                         Rule.Level.ForEach(Level =>
                         {
+                            lstLevelID.Add(Level.levelId);
                             Level.LevelGradeList.ForEach(RangeInfo =>
                             {
                                 lstRange.Add(new DynamicLeverageSettingRangeInfo
                                 {
+                                    InfoID = Level.levelId,
                                     From = Convert.ToInt32(Math.Round(RangeInfo.Begin * 100, 0)),
                                     To = Convert.ToInt32(Math.Round(RangeInfo.End * 100, 0)),
                                     Leverage = RangeInfo.Lever
@@ -146,36 +150,43 @@ namespace WebApi.Dals
                             lstSymbol = sym.Type == "1" ? sym.SecName.Split(',').ToList() : sym.Symbol.Split(',').ToList();
                             lstSymbol.ForEach(symInfo =>
                             {
-                                lstSettingInfo.Add(new DynamicLeverageSettingInfo
+                                lstLevelID.ForEach(LevelID =>
                                 {
-                                    Symbol = sym.Type == "2" ? symInfo : "*",
-                                    Sec = sym.Type == "1" ? symInfo : "*",
-                                    Ranges = new CommonDAL().DeepCopy<List<DynamicLeverageSettingRangeInfo>>(lstRange)
+                                    lstSettingInfo.Add(new DynamicLeverageSettingInfo
+                                    {
+                                        Symbol = sym.Type == "2" ? symInfo : "*",
+                                        Sec = sym.Type == "1" ? symInfo : "*",
+                                        Ranges = new CommonDAL().DeepCopy<List<DynamicLeverageSettingRangeInfo>>(lstRange.Where(RangeInfo => RangeInfo.InfoID == LevelID).ToList())
+                                    });
                                 });
                             });
                         });
 
-                        Rule.Accounts.ForEach(acc => {
+                        Rule.Accounts.ForEach(acc =>
+                        {
                             if (DateTime.TryParse(acc.UpdateTime, out dtLastUpdateTime)) { lstLastUpdateTime.Add(dtLastUpdateTime.ToString("yyyyMMddHHmmss")); }
 
                             lstAccount = acc.Type == "1" ? acc.MTGroups.Split(',').ToList() : acc.MTLogins.Split(',').ToList();
-                            lstAccount.ForEach(accInfo => {
-                                lstResult.Add(new DynamicLeverageSetting {
+                            lstAccount.ForEach(accInfo =>
+                            {
+                                lstResult.Add(new DynamicLeverageSetting
+                                {
                                     Login = acc.Type == "2" ? int.Parse(accInfo) : 0,
                                     Name = acc.Type == "1" ? accInfo : "*",
-                                    Settings=new CommonDAL().DeepCopy<List<DynamicLeverageSettingInfo>>(lstSettingInfo)
+                                    Settings = new CommonDAL().DeepCopy<List<DynamicLeverageSettingInfo>>(lstSettingInfo)
                                 });
                             });
                         });
                     }
 
+                    lstLevelID.Clear();
                     lstRange.Clear();
                     lstSettingInfo.Clear();
                 });
             }
             catch (Exception ex)
             {
-                new CommonDAL().UploadErrMsg(Server, new ErrMsg { ErrorMsg = ex.Message, RouteName = "MonitorWebApi/getRemoteJsonString/private" + Server.pluginName });
+                new CommonDAL().UploadErrMsg(Server, new ErrMsg { ErrorMsg = ex.Message, RouteName = "MonitorWebApi/getRemoteJsonString/private/" + Server.pluginName });
                 lstResult.Clear();
                 Result.ReturnCode = ReturnCode.RunningError;
             }

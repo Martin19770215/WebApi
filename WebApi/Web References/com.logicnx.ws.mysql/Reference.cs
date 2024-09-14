@@ -40,6 +40,8 @@ namespace WebApi.com.logicnx.ws.mysql {
         
         private System.Threading.SendOrPostCallback ExecuteDataSetBySQLOperationCompleted;
         
+        private System.Threading.SendOrPostCallback ExecuteTransactionBySqlOperationCompleted;
+        
         private System.Threading.SendOrPostCallback HelloWorldOperationCompleted;
         
         private System.Threading.SendOrPostCallback WriteBLOBValueOperationCompleted;
@@ -98,6 +100,9 @@ namespace WebApi.com.logicnx.ws.mysql {
         
         /// <remarks/>
         public event ExecuteDataSetBySQLCompletedEventHandler ExecuteDataSetBySQLCompleted;
+        
+        /// <remarks/>
+        public event ExecuteTransactionBySqlCompletedEventHandler ExecuteTransactionBySqlCompleted;
         
         /// <remarks/>
         public event HelloWorldCompletedEventHandler HelloWorldCompleted;
@@ -274,6 +279,37 @@ namespace WebApi.com.logicnx.ws.mysql {
             if ((this.ExecuteDataSetBySQLCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.ExecuteDataSetBySQLCompleted(this, new ExecuteDataSetBySQLCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://tempuri.org/ExecuteTransactionBySql", RequestNamespace="http://tempuri.org/", ResponseNamespace="http://tempuri.org/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public bool ExecuteTransactionBySql(string[] commandText, string Schemas) {
+            object[] results = this.Invoke("ExecuteTransactionBySql", new object[] {
+                        commandText,
+                        Schemas});
+            return ((bool)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void ExecuteTransactionBySqlAsync(string[] commandText, string Schemas) {
+            this.ExecuteTransactionBySqlAsync(commandText, Schemas, null);
+        }
+        
+        /// <remarks/>
+        public void ExecuteTransactionBySqlAsync(string[] commandText, string Schemas, object userState) {
+            if ((this.ExecuteTransactionBySqlOperationCompleted == null)) {
+                this.ExecuteTransactionBySqlOperationCompleted = new System.Threading.SendOrPostCallback(this.OnExecuteTransactionBySqlOperationCompleted);
+            }
+            this.InvokeAsync("ExecuteTransactionBySql", new object[] {
+                        commandText,
+                        Schemas}, this.ExecuteTransactionBySqlOperationCompleted, userState);
+        }
+        
+        private void OnExecuteTransactionBySqlOperationCompleted(object arg) {
+            if ((this.ExecuteTransactionBySqlCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.ExecuteTransactionBySqlCompleted(this, new ExecuteTransactionBySqlCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -515,6 +551,32 @@ namespace WebApi.com.logicnx.ws.mysql {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((System.Data.DataSet)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.9037.0")]
+    public delegate void ExecuteTransactionBySqlCompletedEventHandler(object sender, ExecuteTransactionBySqlCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.9037.0")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class ExecuteTransactionBySqlCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal ExecuteTransactionBySqlCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public bool Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((bool)(this.results[0]));
             }
         }
     }

@@ -108,6 +108,21 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="ExecuteTransactionBySql">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="commandText" type="tns:ArrayOfString" />
+            <s:element minOccurs="0" maxOccurs="1" name="Schemas" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ExecuteTransactionBySqlResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="ExecuteTransactionBySqlResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="HelloWorld">
         <s:complexType>
           <s:sequence>
@@ -185,6 +200,12 @@
   <wsdl:message name="ExecuteDataSetBySQLSoapOut">
     <wsdl:part name="parameters" element="tns:ExecuteDataSetBySQLResponse" />
   </wsdl:message>
+  <wsdl:message name="ExecuteTransactionBySqlSoapIn">
+    <wsdl:part name="parameters" element="tns:ExecuteTransactionBySql" />
+  </wsdl:message>
+  <wsdl:message name="ExecuteTransactionBySqlSoapOut">
+    <wsdl:part name="parameters" element="tns:ExecuteTransactionBySqlResponse" />
+  </wsdl:message>
   <wsdl:message name="HelloWorldSoapIn">
     <wsdl:part name="parameters" element="tns:HelloWorld" />
   </wsdl:message>
@@ -223,6 +244,10 @@
     <wsdl:operation name="ExecuteDataSetBySQL">
       <wsdl:input message="tns:ExecuteDataSetBySQLSoapIn" />
       <wsdl:output message="tns:ExecuteDataSetBySQLSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ExecuteTransactionBySql">
+      <wsdl:input message="tns:ExecuteTransactionBySqlSoapIn" />
+      <wsdl:output message="tns:ExecuteTransactionBySqlSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="HelloWorld">
       <wsdl:input message="tns:HelloWorldSoapIn" />
@@ -277,6 +302,15 @@
     </wsdl:operation>
     <wsdl:operation name="ExecuteDataSetBySQL">
       <soap:operation soapAction="http://tempuri.org/ExecuteDataSetBySQL" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ExecuteTransactionBySql">
+      <soap:operation soapAction="http://tempuri.org/ExecuteTransactionBySql" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -352,6 +386,15 @@
     </wsdl:operation>
     <wsdl:operation name="ExecuteDataSetBySQL">
       <soap12:operation soapAction="http://tempuri.org/ExecuteDataSetBySQL" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ExecuteTransactionBySql">
+      <soap12:operation soapAction="http://tempuri.org/ExecuteTransactionBySql" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>

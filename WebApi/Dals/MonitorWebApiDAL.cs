@@ -17,7 +17,7 @@ namespace WebApi.Dals
         List<string> param = new List<string>();
 
         #region 获取  PluginInfo
-        public ReturnModel< List<MonitorDynamicLeveragePluginInfoRet>> getPluginInfo(PluginServerInfo Server)
+        public ReturnModel<List<MonitorDynamicLeveragePluginInfoRet>> getPluginInfo(PluginServerInfo Server)
         {
             ReturnModel<List<MonitorDynamicLeveragePluginInfoRet>> Result = new ReturnModel<List<MonitorDynamicLeveragePluginInfoRet>>() { ReturnCode = ReturnCode.OK, CnDescription = "成功", EnDescription = "Success" };
 
@@ -27,9 +27,9 @@ namespace WebApi.Dals
 
             try
             {
-                DateTime dtStart,dtEnd;
+                DateTime dtStart, dtEnd;
 
-                DataSet ds= ws_mysql.ExecuteDataSetBySQL(sSqlSelect, PublicConst.Database);
+                DataSet ds = ws_mysql.ExecuteDataSetBySQL(sSqlSelect, PublicConst.Database);
                 foreach (DataRow mDr in ds.Tables[0].Rows)
                 {
                     if (!DateTime.TryParse(mDr["OrderDate"].ToString(), out dtStart)) { dtStart = DateTime.Parse(PublicConst.DefaultDateTime); }
@@ -37,12 +37,12 @@ namespace WebApi.Dals
                     lstResult.Add(new MonitorDynamicLeveragePluginInfoRet
                     {
                         server = Server,
-                        WhiteLableName=mDr["WhiteLableName"].ToString().Trim(),
+                        WhiteLableName = mDr["WhiteLableName"].ToString().Trim(),
                         startDate = dtStart.ToString("yyyy-MM-dd HH:mm:ss"),
                         endDate = dtEnd.ToString("yyyy-MM-dd HH:mm:ss"),
                         availableDay = (dtEnd - DateTime.Now.Date).Days,
-                        enable=mDr["IsDelete"].ToString().Trim().ToUpper()=="Y",
-                        restartKey=mDr["RestartKey"].ToString().Trim()
+                        enable = mDr["IsDelete"].ToString().Trim().ToUpper() == "Y",
+                        restartKey = mDr["RestartKey"].ToString().Trim()
                     });
                 }
             }
@@ -61,10 +61,48 @@ namespace WebApi.Dals
         }
         #endregion
 
+        #region 获取  SymbolList
+        public ReturnModel<List<PluginSymbolInfo>> getSymbolList(PluginServerInfo Server)
+        {
+            ReturnModel<List<PluginSymbolInfo>> Result = new ReturnModel<List<PluginSymbolInfo>> { ReturnCode = ReturnCode.OK, CnDescription = "成功" };
+            List<PluginSymbolInfo> lstResult = new List<PluginSymbolInfo>();
+
+            string sSqlSelect = $"SELECT * FROM MT_Symbol WHERE MainLableName='{Server.mainLableName}' AND MTType='{Server.mtType}';";
+
+            try
+            {
+                DataSet ds = ws_mysql.ExecuteDataSetBySQL(sSqlSelect, PublicConst.Database);
+                foreach (DataRow mDr in ds.Tables[0].Rows)
+                {
+                    lstResult.Add(new PluginSymbolInfo
+                    {
+                        symbolName = mDr["SymbolName"].ToString(),
+                        symbolGroup = mDr["SymbolGroup"].ToString(),
+                        symbolCurrency = mDr["SymbolCurrency"].ToString(),
+                        symbolMarginCurrency = mDr["SymbolMarginCurrency"].ToString(),
+                        symbolDigit=int.Parse(mDr["SymbolDigit"].ToString()),
+                        symbolContractSize=int.Parse(mDr["SymbolContractSize"].ToString()),
+                        symbolMarginMode=int.Parse(mDr["SymbolMarginMode"].ToString())
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                new CommonDAL().UploadErrMsg(Server, new ErrMsg {ErrorMsg=ex.Message,RouteName="MonitorWebApi/getSymbolList/"+Server.pluginName });
+                Result.ReturnCode = ReturnCode.RunningError;
+                Result.CnDescription = "失败";
+                lstResult.Clear();
+            }
+
+            Result.Values = lstResult;
+            return Result;
+        }
+        #endregion
+
         #region 获取  PluginSetting
 
         #region Dynamic Leverage
-        public ReturnModel<List< DynamicLeverageSetting>> getRemoteJsonString(PluginServerInfo Server,string RemoteJsonURL)
+        public ReturnModel<List<DynamicLeverageSetting>> getRemoteJsonString(PluginServerInfo Server, string RemoteJsonURL)
         {
             ReturnModel<List<DynamicLeverageSetting>> Result = new ReturnModel<List<DynamicLeverageSetting>>();
 
@@ -85,7 +123,7 @@ namespace WebApi.Dals
             }
             catch (Exception ex)
             {
-                new CommonDAL().UploadErrMsg(Server, new ErrMsg {ErrorMsg=ex.Message,RouteName= "MonitorWebApi/getRemoteJsonString/"+Server.pluginName });
+                new CommonDAL().UploadErrMsg(Server, new ErrMsg { ErrorMsg = ex.Message, RouteName = "MonitorWebApi/getRemoteJsonString/" + Server.pluginName });
             }
 
 
@@ -108,7 +146,7 @@ namespace WebApi.Dals
             List<DynamicLeverageSettingInfo> lstSettingInfo = new List<DynamicLeverageSettingInfo>();
             List<DynamicLeverageSettingRangeInfo> lstRange = new List<DynamicLeverageSettingRangeInfo>();
 
-            List<string> lstLastUpdateTime = new List<string>() { "19700101"};
+            List<string> lstLastUpdateTime = new List<string>() { "19700101" };
 
             List<string> lstSymbol = new List<string>();
             List<string> lstAccount = new List<string>();

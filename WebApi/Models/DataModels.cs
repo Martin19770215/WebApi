@@ -6,6 +6,14 @@ using System.Web;
 namespace WebApi.Models
 {
     #region COMMON
+    public class ReturnCodeInfo
+    {
+        public ReturnCode code { get; set; }
+        public string description { get; set; }
+        public string enDescription { get; set; }
+
+    }
+
     public class PluginServerInfo
     {
         public string mainLableName { get; set; }
@@ -163,5 +171,28 @@ namespace WebApi.Models
 
     #endregion
 
+    #endregion
+
+    #region Combination（组合）
+    public class MT_SymbolList
+    {
+        public PluginServerInfo Server { get; set; }
+        public List<PluginSymbolInfo> SymbolList { get; set; }
+    }
+
+    public class DynamicLeveragePosition
+    {
+        public DynamicLeveragePositionMode Mode { get; set; }
+        public PluginServerInfo Server { get; set; }
+        public List<DynamicLeveragePositionInfo> Positions { get; set; }
+    }
+
+    public class DynamicLeverageUser
+    {
+        public PluginServerInfo Server { get; set; }
+        public uint CurTimeStamp { get; set; }
+        public string CurTime { get; set; }
+        public List<DynamicLeverageEquityInfo> Users { get; set; }
+    }
     #endregion
 }

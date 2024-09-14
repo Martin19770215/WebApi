@@ -239,10 +239,10 @@
       <LastGenOutput>Reference.cs</LastGenOutput>
     </Content>
     <None Include="Web References\com.logicnx.ws.common\ws_common.disco" />
-    <Content Include="Web References\com.logicnx.ws.mysql\Reference.map">
+    <None Include="Web References\com.logicnx.ws.mysql\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
-    </Content>
+    </None>
     <None Include="Web References\com.logicnx.ws.common\ws_common.wsdl" />
     <None Include="Web References\com.logicnx.ws.mysql\ws_mysql.disco" />
     <Content Include="Web.config" />

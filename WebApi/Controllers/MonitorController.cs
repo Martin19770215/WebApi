@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using System.Web.Mvc;
+//using System.Web.Mvc;
 using System.Threading.Tasks;
 using WebApi.Models;
 using System.Web.Http;
@@ -11,7 +11,6 @@ using WebApi.Dals;
 
 namespace WebApi.Controllers
 {
-    [System.Web.Mvc.RoutePrefix("/api/Monitor")]
     public class MonitorController : ApiController
     {
         #region POST Method
@@ -19,14 +18,19 @@ namespace WebApi.Controllers
         #endregion
 
         #region GET Method
-        [System.Web.Mvc.AcceptVerbs(HttpVerbs.Get)]
+        [HttpGet]
         public object getPluginInfo(PluginServerInfo server)
         {
             ReturnModel<List<MonitorDynamicLeveragePluginInfoRet>> Result = new MonitorWebApiDAL().getPluginInfo(server);
             return new { code = Result.ReturnCode, description = Result.CnDescription,total=Result.Values.Count, rows = Result.Values };
         }
 
-
+        [HttpGet]
+        public object getSymbolList(PluginServerInfo server)
+        {
+            ReturnModel<List<PluginSymbolInfo>> Result = new MonitorWebApiDAL().getSymbolList(server);
+            return new { code = Result.ReturnCode, description = Result.CnDescription, total = Result.Values.Count, rows = Result.Values };
+        }
         #endregion
     }
 }

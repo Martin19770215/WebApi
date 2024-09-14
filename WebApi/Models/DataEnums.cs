@@ -8,7 +8,20 @@ namespace WebApi.Models
     public enum ReturnCode
     {
         OK=200,
-        EmptySettingString=300,
-        RunningError=400
+        EmptySettingString=301,
+        SQL_TransactionErr=401,
+        DATA_Existed=501,
+        DATA_TimeStampError,
+        RunningError=901,
+    }
+
+    public enum DynamicLeveragePositionMode
+    {
+        UPDATE_ALL_POSITION = 0,
+        UPDATE_NEW_POSITION,
+        UPDATE_ACTIVE_POSITION,
+        UPDATE_CLOSE_POSITION,
+        UPDATE_DELETE_POSITION,
+        UPDATE_RESOTRE_POSITION
     }
 }

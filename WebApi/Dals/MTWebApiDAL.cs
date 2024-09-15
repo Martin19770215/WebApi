@@ -268,7 +268,51 @@ namespace WebApi.Dals
         #endregion
 
         #region CopyTrader
+        #region 获取主账号信息
+        public ReturnModel<List<MasterAccount>> COPYTRADER_GetMasterList(PluginServerInfo Server, bool isIncludSlaves)
+        {
+            ReturnModel<List<MasterAccount>> Result = new ReturnModel<List<MasterAccount>>();
+            List<MasterAccount> lstResult = new List<MasterAccount>();
 
+            try
+            {
+                ReturnModel<string> RouteInfo = new CommonDAL().getPluginNextURL(Server);
+                switch (RouteInfo.Values)
+                {
+                    case "Monitor":
+                        
+                        break;
+                    case "CRM":
+
+                        break;
+                    default:
+                        //自身系统，NextURL存放的是AccountName
+                        
+                        break;
+                }
+
+                //DataSet dt = ws_mysql.ExecuteDataSetBySQL(sSelect, PublicConst.Database);
+                //foreach (DataRow mDr in dt.Tables[0].Rows)
+                //{
+                //    lstResult.Add(new DynamicLeverageSetting
+                //    {
+
+                //    });
+                //}
+            }
+            catch (Exception ex)
+            {
+                new CommonDAL().UploadErrMsg(Server, new ErrMsg { ErrorMsg = ex.Message, RouteName = "MTWebApi/getDynamicLeverageSettingsList" });
+                Result.ReturnCode = ReturnCode.RunningError;
+                Result.CnDescription = "失败";
+                Result.EnDescription = "Failure";
+            }
+
+            Result.Values = lstResult;
+            return Result;
+        }
+
+        #endregion
         #endregion
 
         #region DelaySlip

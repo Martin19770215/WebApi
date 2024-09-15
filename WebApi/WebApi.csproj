@@ -170,6 +170,7 @@
     <Compile Include="Controllers\ValuesController.cs" />
     <Compile Include="Dals\CommonDAL.cs" />
     <Compile Include="Dals\CRMWebApiDAL.cs" />
+    <Compile Include="Dals\CustomerDAL.cs" />
     <Compile Include="Dals\MonitorWebApiDAL.cs" />
     <Compile Include="Dals\MTWebApiDAL.cs" />
     <Compile Include="Global.asax.cs">

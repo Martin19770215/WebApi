@@ -12,6 +12,21 @@ namespace WebApi.Controllers
     [System.Web.Mvc.RoutePrefix("/api/MTWebApi")]
     public class MTWebApiController : ApiController
     {
+        [HttpPost]
+        public object getPluginSettings(PluginServerInfo Server)
+        {
+            switch (Server.pluginName.ToUpper())
+            {
+                case "DYNAMICLEVERAGE":
+                    ReturnModel<List<DynamicLeverageSetting>> lstDynamicLeverageResult = new MTWebApiDAL().DynamicLeverage_GetSettingsList(Server);
+                    return new { Groups = lstDynamicLeverageResult.Values.Where(grp => grp.Login == 0).ToList(), Accounts = lstDynamicLeverageResult.Values.Where(acc => acc.Login != 0).ToList() };
+                case "COPYTRADER":
+                    ReturnModel<List<MasterAccount>> lstCopyTraderResult = new MTWebApiDAL().COPYTRADER_GetMasterList(Server,true);
+                    return new { MasterAccounts = lstCopyTraderResult };
+                default:
+                    return new { };
+            }
+        }
 
         [HttpPost]
         public object getDynamicLeverageSettingsList(PluginServerInfo Server)

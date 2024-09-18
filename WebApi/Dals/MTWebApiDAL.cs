@@ -269,7 +269,7 @@ namespace WebApi.Dals
 
         #region CopyTrader
         #region 获取主账号信息
-        public ReturnModel<List<MasterAccount>> COPYTRADER_GetMasterList(PluginServerInfo Server, bool isIncludSlaves)
+        public ReturnModel<List<MasterAccount>> COPYTRADER_GetMasterList(PluginServerInfo Server, bool isIncludSlave)
         {
             ReturnModel<List<MasterAccount>> Result = new ReturnModel<List<MasterAccount>>();
             List<MasterAccount> lstResult = new List<MasterAccount>();
@@ -287,7 +287,7 @@ namespace WebApi.Dals
                         break;
                     default:
                         //自身系统，NextURL存放的是AccountName
-                        
+                        Result = new CustomerDAL().COPYTRADER_GetMasterList(RouteInfo.NextURL, Server, isIncludSlave);
                         break;
                 }
 
@@ -306,9 +306,10 @@ namespace WebApi.Dals
                 Result.ReturnCode = ReturnCode.RunningError;
                 Result.CnDescription = "失败";
                 Result.EnDescription = "Failure";
+                Result.Values.Clear();
             }
 
-            Result.Values = lstResult;
+            //Result.Values = lstResult;
             return Result;
         }
 

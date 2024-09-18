@@ -20,7 +20,7 @@ namespace WebApi.Controllers
                 case "DYNAMICLEVERAGE":
                     ReturnModel<List<DynamicLeverageSetting>> lstDynamicLeverageResult = new MTWebApiDAL().DynamicLeverage_GetSettingsList(Server);
                     return new { Groups = lstDynamicLeverageResult.Values.Where(grp => grp.Login == 0).ToList(), Accounts = lstDynamicLeverageResult.Values.Where(acc => acc.Login != 0).ToList() };
-                case "COPYTRADER":
+                case "PAMM":
                     ReturnModel<List<MasterAccount>> lstCopyTraderResult = new MTWebApiDAL().COPYTRADER_GetMasterList(Server,true);
                     return new { MasterAccounts = lstCopyTraderResult };
                 default:

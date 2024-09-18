@@ -39,7 +39,7 @@ namespace WebApi.Dals
                 foreach (DataRow mDr in dt.Tables[0].Rows)
                 {
                     Result.Values = mDr["OrderType"].ToString();
-                    Result.NextURL = string.IsNullOrEmpty(mDr["NextSettingURL"].ToString()) ? mDr["NextSettingURL"].ToString() : mDr["AccountName"].ToString();                 //当NextUrl为空时，返回当前系统的账号
+                    Result.NextURL = string.IsNullOrEmpty(mDr["NextSettingURL"].ToString()) ? mDr["AccountName"].ToString(): mDr["NextSettingURL"].ToString() ;                 //当NextUrl为空时，返回当前系统的账号
                 }
             }
             catch

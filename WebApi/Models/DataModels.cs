@@ -28,8 +28,11 @@ namespace WebApi.Models
         public string symbolCurrency { get; set; }
         public string symbolMarginCurrency { get; set; }
         public int symbolDigit { get; set; }
-        public int symbolContractSize { get; set; }
+        public double symbolContractSize { get; set; }
         public int symbolMarginMode { get; set; }
+        public double symbolMarginInit { get; set; }
+        public double symbolMarginHedge { get; set; }
+        public double symbolMarginRatio { get; set; }
     }
 
     public class ErrMsg {
@@ -52,7 +55,7 @@ namespace WebApi.Models
     public class MonitorDynamicLeveragePluginInfoRet
     {
         public PluginServerInfo server { get; set; }
-        public string WhiteLableName { get; set; }
+        public string whiteLableName { get; set; }
         public string startDate { get; set; }
         public string endDate { get; set; }
         public int availableDay { get; set; }
@@ -109,7 +112,7 @@ namespace WebApi.Models
     {
         //public string ruleName { get; set; }
         public string Status { get; set; }
-        public List<MonitorDynamicLeverageLevelInfo> Level { get; set; }
+        public List<MonitorDynamicLeverageLevelInfo> Levels { get; set; }
         public List<MonitorDynamicLeverageAccountInfo> Accounts { get; set; }
         public List<MonitorDynamicLeverageSymbolInfo> Symbols { get; set; }
     }
@@ -204,7 +207,7 @@ namespace WebApi.Models
     public class MT_SymbolList
     {
         public PluginServerInfo Server { get; set; }
-        public List<PluginSymbolInfo> SymbolList { get; set; }
+        public List<PluginSymbolInfo> Symbols { get; set; }
     }
 
     public class DynamicLeveragePosition

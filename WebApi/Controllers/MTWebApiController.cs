@@ -52,7 +52,7 @@ namespace WebApi.Controllers
         [HttpPost]
         public object UploadSymbolSetting(MT_SymbolList SymbolList)
         {
-            ReturnCodeInfo Result = new MTWebApiDAL().UploadSymbolList(SymbolList.Server, SymbolList.SymbolList);
+            ReturnCodeInfo Result = new MTWebApiDAL().UploadSymbolList(SymbolList.Server, SymbolList.Symbols);
             return Result.code;
         }
 

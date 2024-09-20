@@ -10,7 +10,78 @@ namespace WebApi.Dals
     //非Monitor，CRM
     public class CustomerDAL
     {
+        List<string> param = new List<string>();
         com.logicnx.ws.mysql.WS_MYSQL ws_mysql = new com.logicnx.ws.mysql.WS_MYSQL();
+
+        #region Dynamic Leverage
+        public ReturnModel<List<DynamicLeverageSetting>> DYNAMICLEVERAGE_GetSettingList(PluginServerInfo Server)
+        {
+            ReturnModel<List<DynamicLeverageSetting>> Result = new ReturnModel<List<DynamicLeverageSetting>>() { ReturnCode=ReturnCode.OK,CnDescription="成功",EnDescription="Successfully"};
+            List<DynamicLeverageSetting> lstResult = new List<DynamicLeverageSetting>();
+
+            List<DynamicLeverageSettingRangeInfo> RangeList = new List<DynamicLeverageSettingRangeInfo>();
+            List<DynamicLeverageSettingInfo> SettingInfoList = new List<DynamicLeverageSettingInfo>();
+
+            string strSqlLicenseCheck = $"SELECT ValidDate FROM pluginorders WHERE MainLableName = '{Server.mainLableName.Trim()}' AND MTType = '{Server.mtType.Trim()}' AND PluginName = 'DynamicLeverage';";
+
+            string strSqlRange = $"SELECT * FROM RiskManagement_DynamicLeverageSettingRange WHERE MTType='{Server.mtType}' AND MainLableName='{Server.mainLableName.Trim()}' ORDER BY InfoID,`From`;";
+            string strSqlInfo = $"SELECT * FROM RiskManagement_DynamicLeverageSettingInfo WHERE MTType='{Server.mtType}' AND MainLableName='{Server.mainLableName.Trim()}';";
+            string strSqlSetting = $"SELECT * FROM RiskManagement_DynamicLeverageSetting WHERE MTType='{Server.mtType}' AND MainLableName='{Server.mainLableName.Trim()}';";
+            try
+            {
+
+                DateTime LicenseDate = DateTime.Parse(ws_mysql.ExecuteScalar(param.ToArray(), "", strSqlLicenseCheck, PublicConst.Database));
+
+                if (DateTime.Compare(LicenseDate, DateTime.Now) < 0) { Result.ReturnCode = ReturnCode.DATA_LicenseTimeOut;Result.Values = lstResult; return Result; }
+
+                DataSet ds = ws_mysql.ExecuteDataSetBySQL(strSqlRange, PublicConst.Database);
+                foreach (DataRow dr in ds.Tables[0].Rows)
+                {
+                    RangeList.Add(new DynamicLeverageSettingRangeInfo
+                    {
+                        InfoID = int.Parse(dr["InfoID"].ToString()),
+                        From = int.Parse(dr["From"].ToString()),
+                        To = int.Parse(dr["To"].ToString()),
+                        Leverage = double.Parse(dr["Leverage"].ToString())
+                    });
+                }
+
+                ds = ws_mysql.ExecuteDataSetBySQL(strSqlInfo, PublicConst.Database);
+                foreach (DataRow dr in ds.Tables[0].Rows)
+                {
+                    SettingInfoList.Add(new DynamicLeverageSettingInfo
+                    {
+                        SettingID = int.Parse(dr["SettingID"].ToString()),
+                        Sec = dr["Sec"].ToString(),
+                        Symbol = dr["Symbol"].ToString(),
+                        Ranges = RangeList.Where(range => range.InfoID == int.Parse(dr["ID"].ToString())).ToList()
+                    });
+                }
+
+                ds = ws_mysql.ExecuteDataSetBySQL(strSqlSetting, PublicConst.Database);
+                foreach (DataRow dr in ds.Tables[0].Rows)
+                {
+                    lstResult.Add(new DynamicLeverageSetting
+                    {
+                        Name = dr["Group"].ToString(),
+                        Login = int.Parse(dr["Login"].ToString()),
+                        Settings = SettingInfoList.Where(info => info.SettingID == int.Parse(dr["ID"].ToString())).ToList()
+                    });
+                }
+            }
+            catch(Exception ex)
+            {
+                new CommonDAL().UploadErrMsg(Server, new ErrMsg { ErrorMsg = ex.Message, RouteName = "MTWebApi/DYNAMICLEVERAGE_GetSettingList" });
+                Result.ReturnCode = ReturnCode.RunningError;
+                Result.CnDescription = "失败";
+                Result.EnDescription = "Failure";
+                lstResult.Clear();
+            }
+            Result.Values = lstResult;
+            return Result;
+        }
+        #endregion
+
         #region Copy Trader
         public ReturnModel< List<MasterAccount>> COPYTRADER_GetMasterList(string AccountName, PluginServerInfo Server, bool isIncludeSlave)
         {

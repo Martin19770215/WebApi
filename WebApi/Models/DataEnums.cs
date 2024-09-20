@@ -12,6 +12,7 @@ namespace WebApi.Models
         SQL_TransactionErr=401,
         DATA_Existed=501,
         DATA_TimeStampError,
+        DATA_LicenseTimeOut,
         RunningError=901,
     }
 

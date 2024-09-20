@@ -37,7 +37,7 @@ namespace WebApi.Dals
                     lstResult.Add(new MonitorDynamicLeveragePluginInfoRet
                     {
                         server = Server,
-                        WhiteLableName = mDr["WhiteLableName"].ToString().Trim(),
+                        whiteLableName = mDr["WhiteLableName"].ToString().Trim(),
                         startDate = dtStart.ToString("yyyy-MM-dd HH:mm:ss"),
                         endDate = dtEnd.ToString("yyyy-MM-dd HH:mm:ss"),
                         availableDay = (dtEnd - DateTime.Now.Date).Days,
@@ -82,7 +82,8 @@ namespace WebApi.Dals
                         symbolMarginCurrency = mDr["SymbolMarginCurrency"].ToString(),
                         symbolDigit=int.Parse(mDr["SymbolDigit"].ToString()),
                         symbolContractSize=int.Parse(mDr["SymbolContractSize"].ToString()),
-                        symbolMarginMode=int.Parse(mDr["SymbolMarginMode"].ToString())
+                        symbolMarginHedge = int.Parse(mDr["SymbolMarginHedge"].ToString()),
+                        symbolMarginMode =int.Parse(mDr["SymbolMarginMode"].ToString())
                     });
                 }
             }
@@ -165,7 +166,7 @@ namespace WebApi.Dals
                 {
                     if (Rule.Status == "1")
                     {
-                        Rule.Level.ForEach(Level =>
+                        Rule.Levels.ForEach(Level =>
                         {
                             lstLevelID.Add(Level.levelId);
                             Level.LevelGradeList.ForEach(RangeInfo =>

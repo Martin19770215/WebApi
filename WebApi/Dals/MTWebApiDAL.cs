@@ -24,7 +24,7 @@ namespace WebApi.Dals
             List<string> lstSql = new List<string>() { $"DELETE FROM MT_Symbol WHERE MainLableName='{Server.mainLableName.Trim()}' AND MTType='{Server.mtType}';" };
             SymbolList.ForEach(sym =>
             {
-                lstSql.Add($"INSERT INTO MT_Symbol(`SymbolName`,`SymbolGroup`,`SymbolCurrency`,`SymbolMarginCurrency`,`SymbolDigit`,`SymbolContractSize`,`SymbolMarginMode`,`MainLableName`,`MTType`) VALUES('{sym.symbolName}','{sym.symbolGroup}','{sym.symbolCurrency}','{sym.symbolMarginCurrency}',{sym.symbolDigit},{sym.symbolContractSize},{sym.symbolMarginMode},'{Server.mainLableName}','{Server.mtType}');");
+                lstSql.Add($"INSERT INTO MT_Symbol(`SymbolName`,`SymbolGroup`,`SymbolCurrency`,`SymbolMarginCurrency`,`SymbolDigit`,`SymbolContractSize`,`SymbolMarginInit`,`SymbolMarginHedge`,`SymbolMarginRatio`,`SymbolMarginMode`,`MainLableName`,`MTType`) VALUES('{sym.symbolName}','{sym.symbolGroup}','{sym.symbolCurrency}','{sym.symbolMarginCurrency}',{sym.symbolDigit},{sym.symbolContractSize},{sym.symbolMarginInit},{sym.symbolMarginHedge},{sym.symbolMarginRatio},{sym.symbolMarginMode},'{Server.mainLableName}','{Server.mtType}');");
                 //lstResult.Add($"Symbol:{sym.symbolName} updated ");
             });
 
@@ -66,7 +66,7 @@ namespace WebApi.Dals
         {
             ReturnModel<List<DynamicLeverageSetting>> Result = new ReturnModel<List<DynamicLeverageSetting>> { ReturnCode = ReturnCode.OK, CnDescription = "成功", EnDescription = "Success" };
 
-            List<DynamicLeverageSetting> lstResult = new List<Models.DynamicLeverageSetting>();
+            //List<DynamicLeverageSetting> lstResult = new List<Models.DynamicLeverageSetting>();
 
             string sSqlSelectValue = $"SELECT OrderType FROM PluginOrders WHERE MainLableName='{Server.mainLableName.Trim()}' AND MTType='{Server.mtType}' AND PluginName='{Server.pluginName}';";
             string sSqlSelectResult = "";
@@ -83,6 +83,8 @@ namespace WebApi.Dals
 
                         break;
                     default:
+                        //自身系统
+                        Result = new CustomerDAL().DYNAMICLEVERAGE_GetSettingList(Server);
                         break;
                 }
 
@@ -103,7 +105,7 @@ namespace WebApi.Dals
                 Result.EnDescription = "Failure";
             }
 
-            Result.Values = lstResult;
+            //Result.Values = lstResult;
             return Result;
         }
         #endregion

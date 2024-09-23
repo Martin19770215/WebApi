@@ -196,7 +196,7 @@ namespace WebApi.Models
     {
         public int Login { get; set; }
         public double EquityDaily { get; set; }
-        public double EquityMonthly { get; set; }
+        public double EquityWeekly { get; set; }
     }
 
     #endregion
@@ -220,8 +220,9 @@ namespace WebApi.Models
     public class DynamicLeverageUser
     {
         public PluginServerInfo Server { get; set; }
-        public uint CurTimeStamp { get; set; }
+        public uint TimeStamp { get; set; }
         public string CurTime { get; set; }
+        public int Weekday { get; set; }
         public List<DynamicLeverageEquityInfo> Users { get; set; }
     }
     #endregion

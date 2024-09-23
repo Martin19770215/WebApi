@@ -69,7 +69,6 @@ namespace WebApi.Dals
             //List<DynamicLeverageSetting> lstResult = new List<Models.DynamicLeverageSetting>();
 
             string sSqlSelectValue = $"SELECT OrderType FROM PluginOrders WHERE MainLableName='{Server.mainLableName.Trim()}' AND MTType='{Server.mtType}' AND PluginName='{Server.pluginName}';";
-            string sSqlSelectResult = "";
 
             try
             {
@@ -163,7 +162,7 @@ namespace WebApi.Dals
                     lstResult.Add(new DynamicLeverageEquityInfo {
                         Login=int.Parse(mDr["Login"].ToString()),
                         EquityDaily=double.Parse(mDr["EquityDaily"].ToString()),
-                        EquityMonthly=double.Parse(mDr["EquityMonthly"].ToString())
+                        EquityWeekly=double.Parse(mDr["EquityWeekly"].ToString())
                     });
                 }
             }
@@ -230,7 +229,7 @@ namespace WebApi.Dals
         #endregion
 
         #region 上传帐户净值
-        public ReturnCodeInfo DynamicLeverage_UploadUserList(PluginServerInfo Server, uint CurTimeStamp, string CurTime, List<DynamicLeverageEquityInfo> Users)
+        public ReturnCodeInfo DynamicLeverage_UploadUserList(PluginServerInfo Server, uint CurTimeStamp, string CurTime,int WeekDay, List<DynamicLeverageEquityInfo> Users)
         {
             ReturnCodeInfo Result = new ReturnCodeInfo();
 
@@ -242,15 +241,19 @@ namespace WebApi.Dals
 
             try
             {
-                Users.ForEach(user => {
+                Users.ForEach(user =>
+                {
                     sSQLCheck = $"SELECT COUNT(ID) AS iCount FROM Riskmanagement_DynamicLeverageUser WHERE MainLableName='{Server.mainLableName.Trim()}' AND MTType='{Server.mtType}' AND Login={user.Login};";
                     if (int.Parse(ws_mysql.ExecuteScalar(param.ToArray(), PublicConst.CommandTypeDefault, sSQLCheck, PublicConst.Database)) > 0)
                     {
-                        lstSql.Add($"UPDATE Riskmanagement_DynamicLeverageUser SET EquityDaily={user.EquityDaily},EquityMonthly={user.EquityMonthly},CurTimeStamp={CurTimeStamp},CurTime='{CurTime}' WHERE MainLableName='{Server.mainLableName.Trim()}' AND MTType='{Server.mtType}' AND Login={user.Login}");
+                        if ((DayOfWeek)WeekDay == DayOfWeek.Sunday)
+                            lstSql.Add($"UPDATE Riskmanagement_DynamicLeverageUser SET EquityDaily={user.EquityDaily},EquityWeekly={user.EquityDaily},CurTimeStamp={CurTimeStamp},CurTime='{CurTime}',WeekDay={WeekDay} WHERE MainLableName='{Server.mainLableName.Trim()}' AND MTType='{Server.mtType}' AND Login={user.Login}");
+                        else
+                            lstSql.Add($"UPDATE Riskmanagement_DynamicLeverageUser SET EquityDaily={user.EquityDaily},CurTimeStamp={CurTimeStamp},CurTime='{CurTime}',WeekDay={WeekDay} WHERE MainLableName='{Server.mainLableName.Trim()}' AND MTType='{Server.mtType}' AND Login={user.Login}");
                     }
                     else
                     {
-                        lstSql.Add($"INSERT INTO Riskmanagement_DynamicLeverageUser VALUES(NULL,{user.Login},{user.EquityDaily},{user.EquityMonthly},{CurTimeStamp},'{CurTime}','{Server.mainLableName.Trim()}','{Server.mtType}')");
+                        lstSql.Add($"INSERT INTO Riskmanagement_DynamicLeverageUser VALUES(NULL,{user.Login},{user.EquityDaily},{user.EquityDaily},{CurTimeStamp},'{CurTime}',{WeekDay},'{Server.mainLableName.Trim()}','{Server.mtType}')");
                     }
 
                     Result.code = ws_mysql.ExecuteTransactionBySql(lstSql.ToArray(), PublicConst.Database) ? ReturnCode.OK : ReturnCode.SQL_TransactionErr;

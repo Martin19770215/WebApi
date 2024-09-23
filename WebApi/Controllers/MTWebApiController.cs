@@ -45,8 +45,8 @@ namespace WebApi.Controllers
         [HttpPost]
         public object getDynamicLeverageUserList(PluginServerInfo Server)
         {
-            ReturnModel<List<DynamicLeverageEquityInfo>> UserList = new MTWebApiDAL().DynamicLeverage_GetUserList(Server);
-            return new { Users = UserList };
+            ReturnModel<List<DynamicLeverageEquityInfo>> Result = new MTWebApiDAL().DynamicLeverage_GetUserList(Server);
+            return new { Users = Result.Values };
         }
 
         [HttpPost]
@@ -66,7 +66,7 @@ namespace WebApi.Controllers
         [HttpPost]
         public object UploadDynamicLeverageUserList(DynamicLeverageUser UserList)
         {
-            ReturnCodeInfo Result = new MTWebApiDAL().DynamicLeverage_UploadUserList(UserList.Server, UserList.CurTimeStamp, UserList.CurTime, UserList.Users);
+            ReturnCodeInfo Result = new MTWebApiDAL().DynamicLeverage_UploadUserList(UserList.Server, UserList.TimeStamp, UserList.CurTime,UserList.Weekday, UserList.Users);
             return Result.code;
         }
     }

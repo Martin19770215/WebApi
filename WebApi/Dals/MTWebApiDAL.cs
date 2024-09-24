@@ -237,11 +237,11 @@ namespace WebApi.Dals
             List<int> lstSqlUser = new List<int>();
 
             string sSQLUserCheck = $"SELECT Login FROM Riskmanagement_DynamicLeverageUser WHERE MainLableName='{Server.mainLableName.Trim()}' AND MTType='{Server.mtType}';";
-            string sSQLUserUpdate = "";
+            //string sSQLUserUpdate = "";
 
             DateTime dt;
-            int intResult = 0;
-            int intCount = 0;
+            //int intResult = 0;
+            //int intCount = 0;
 
             if ((CurTimeStamp == 0) || (!DateTime.TryParse(CurTime, out dt))) { Result.code = ReturnCode.DATA_TimeStampError; return Result; }
 

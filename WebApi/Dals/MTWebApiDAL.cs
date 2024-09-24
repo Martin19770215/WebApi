@@ -234,30 +234,52 @@ namespace WebApi.Dals
             ReturnCodeInfo Result = new ReturnCodeInfo();
 
             List<string> lstSql = new List<string>();
-            string sSQLCheck = "";
+            List<int> lstSqlUser = new List<int>();
+
+            string sSQLUserCheck = $"SELECT Login FROM Riskmanagement_DynamicLeverageUser WHERE MainLableName='{Server.mainLableName.Trim()}' AND MTType='{Server.mtType}';";
+            string sSQLUserUpdate = "";
+
             DateTime dt;
+            int intResult = 0;
+            int intCount = 0;
 
             if ((CurTimeStamp == 0) || (!DateTime.TryParse(CurTime, out dt))) { Result.code = ReturnCode.DATA_TimeStampError; return Result; }
 
             try
             {
+                DataSet ds = ws_mysql.ExecuteDataSetBySQL(sSQLUserCheck, PublicConst.Database);
+                foreach (DataRow mDr in ds.Tables[0].Rows)
+                {
+                    lstSqlUser.Add(int.Parse(mDr["Login"].ToString()));
+                }
+
                 Users.ForEach(user =>
                 {
-                    sSQLCheck = $"SELECT COUNT(ID) AS iCount FROM Riskmanagement_DynamicLeverageUser WHERE MainLableName='{Server.mainLableName.Trim()}' AND MTType='{Server.mtType}' AND Login={user.Login};";
-                    if (int.Parse(ws_mysql.ExecuteScalar(param.ToArray(), PublicConst.CommandTypeDefault, sSQLCheck, PublicConst.Database)) > 0)
+                    if (lstSqlUser.Exists(SqlUser => SqlUser == user.Login))
                     {
                         if ((DayOfWeek)WeekDay == DayOfWeek.Sunday)
-                            lstSql.Add($"UPDATE Riskmanagement_DynamicLeverageUser SET EquityDaily={user.EquityDaily},EquityWeekly={user.EquityDaily},CurTimeStamp={CurTimeStamp},CurTime='{CurTime}',WeekDay={WeekDay} WHERE MainLableName='{Server.mainLableName.Trim()}' AND MTType='{Server.mtType}' AND Login={user.Login}");
+                            lstSql.Add($"UPDATE Riskmanagement_DynamicLeverageUser SET EquityDaily={user.EquityDaily},EquityWeekly={user.EquityDaily},CurTimeStamp={CurTimeStamp},CurTime='{CurTime}',WeekDay={WeekDay} WHERE MainLableName='{Server.mainLableName.Trim()}' AND MTType='{Server.mtType}' AND Login={user.Login};");
+                        //sSQLUserUpdate =$"UPDATE Riskmanagement_DynamicLeverageUser SET EquityDaily={user.EquityDaily},EquityWeekly={user.EquityDaily},CurTimeStamp={CurTimeStamp},CurTime='{CurTime}',WeekDay={WeekDay} WHERE MainLableName='{Server.mainLableName.Trim()}' AND MTType='{Server.mtType}' AND Login={user.Login}";
                         else
-                            lstSql.Add($"UPDATE Riskmanagement_DynamicLeverageUser SET EquityDaily={user.EquityDaily},CurTimeStamp={CurTimeStamp},CurTime='{CurTime}',WeekDay={WeekDay} WHERE MainLableName='{Server.mainLableName.Trim()}' AND MTType='{Server.mtType}' AND Login={user.Login}");
+                            lstSql.Add($"UPDATE Riskmanagement_DynamicLeverageUser SET EquityDaily={user.EquityDaily},CurTimeStamp={CurTimeStamp},CurTime='{CurTime}',WeekDay={WeekDay} WHERE MainLableName='{Server.mainLableName.Trim()}' AND MTType='{Server.mtType}' AND Login={user.Login};");
+                            //sSQLUserUpdate=$"UPDATE Riskmanagement_DynamicLeverageUser SET EquityDaily={user.EquityDaily},CurTimeStamp={CurTimeStamp},CurTime='{CurTime}',WeekDay={WeekDay} WHERE MainLableName='{Server.mainLableName.Trim()}' AND MTType='{Server.mtType}' AND Login={user.Login}";
                     }
                     else
                     {
-                        lstSql.Add($"INSERT INTO Riskmanagement_DynamicLeverageUser VALUES(NULL,{user.Login},{user.EquityDaily},{user.EquityDaily},{CurTimeStamp},'{CurTime}',{WeekDay},'{Server.mainLableName.Trim()}','{Server.mtType}')");
+                        lstSql.Add($"INSERT INTO Riskmanagement_DynamicLeverageUser VALUES(NULL,{user.Login},{user.EquityDaily},{user.EquityDaily},{CurTimeStamp},'{CurTime}',{WeekDay},'{Server.mainLableName.Trim()}','{Server.mtType}');");
+                        //sSQLUserUpdate=$"INSERT INTO Riskmanagement_DynamicLeverageUser VALUES(NULL,{user.Login},{user.EquityDaily},{user.EquityDaily},{CurTimeStamp},'{CurTime}',{WeekDay},'{Server.mainLableName.Trim()}','{Server.mtType}')";
                     }
 
-                    Result.code = ws_mysql.ExecuteTransactionBySql(lstSql.ToArray(), PublicConst.Database) ? ReturnCode.OK : ReturnCode.SQL_TransactionErr;
+                    //intCount= ws_mysql.ExecuteNonQuery(param.ToArray(), PublicConst.CommandTypeDefault, sSQLUserUpdate, PublicConst.Database);
+
+                    //if (intCount !=1) {
+                    //    intCount = user.Login;
+                    //}
+                    //intResult += intCount;
                 });
+
+                Result.code = ws_mysql.ExecuteTransactionBySql(lstSql.ToArray(), PublicConst.Database) ? ReturnCode.OK : ReturnCode.SQL_TransactionErr;
+                //Result.code = intResult == Users.Count ? ReturnCode.OK : ReturnCode.SQL_TransactionErr;
 
             }
             catch (Exception ex)

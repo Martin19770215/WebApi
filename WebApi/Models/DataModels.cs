@@ -19,6 +19,8 @@ namespace WebApi.Models
         public string mainLableName { get; set; }
         public string mtType { get; set; }
         public string pluginName { get; set; }
+        public string moduleName { get; set; }
+        public string settingName { get; set; }
     }
 
     public class PluginSymbolInfo
@@ -46,6 +48,18 @@ namespace WebApi.Models
         public string EnDescription { get; set; }
         public string NextURL { get; set; }
         public T Values { get; set; }
+    }
+
+    public class PluginModuleInfo {
+        public int ID { get; set; }
+        public string AccountName { get; set; }
+        public string MainLableName { get; set; }
+        public string MTType { get; set; }
+        public string PluginName { get; set; }
+        public string PluginType { get; set; }
+        public string ModuleName { get; set; }
+        public string SettingName { get; set; }
+        public string SettingURL { get; set; }
     }
     #endregion
 
@@ -127,6 +141,12 @@ namespace WebApi.Models
 
     #region MT SYSTEM
 
+    #region Common
+    public class ErrorMsg {
+        public string Message { get; set; }
+    }
+    #endregion
+
     #region Copy Trader
     public class SlaveAccount {
         public int Login { get; set; }                          
@@ -204,6 +224,11 @@ namespace WebApi.Models
     #endregion
 
     #region Combination（组合）
+    public class MT_ErrorMsg {
+        public PluginServerInfo Server { get; set; }
+        public List<ErrorMsg> Messages { get; set; }
+    }
+
     public class MT_SymbolList
     {
         public PluginServerInfo Server { get; set; }

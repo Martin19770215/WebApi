@@ -9,6 +9,7 @@ namespace WebApi.Dals
 {
     public class MTWebApiDAL
     {
+        com.logicnx.ws.common.WS_COMMON ws_common = new com.logicnx.ws.common.WS_COMMON();
         com.logicnx.ws.mysql.WS_MYSQL ws_mysql = new com.logicnx.ws.mysql.WS_MYSQL();
         List<string> param = new List<string>();
 
@@ -21,17 +22,39 @@ namespace WebApi.Dals
             //List<string> lstResult = new List<string>() { $"Existing records cleared " };
             ReturnCodeInfo Result = new ReturnCodeInfo();
 
+            PluginModuleInfo ModuleInfo = new CommonDAL().getPluginModuleInfo(Server);
+
+            string strSqlSelect = $"SELECT SettingURL FROM MT_PluginModule WHERE MainLableName='{Server.mainLableName}' AND MTType='{Server.mtType}' AND PluginName='{Server.pluginName}' AND ModuleName='{Server.moduleName}' AND SettingName='{Server.settingName}';";
+            string strPostData = "{\"server\":{\"mainLableName\":\"" + Server.mainLableName + "\",\"mTType\":\"" + Server.mtType + "\",\"pluginName\":\"" + Server.moduleName + "\"},\"symbolList\":[";
+            string strPostResult = "";
+
             List<string> lstSql = new List<string>() { $"DELETE FROM MT_Symbol WHERE MainLableName='{Server.mainLableName.Trim()}' AND MTType='{Server.mtType}';" };
+            List<string> lstPostData = new List<string>();
+            
             SymbolList.ForEach(sym =>
             {
                 lstSql.Add($"INSERT INTO MT_Symbol(`SymbolName`,`SymbolGroup`,`SymbolCurrency`,`SymbolMarginCurrency`,`SymbolDigit`,`SymbolContractSize`,`SymbolMarginInit`,`SymbolMarginHedge`,`SymbolMarginRatio`,`SymbolMarginMode`,`MainLableName`,`MTType`) VALUES('{sym.symbolName}','{sym.symbolGroup}','{sym.symbolCurrency}','{sym.symbolMarginCurrency}',{sym.symbolDigit},{sym.symbolContractSize},{sym.symbolMarginInit},{sym.symbolMarginHedge},{sym.symbolMarginRatio},{sym.symbolMarginMode},'{Server.mainLableName}','{Server.mtType}');");
-                //lstResult.Add($"Symbol:{sym.symbolName} updated ");
+                switch (ModuleInfo.PluginType)
+                {
+                    case "Monitor":
+                        lstPostData.Add("{\"symbol\":\"" + sym.symbolName + "\",\"secName\":\"" + sym.symbolGroup + "\"}");
+                        break;
+                    case "CRM":
+                        break;
+                    default:
+                        break;
+                }
             });
+
+            strPostData += string.Join(",", lstPostData);
+            strPostData += "]}";
 
             //int iIndex = 0;
 
             try
             {
+                strPostResult = ModuleInfo.SettingURL;
+
                 Result.code = ws_mysql.ExecuteTransactionBySql(lstSql.ToArray(), PublicConst.Database) ? ReturnCode.OK : ReturnCode.SQL_TransactionErr;
                 //lstSql.ForEach(sql => {
 
@@ -42,7 +65,7 @@ namespace WebApi.Dals
             }
             catch (Exception ex)
             {
-                new CommonDAL().UploadErrMsg(Server, new ErrMsg { ErrorMsg = ex.Message, RouteName = "MTWebApi/UploadSymbolList/" + Server.pluginName });
+                new CommonDAL().UploadErrMsg(Server, new ErrMsg { ErrorMsg = ex.Message, RouteName = "MTWebApi/UploadSymbolList/" + Server.pluginName+"/"+Server.moduleName });
                 Result.code = ReturnCode.RunningError;
                 Result.description = "失败";
                 Result.enDescription = "Failure";
@@ -53,6 +76,30 @@ namespace WebApi.Dals
             }
 
             //Result.Values = lstResult;
+            return Result;
+        }
+        #endregion
+
+        #region 上传运行中的错误信息
+        public ReturnCodeInfo UploadErrorMsg(PluginServerInfo Server, List<ErrorMsg> Messages)
+        {
+            ReturnCodeInfo Result = new ReturnCodeInfo();
+
+            List<string> lstSql = new List<string>();
+            try
+            {
+                Messages.ForEach(msg => {
+                    lstSql.Add($"INSERT INTO MT_ErrorMsg(`MainLableName`,`MTType`,`PluginName`,`Message`) VALUES('{Server.mainLableName}','{Server.mtType}','{Server.pluginName}','{msg}');");
+                });
+                Result.code = ws_mysql.ExecuteTransactionBySql(lstSql.ToArray(), PublicConst.Database) ? ReturnCode.OK : ReturnCode.SQL_TransactionErr;
+            }
+            catch (Exception ex)
+            {
+                new CommonDAL().UploadErrMsg(Server, new ErrMsg { ErrorMsg = ex.Message, RouteName = "MTWebApi/UploadErrorMsg/" + Server.pluginName+"/"+Server.moduleName });
+                Result.code = ReturnCode.RunningError;
+                Result.description = "失败";
+                Result.enDescription = "Failure";
+            }
             return Result;
         }
         #endregion
@@ -68,15 +115,16 @@ namespace WebApi.Dals
 
             //List<DynamicLeverageSetting> lstResult = new List<Models.DynamicLeverageSetting>();
 
-            string sSqlSelectValue = $"SELECT OrderType FROM PluginOrders WHERE MainLableName='{Server.mainLableName.Trim()}' AND MTType='{Server.mtType}' AND PluginName='{Server.pluginName}';";
+            //string sSqlSelectValue = $"SELECT OrderType FROM PluginOrders WHERE MainLableName='{Server.mainLableName.Trim()}' AND MTType='{Server.mtType}' AND PluginName='{Server.pluginName}';";
 
             try
             {
-                ReturnModel<string> RouteInfo = new CommonDAL().getPluginNextURL(Server);
-                switch (RouteInfo.Values)
+                PluginModuleInfo ModuleInfo = new CommonDAL().getPluginModuleInfo(Server);
+
+                switch (ModuleInfo.PluginType)
                 {
                     case "Monitor":
-                        Result = new MonitorWebApiDAL().getRemoteJsonString(Server, RouteInfo.NextURL);
+                        Result = new MonitorWebApiDAL().getRemoteJsonString(Server, ModuleInfo.SettingURL);
                         break;
                     case "CRM":
 
@@ -221,7 +269,7 @@ namespace WebApi.Dals
             }
             catch (Exception ex)
             {
-                new CommonDAL().UploadErrMsg(Server, new ErrMsg { ErrorMsg = ex.Message, RouteName = "MTWebApi/UploadDynamicLeveragePositionList/" + Server.pluginName });
+                new CommonDAL().UploadErrMsg(Server, new ErrMsg { ErrorMsg = ex.Message, RouteName = "MTWebApi/UploadDynamicLeveragePositionList/" + Server.pluginName + "/" + Server.moduleName });
                 Result.code = ReturnCode.RunningError;
             }
             return Result;
@@ -284,7 +332,7 @@ namespace WebApi.Dals
             }
             catch (Exception ex)
             {
-                new CommonDAL().UploadErrMsg(Server, new ErrMsg { ErrorMsg = ex.Message, RouteName = "MTWebApi/UploadSymbolList/" + Server.pluginName });
+                new CommonDAL().UploadErrMsg(Server, new ErrMsg { ErrorMsg = ex.Message, RouteName = "MTWebApi/UploadSymbolList/" + Server.pluginName + "/" + Server.moduleName });
                 Result.code = ReturnCode.RunningError;
             }
             return Result;
@@ -303,8 +351,8 @@ namespace WebApi.Dals
 
             try
             {
-                ReturnModel<string> RouteInfo = new CommonDAL().getPluginNextURL(Server);
-                switch (RouteInfo.Values)
+                PluginModuleInfo ModuleInfo = new CommonDAL().getPluginModuleInfo(Server);
+                switch (ModuleInfo.PluginType)
                 {
                     case "Monitor":
                         
@@ -313,8 +361,8 @@ namespace WebApi.Dals
 
                         break;
                     default:
-                        //自身系统，NextURL存放的是AccountName
-                        Result = new CustomerDAL().COPYTRADER_GetMasterList(RouteInfo.NextURL, Server, isIncludSlave);
+                        //自身系统，通过AccountName获取设置信息
+                        Result = new CustomerDAL().COPYTRADER_GetMasterList(ModuleInfo.AccountName, Server, isIncludSlave);
                         break;
                 }
 

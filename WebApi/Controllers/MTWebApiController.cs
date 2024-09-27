@@ -69,5 +69,12 @@ namespace WebApi.Controllers
             ReturnCodeInfo Result = new MTWebApiDAL().DynamicLeverage_UploadUserList(UserList.Server, UserList.TimeStamp, UserList.CurTime,UserList.Weekday, UserList.Users);
             return Result.code;
         }
+
+        [HttpPost]
+        public object UploadErrorMsg(MT_ErrorMsg MsgList)
+        {
+            ReturnCodeInfo Result = new MTWebApiDAL().UploadErrorMsg(MsgList.Server, MsgList.Messages);
+            return Result.code;
+        }
     }
 }

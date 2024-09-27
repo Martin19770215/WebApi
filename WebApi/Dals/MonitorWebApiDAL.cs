@@ -124,7 +124,7 @@ namespace WebApi.Dals
             }
             catch (Exception ex)
             {
-                new CommonDAL().UploadErrMsg(Server, new ErrMsg { ErrorMsg = ex.Message, RouteName = "MonitorWebApi/getRemoteJsonString/" + Server.pluginName });
+                new CommonDAL().UploadErrMsg(Server, new ErrMsg { ErrorMsg = ex.Message, RouteName = "MonitorWebApi/getRemoteJsonString/" + Server.pluginName+"/"+Server.moduleName });
             }
 
 
@@ -225,7 +225,7 @@ namespace WebApi.Dals
             }
             catch (Exception ex)
             {
-                new CommonDAL().UploadErrMsg(Server, new ErrMsg { ErrorMsg = ex.Message, RouteName = "MonitorWebApi/getRemoteJsonString/private/" + Server.pluginName });
+                new CommonDAL().UploadErrMsg(Server, new ErrMsg { ErrorMsg = ex.Message, RouteName = "MonitorWebApi/getRemoteJsonString/private/" + Server.pluginName+"/"+Server.moduleName });
                 lstResult.Clear();
                 Result.ReturnCode = ReturnCode.RunningError;
             }

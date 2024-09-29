@@ -395,6 +395,43 @@ namespace WebApi.Dals
 
         #endregion
 
+        #region AdvMCSO
+        public ReturnModel<List<RiskManagementAdvMCSOInfo>> getAdvMCSORules(PluginServerInfo Server)
+        {
+            ReturnModel<List<RiskManagementAdvMCSOInfo>> Result = new ReturnModel<List<RiskManagementAdvMCSOInfo>>();
+            List<RiskManagementAdvMCSOInfo> lstResult = new List<RiskManagementAdvMCSOInfo>();
+            string strSql = $"SELECT * FROM RiskManagement_AdvMCSOSettings WHERE MTType='{Server.mtType}' AND MainLableName='{Server.mainLableName}' AND Enable=1;";
+
+            try
+            {
+                DataSet ds = ws_mysql.ExecuteDataSetBySQL(strSql, PublicConst.Database);
+                foreach (DataRow dr in ds.Tables[0].Rows)
+                {
+                    lstResult.Add(new RiskManagementAdvMCSOInfo
+                    {
+                        GroupName = dr["GroupName"].ToString().Trim(),
+                        Login = int.Parse(dr["Login"].ToString()),
+                        MCSOType = int.Parse(dr["MCSOType"].ToString()),
+                        SODelayTime = int.Parse(dr["SODelayTime"].ToString()),
+                        MCSOManualType = int.Parse(dr["MCSOManualType"].ToString()),
+                        MCValue = double.Parse(dr["MCValue"].ToString()),
+                        SOValue = double.Parse(dr["SOValue"].ToString())
+                    });
+                }
+            }
+            catch(Exception ex)
+            {
+                new CommonDAL().UploadErrMsg(Server, new ErrMsg { ErrorMsg = ex.Message, RouteName = "MTWebApi/getDynamicLeverageSettingsList" });
+                Result.ReturnCode = ReturnCode.RunningError;
+                Result.CnDescription = "失败";
+                Result.EnDescription = "Failure";
+                lstResult.Clear();
+            }
+            Result.Values = lstResult;
+            return Result;
+        }
+        #endregion
+
         #region QuoteControll
 
         #endregion

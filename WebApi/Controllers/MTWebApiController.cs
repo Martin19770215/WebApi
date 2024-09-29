@@ -71,6 +71,14 @@ namespace WebApi.Controllers
         }
 
         [HttpPost]
+        public object getAdvMCSORules(PluginServerInfo Server)
+        {
+            ReturnModel<List<RiskManagementAdvMCSOInfo>> Result = new MTWebApiDAL().getAdvMCSORules(Server);
+            return new { Groups = Result.Values.Where(grp => grp.Login == 0), Accounts = Result.Values.Where(acc => acc.GroupName == "*") };
+        }
+
+
+        [HttpPost]
         public object UploadErrorMsg(MT_ErrorMsg MsgList)
         {
             ReturnCodeInfo Result = new MTWebApiDAL().UploadErrorMsg(MsgList.Server, MsgList.Messages);

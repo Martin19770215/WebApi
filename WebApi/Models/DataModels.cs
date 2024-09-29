@@ -221,6 +221,24 @@ namespace WebApi.Models
 
     #endregion
 
+    #region AdvMCSO
+    public class RiskManagementAdvMCSOInfo
+    {
+        //public int ID { get; set; }
+        public string GroupName { get; set; }
+        public int Login { get; set; }
+        public int MCSOType { get; set; }
+        public int SODelayTime { get; set; }
+        public int MCSOManualType { get; set; }
+        public double MCValue { get; set; }
+        public double SOValue { get; set; }
+        //public bool Enable { get; set; }
+        //public string MTType { get; set; }
+        //public string MainLableName { get; set; }
+    }
+
+    #endregion
+
     #endregion
 
     #region Combination（组合）

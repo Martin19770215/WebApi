@@ -64,6 +64,12 @@ namespace WebApi.Models
     #endregion
 
     #region MONITOR
+    public class MonitorPluginInfo {
+        public string mainLableName { get; set; }
+        public string mtType { get; set; }
+        public string pluginName { get; set; }
+
+    }
 
     #region Dynamic Leverage
     public class MonitorDynamicLeveragePluginInfoRet
@@ -93,6 +99,7 @@ namespace WebApi.Models
         public string Type { get; set; }
         public string MTGroups { get; set; }
         public string MTLogins { get; set; }
+        public string ExcludeLogins { get; set; }
         //public string createBy { get; set; }
         //public string updateBy { get; set; }
         public string UpdateTime { get; set; }
@@ -106,6 +113,7 @@ namespace WebApi.Models
         public string Type { get; set; }
         public string Symbol { get; set; }
         public string SecName { get; set; }
+        public string ExcludeSymbols { get; set; }
         //public string createBy { get; set; }
         //public string updateBy { get; set; }
         public string UpdateTime { get; set; }
@@ -149,7 +157,7 @@ namespace WebApi.Models
 
     #region Copy Trader
     public class SlaveAccount {
-        public int Login { get; set; }                          
+        public UInt64 Login { get; set; }                          
         public string Symbol { get; set; }                      //跟随商品（主帐户）
         public string Suffix { get; set; }                      //子账户商品后缀
         public string Prefix { get; set; }                      //子账户商品前缀
@@ -160,11 +168,11 @@ namespace WebApi.Models
         public bool SL { get; set; }                            //是否跟随止损
         public bool TP { get; set; }                            //是否跟随止盈
         public bool IsFollowClosedOrder { get; set; }           //是否跟随平仓订单（MT4）
-        public int MasterLogin { get; set; }                    //跟随的主账号
+        public UInt64 MasterLogin { get; set; }                    //跟随的主账号
     }
 
     public class MasterAccount {
-        public int Login { get; set; }
+        public UInt64 Login { get; set; }
         public int SlaveCount { get; set; }
         public bool IsDelete { get; set; }
         public string Comment { get; set; }
@@ -178,7 +186,7 @@ namespace WebApi.Models
     public class DynamicLeveragePositionInfo
     {
         public int OrderID { get; set; }
-        public int Login { get; set; }
+        public UInt64 Login { get; set; }
         public string Symbol { get; set; }
         public int Cmd { get; set; }
         public int Volume { get; set; }
@@ -202,19 +210,21 @@ namespace WebApi.Models
         public int SettingID { get; set; }
         public string Sec { get; set; }     //商品类别
         public string Symbol { get; set; }
+        public List<string> ExcludeSymbols { get; set; }       //需要排除的商品
         public List<DynamicLeverageSettingRangeInfo> Ranges { get; set; }
     }
 
     public class DynamicLeverageSetting
     {
         public string Name { get; set; }            //组名
-        public int Login { get; set; }              //账号
+        public UInt64 Login { get; set; }              //账号
+        public List<UInt64> ExcludeLogins { get; set; }       //需要排除的账号
         public List<DynamicLeverageSettingInfo> Settings { get; set; }
     }
 
     public class DynamicLeverageEquityInfo
     {
-        public int Login { get; set; }
+        public UInt64 Login { get; set; }
         public double EquityDaily { get; set; }
         public double EquityWeekly { get; set; }
     }
@@ -226,7 +236,7 @@ namespace WebApi.Models
     {
         //public int ID { get; set; }
         public string GroupName { get; set; }
-        public int Login { get; set; }
+        public UInt64 Login { get; set; }
         public int MCSOType { get; set; }
         public int SODelayTime { get; set; }
         public int MCSOManualType { get; set; }

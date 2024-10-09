@@ -124,7 +124,7 @@ namespace WebApi.Dals
                 switch (ModuleInfo.PluginType)
                 {
                     case "Monitor":
-                        Result = new MonitorWebApiDAL().getRemoteJsonString(Server, ModuleInfo.SettingURL);
+                        Result = new MonitorWebApiDAL().getRemoteJsonString(new MonitorPluginInfo() { mainLableName = Server.mainLableName, mtType = Server.mtType, pluginName = Server.moduleName }, ModuleInfo.SettingURL);
                         break;
                     case "CRM":
 
@@ -173,7 +173,7 @@ namespace WebApi.Dals
                     lstResult.Add(new DynamicLeveragePositionInfo
                     {
                         OrderID = int.Parse(mDr["OrderID"].ToString()),
-                        Login = int.Parse(mDr["Login"].ToString()),
+                        Login = UInt64.Parse(mDr["Login"].ToString()),
                         Symbol = mDr["Symbol"].ToString(),
                         Cmd = int.Parse(mDr["Cmd"].ToString()),
                         Currency = mDr["Currency"].ToString(),
@@ -208,7 +208,7 @@ namespace WebApi.Dals
                 foreach (DataRow mDr in ds.Tables[0].Rows)
                 {
                     lstResult.Add(new DynamicLeverageEquityInfo {
-                        Login=int.Parse(mDr["Login"].ToString()),
+                        Login=UInt64.Parse(mDr["Login"].ToString()),
                         EquityDaily=double.Parse(mDr["EquityDaily"].ToString()),
                         EquityWeekly=double.Parse(mDr["EquityWeekly"].ToString())
                     });
@@ -282,7 +282,7 @@ namespace WebApi.Dals
             ReturnCodeInfo Result = new ReturnCodeInfo();
 
             List<string> lstSql = new List<string>();
-            List<int> lstSqlUser = new List<int>();
+            List<UInt64> lstSqlUser = new List<UInt64>();
 
             string sSQLUserCheck = $"SELECT Login FROM Riskmanagement_DynamicLeverageUser WHERE MainLableName='{Server.mainLableName.Trim()}' AND MTType='{Server.mtType}';";
             //string sSQLUserUpdate = "";
@@ -298,7 +298,7 @@ namespace WebApi.Dals
                 DataSet ds = ws_mysql.ExecuteDataSetBySQL(sSQLUserCheck, PublicConst.Database);
                 foreach (DataRow mDr in ds.Tables[0].Rows)
                 {
-                    lstSqlUser.Add(int.Parse(mDr["Login"].ToString()));
+                    lstSqlUser.Add(UInt64.Parse(mDr["Login"].ToString()));
                 }
 
                 Users.ForEach(user =>
@@ -410,7 +410,7 @@ namespace WebApi.Dals
                     lstResult.Add(new RiskManagementAdvMCSOInfo
                     {
                         GroupName = dr["GroupName"].ToString().Trim(),
-                        Login = int.Parse(dr["Login"].ToString()),
+                        Login = UInt64.Parse(dr["Login"].ToString()),
                         MCSOType = int.Parse(dr["MCSOType"].ToString()),
                         SODelayTime = int.Parse(dr["SODelayTime"].ToString()),
                         MCSOManualType = int.Parse(dr["MCSOManualType"].ToString()),

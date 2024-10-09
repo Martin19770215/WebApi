@@ -64,7 +64,7 @@ namespace WebApi.Dals
                     lstResult.Add(new DynamicLeverageSetting
                     {
                         Name = dr["Group"].ToString(),
-                        Login = int.Parse(dr["Login"].ToString()),
+                        Login = UInt64.Parse(dr["Login"].ToString()),
                         Settings = SettingInfoList.Where(info => info.SettingID == int.Parse(dr["ID"].ToString())).ToList()
                     });
                 }
@@ -101,7 +101,7 @@ namespace WebApi.Dals
                 {
                     lstResult.Add(new MasterAccount
                     {
-                        Login = int.Parse(mDr["AccNo"].ToString()),
+                        Login = UInt64.Parse(mDr["AccNo"].ToString()),
                         IsDelete = mDr["IsDelete"].ToString() == "Y",
                         Comment = mDr["Comment"].ToString(),
                         CreateTime = DateTime.Parse(mDr["CreateTime"].ToString()),
@@ -117,7 +117,7 @@ namespace WebApi.Dals
                     {
                         lstSlave.Add(new SlaveAccount
                         {
-                            Login = int.Parse(mDr["SlaveAcc"].ToString()),
+                            Login = UInt64.Parse(mDr["SlaveAcc"].ToString()),
                             //Symbol = mDr["Symbol"].ToString(),
                             Symbol = "*",
                             //Suffix = mDr["Suffix"].ToString(),
@@ -132,7 +132,7 @@ namespace WebApi.Dals
                             SL=mDr["IsSL"].ToString()=="Y",
                             TP=mDr["IsTP"].ToString()=="Y",
                             IsFollowClosedOrder = mDr["IsFollowClosedOrder"].ToString() == "Y",
-                            MasterLogin = int.Parse(mDr["MasterAcc"].ToString())
+                            MasterLogin = UInt64.Parse(mDr["MasterAcc"].ToString())
 
                         });
                     }

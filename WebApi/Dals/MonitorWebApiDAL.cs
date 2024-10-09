@@ -103,7 +103,7 @@ namespace WebApi.Dals
         #region 获取  PluginSetting
 
         #region Dynamic Leverage
-        public ReturnModel<List<DynamicLeverageSetting>> getRemoteJsonString(PluginServerInfo Server, string RemoteJsonURL)
+        public ReturnModel<List<DynamicLeverageSetting>> getRemoteJsonString(MonitorPluginInfo Server, string RemoteJsonURL)
         {
             ReturnModel<List<DynamicLeverageSetting>> Result = new ReturnModel<List<DynamicLeverageSetting>>();
 
@@ -124,7 +124,7 @@ namespace WebApi.Dals
             }
             catch (Exception ex)
             {
-                new CommonDAL().UploadErrMsg(Server, new ErrMsg { ErrorMsg = ex.Message, RouteName = "MonitorWebApi/getRemoteJsonString/" + Server.pluginName+"/"+Server.moduleName });
+                new CommonDAL().UploadErrMsg(Server, new ErrMsg { ErrorMsg = ex.Message, RouteName = "MonitorWebApi/getRemoteJsonString/" + Server.pluginName });
             }
 
 
@@ -136,7 +136,7 @@ namespace WebApi.Dals
         #endregion
 
         #region Private ProcuduresOrFunctions
-        private ReturnModel<List<DynamicLeverageSetting>> getDynamicLeverageSettingList(PluginServerInfo Server, string sJsonSetting)
+        private ReturnModel<List<DynamicLeverageSetting>> getDynamicLeverageSettingList(MonitorPluginInfo Server, string sJsonSetting)
         {
             ReturnModel<List<DynamicLeverageSetting>> Result = new ReturnModel<List<DynamicLeverageSetting>>() { ReturnCode = ReturnCode.OK };
 
@@ -196,6 +196,7 @@ namespace WebApi.Dals
                                         Symbol = sym.Type == "2" ? symInfo : "*",
                                         Sec = sym.Type == "1" ? symInfo : "*",
                                         Ranges = new CommonDAL().DeepCopy<List<DynamicLeverageSettingRangeInfo>>(lstRange.Where(RangeInfo => RangeInfo.InfoID == LevelID).ToList())
+                                        //ExcludeSymbols =new List<string>( sym.ExcludeSymbols.Split(','))
                                     });
                                 });
                             });
@@ -210,8 +211,9 @@ namespace WebApi.Dals
                             {
                                 lstResult.Add(new DynamicLeverageSetting
                                 {
-                                    Login = acc.Type == "2" ? int.Parse(accInfo) : 0,
+                                    Login = acc.Type == "2" ? UInt64.Parse(accInfo) : 0,
                                     Name = acc.Type == "1" ? accInfo : "*",
+                                    //ExcludeLogins =new List<UInt64>(acc.ExcludeLogins.Split(',').Select(UInt64.Parse).ToArray()),
                                     Settings = new CommonDAL().DeepCopy<List<DynamicLeverageSettingInfo>>(lstSettingInfo)
                                 });
                             });
@@ -225,7 +227,7 @@ namespace WebApi.Dals
             }
             catch (Exception ex)
             {
-                new CommonDAL().UploadErrMsg(Server, new ErrMsg { ErrorMsg = ex.Message, RouteName = "MonitorWebApi/getRemoteJsonString/private/" + Server.pluginName+"/"+Server.moduleName });
+                new CommonDAL().UploadErrMsg(Server, new ErrMsg { ErrorMsg = ex.Message, RouteName = "MonitorWebApi/getRemoteJsonString/private/" + Server.pluginName });
                 lstResult.Clear();
                 Result.ReturnCode = ReturnCode.RunningError;
             }

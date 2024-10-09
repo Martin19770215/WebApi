@@ -28,6 +28,21 @@ namespace WebApi.Dals
             }
         }
 
+        public void UploadErrMsg(MonitorPluginInfo Server, ErrMsg ErrMsg)
+        {
+            string sSqlUpload = $"INSERT INTO RunningErrorMsg(`PluginName`,`MainLableName`,`ErrorMsg`,`RouteName`) VALUES('{Server.pluginName}','{Server.mainLableName}','{ErrMsg.ErrorMsg.Replace("\'", "\"")}','{ErrMsg.RouteName}');";
+
+            try
+            {
+                ws_mysql.ExecuteNonQuery(param.ToArray(), PublicConst.CommandTypeDefault, sSqlUpload, PublicConst.Database);
+            }
+            catch
+            {
+
+            }
+        }
+
+
         public List<PluginModuleInfo> getPluginModuleList()
         {
             List<PluginModuleInfo> Result = new List<PluginModuleInfo>();

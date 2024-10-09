@@ -32,7 +32,15 @@ namespace WebApi.Controllers
         public object getDynamicLeverageSettingsList(PluginServerInfo Server)
         {
             ReturnModel<List<DynamicLeverageSetting>> Result = new MTWebApiDAL().DynamicLeverage_GetSettingsList(Server);
-            return new { Groups = Result.Values.Where(grp => grp.Login == 0).ToList(), Accounts = Result.Values.Where(acc => acc.Login != 0).ToList() };
+            try
+            {
+                return new { Groups = Result.Values.Where(grp => grp.Login == 0).ToList(), Accounts = Result.Values.Where(acc => acc.Login != 0).ToList() };
+            }
+            catch
+            {
+                return new { Groups = new List<DynamicLeverageSetting>(), Accounts = new List<DynamicLeverageSetting>() };
+            }
+            //return new { Groups = Result.Values.Where(grp => grp.Login == 0).ToList(), Accounts = Result.Values.Where(acc => acc.Login != 0).ToList() };
         }
 
         [HttpPost]

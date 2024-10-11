@@ -98,8 +98,7 @@ namespace WebApi.Models
         //public string accountSetName { get; set; }
         public string Type { get; set; }
         public string MTGroups { get; set; }
-        public string MTLogins { get; set; }
-        public string ExcludeLogins { get; set; }
+        public string MTLogins { get; set; }    //Type=组时，此处为排除的账号信息
         //public string createBy { get; set; }
         //public string updateBy { get; set; }
         public string UpdateTime { get; set; }
@@ -111,9 +110,8 @@ namespace WebApi.Models
         //public string symbolSetId { get; set; }
         //public string symbolSetName { get; set; }
         public string Type { get; set; }
-        public string Symbol { get; set; }
+        public string Symbol { get; set; }              //Type=组时，此处为排除的商品信息
         public string SecName { get; set; }
-        public string ExcludeSymbols { get; set; }
         //public string createBy { get; set; }
         //public string updateBy { get; set; }
         public string UpdateTime { get; set; }

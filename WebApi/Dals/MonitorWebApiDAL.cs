@@ -196,7 +196,7 @@ namespace WebApi.Dals
                                         Symbol = sym.Type == "2" ? symInfo : "*",
                                         Sec = sym.Type == "1" ? symInfo : "*",
                                         Ranges = new CommonDAL().DeepCopy<List<DynamicLeverageSettingRangeInfo>>(lstRange.Where(RangeInfo => RangeInfo.InfoID == LevelID).ToList()),
-                                        ExcludeSymbols =string.IsNullOrEmpty(sym.ExcludeSymbols)?new List<string>(): new List<string>(sym.ExcludeSymbols.Split(','))
+                                        ExcludeSymbols = (sym.Type == "2" || string.IsNullOrEmpty(sym.Symbol)) ? new List<string>() : new List<string>(sym.Symbol.Split(','))
                                     });
                                 });
                             });
@@ -213,7 +213,7 @@ namespace WebApi.Dals
                                 {
                                     Login = acc.Type == "2" ? UInt64.Parse(accInfo) : 0,
                                     Name = acc.Type == "1" ? accInfo : "*",
-                                    ExcludeLogins =string.IsNullOrEmpty(acc.ExcludeLogins)?new List<ulong>():  new List<UInt64>(acc.ExcludeLogins.Split(',').Select(UInt64.Parse).ToArray()),
+                                    ExcludeLogins = (acc.Type == "2" || string.IsNullOrEmpty(acc.MTLogins)) ? new List<ulong>() : new List<UInt64>(acc.MTLogins.Split(',').Select(UInt64.Parse).ToArray()),
                                     Settings = new CommonDAL().DeepCopy<List<DynamicLeverageSettingInfo>>(lstSettingInfo)
                                 });
                             });

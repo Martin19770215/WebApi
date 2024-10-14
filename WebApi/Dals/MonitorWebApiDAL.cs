@@ -80,16 +80,16 @@ namespace WebApi.Dals
                         symbolGroup = mDr["SymbolGroup"].ToString(),
                         symbolCurrency = mDr["SymbolCurrency"].ToString(),
                         symbolMarginCurrency = mDr["SymbolMarginCurrency"].ToString(),
-                        symbolDigit=int.Parse(mDr["SymbolDigit"].ToString()),
-                        symbolContractSize=int.Parse(mDr["SymbolContractSize"].ToString()),
+                        symbolDigit = int.Parse(mDr["SymbolDigit"].ToString()),
+                        symbolContractSize = int.Parse(mDr["SymbolContractSize"].ToString()),
                         symbolMarginHedge = int.Parse(mDr["SymbolMarginHedge"].ToString()),
-                        symbolMarginMode =int.Parse(mDr["SymbolMarginMode"].ToString())
+                        symbolMarginMode = int.Parse(mDr["SymbolMarginMode"].ToString())
                     });
                 }
             }
             catch (Exception ex)
             {
-                new CommonDAL().UploadErrMsg(Server, new ErrMsg {ErrorMsg=ex.Message,RouteName="MonitorWebApi/getSymbolList/"+Server.pluginName });
+                new CommonDAL().UploadErrMsg(Server, new ErrMsg { ErrorMsg = ex.Message, RouteName = "MonitorWebApi/getSymbolList/" + Server.pluginName });
                 Result.ReturnCode = ReturnCode.RunningError;
                 Result.CnDescription = "失败";
                 lstResult.Clear();
@@ -149,11 +149,15 @@ namespace WebApi.Dals
 
             List<string> lstLastUpdateTime = new List<string>() { "19700101" };
 
-            List<string> lstSymbol = new List<string>();
+            //List<string> lstSymbol = new List<string>();
             List<string> lstAccount = new List<string>();
-            List<int> lstLevelID = new List<int>();
+            List<int> lstLeverage = new List<int>();
+            //List<int> lstLevelID = new List<int>();
 
             DateTime dtLastUpdateTime;
+
+            DateTime dtRuleStartTime, dtRuleEndTime;
+            int intRuleHedgeLeverage = 100;
 
             try
             {
@@ -166,63 +170,60 @@ namespace WebApi.Dals
                 {
                     if (Rule.Status == "1")
                     {
-                        Rule.Levels.ForEach(Level =>
+                        Rule.RulesRelationList.ForEach(RuleRelation =>
                         {
-                            lstLevelID.Add(Level.levelId);
-                            Level.LevelGradeList.ForEach(RangeInfo =>
+                            RuleRelation.Level.LevelGradeList.ForEach(Level =>
                             {
                                 lstRange.Add(new DynamicLeverageSettingRangeInfo
                                 {
-                                    InfoID = Level.levelId,
-                                    From = Convert.ToInt32(Math.Round(RangeInfo.Begin * 100, 0)),
-                                    To = Convert.ToInt32(Math.Round(RangeInfo.End * 100, 0)),
-                                    Leverage = RangeInfo.Lever
+                                    From = Convert.ToInt32(Math.Round(Level.Begin * 100, 0)),
+                                    To = Convert.ToInt32(Math.Round(Level.End * 100, 0)),
+                                    Leverage = Level.Lever
                                 });
+                                lstLeverage.Add(Level.Lever);
                             });
-                            if (DateTime.TryParse(Level.UpdateTime, out dtLastUpdateTime)) { lstLastUpdateTime.Add(dtLastUpdateTime.ToString("yyyyMMddHHmmss")); }
-                        });
+                            if (DateTime.TryParse(RuleRelation.Level.UpdateTime, out dtLastUpdateTime)) { lstLastUpdateTime.Add(dtLastUpdateTime.ToString("yyyyMMddHHmmss")); }
 
-                        Rule.Symbols.ForEach(sym =>
-                        {
-                            if (DateTime.TryParse(sym.UpdateTime, out dtLastUpdateTime)) { lstLastUpdateTime.Add(dtLastUpdateTime.ToString("yyyyMMddHHmmss")); }
+                            if (DateTime.TryParse(RuleRelation.Symbols.UpdateTime, out dtLastUpdateTime)) { lstLastUpdateTime.Add(dtLastUpdateTime.ToString("yyyyMMddHHmmss")); }
 
-                            lstSymbol = sym.Type == "1" ? sym.SecName.Split(',').ToList() : sym.Symbol.Split(',').ToList();
-                            lstSymbol.ForEach(symInfo =>
+                            lstSettingInfo.Add(new DynamicLeverageSettingInfo
                             {
-                                lstLevelID.ForEach(LevelID =>
-                                {
-                                    lstSettingInfo.Add(new DynamicLeverageSettingInfo
-                                    {
-                                        Symbol = sym.Type == "2" ? symInfo : "*",
-                                        Sec = sym.Type == "1" ? symInfo : "*",
-                                        Ranges = new CommonDAL().DeepCopy<List<DynamicLeverageSettingRangeInfo>>(lstRange.Where(RangeInfo => RangeInfo.InfoID == LevelID).ToList()),
-                                        ExcludeSymbols = (sym.Type == "2" || string.IsNullOrEmpty(sym.Symbol)) ? new List<string>() : new List<string>(sym.Symbol.Split(','))
-                                    });
-                                });
+                                Symbol = RuleRelation.Symbols.Type == "2" ? RuleRelation.Symbols.Symbol : "*",
+                                Sec = RuleRelation.Symbols.Type == "1" ? RuleRelation.Symbols.SecName : "*",
+                                Ranges = new CommonDAL().DeepCopy<List<DynamicLeverageSettingRangeInfo>>(lstRange),
+                                ExcludeSymbols = (RuleRelation.Symbols.Type == "2" || string.IsNullOrEmpty(RuleRelation.Symbols.Symbol)) ? new List<string>() : new List<string>(RuleRelation.Symbols.Symbol.Split(','))
                             });
+
+                            lstRange.Clear();
                         });
 
-                        Rule.Accounts.ForEach(acc =>
+                        if (DateTime.TryParse(Rule.Account.UpdateTime, out dtLastUpdateTime)) { lstLastUpdateTime.Add(dtLastUpdateTime.ToString("yyyyMMddHHmmss")); }
+
+                        if (!DateTime.TryParse(Rule.StartTime, out dtRuleStartTime)) { dtRuleStartTime = DateTime.Parse("1970-01-01 0:0:0"); }
+                        if (!DateTime.TryParse(Rule.EndTime, out dtRuleEndTime)) { dtRuleEndTime = DateTime.Parse(DateTime.Today.ToString("yyyy-MM-dd") + " 23:59:59"); }
+
+                        if (!int.TryParse(Rule.hedgingLeverage, out intRuleHedgeLeverage)) { intRuleHedgeLeverage = lstLeverage.Min(); }
+
+                        lstAccount = Rule.Account.Type == "1" ? Rule.Account.MTGroups.Split(',').ToList() : Rule.Account.MTLogins.Split(',').ToList();
+                        lstAccount.ForEach(accInfo =>
                         {
-                            if (DateTime.TryParse(acc.UpdateTime, out dtLastUpdateTime)) { lstLastUpdateTime.Add(dtLastUpdateTime.ToString("yyyyMMddHHmmss")); }
-
-                            lstAccount = acc.Type == "1" ? acc.MTGroups.Split(',').ToList() : acc.MTLogins.Split(',').ToList();
-                            lstAccount.ForEach(accInfo =>
+                            lstResult.Add(new DynamicLeverageSetting
                             {
-                                lstResult.Add(new DynamicLeverageSetting
-                                {
-                                    Login = acc.Type == "2" ? UInt64.Parse(accInfo) : 0,
-                                    Name = acc.Type == "1" ? accInfo : "*",
-                                    ExcludeLogins = (acc.Type == "2" || string.IsNullOrEmpty(acc.MTLogins)) ? new List<ulong>() : new List<UInt64>(acc.MTLogins.Split(',').Select(UInt64.Parse).ToArray()),
-                                    Settings = new CommonDAL().DeepCopy<List<DynamicLeverageSettingInfo>>(lstSettingInfo)
-                                });
+                                Login = Rule.Account.Type == "2" ? UInt64.Parse(accInfo) : 0,
+                                Name = Rule.Account.Type == "1" ? accInfo : "*",
+                                RuleMode = (DynamicLeverageRuleMode)Enum.Parse(typeof(DynamicLeverageRuleMode), Rule.Type),
+                                StartTime = dtRuleStartTime.ToString("yyyy-MM-dd HH:mm:ss"),
+                                EndTime = dtRuleEndTime.ToString("yyyy-MM-dd HH:mm:ss"),
+                                HedgeLeverage = intRuleHedgeLeverage,
+                                ExcludeLogins = (Rule.Account.Type == "2" || string.IsNullOrEmpty(Rule.Account.MTLogins)) ? new List<ulong>() : new List<UInt64>(Rule.Account.MTLogins.Split(',').Select(UInt64.Parse).ToArray()),
+
+                                Settings = new CommonDAL().DeepCopy<List<DynamicLeverageSettingInfo>>(lstSettingInfo)
                             });
                         });
+
+                        lstLeverage.Clear();
+                        lstSettingInfo.Clear();
                     }
-
-                    lstLevelID.Clear();
-                    lstRange.Clear();
-                    lstSettingInfo.Clear();
                 });
             }
             catch (Exception ex)

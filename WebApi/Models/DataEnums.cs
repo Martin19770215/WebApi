@@ -25,4 +25,11 @@ namespace WebApi.Models
         UPDATE_DELETE_POSITION,
         UPDATE_RESOTRE_POSITION
     }
+
+    public enum DynamicLeverageRuleMode
+    {
+        NetPosition=1,
+        DailyEquity,
+        WeeklyEquity
+    }
 }

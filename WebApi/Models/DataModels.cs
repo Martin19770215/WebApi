@@ -128,13 +128,24 @@ namespace WebApi.Models
         public string UpdateTime { get; set; }
     }
 
+    [Serializable]
+    public class MonitorDynamicLeverageRulesRelation
+    {
+        public MonitorDynamicLeverageLevelInfo Level { get; set; }
+        public MonitorDynamicLeverageSymbolInfo Symbols { get; set; }
+    }
     public class MonitorDynamicLeverageRuleInfo
     {
         //public string ruleName { get; set; }
+        public string Type { get; set; }
         public string Status { get; set; }
-        public List<MonitorDynamicLeverageLevelInfo> Levels { get; set; }
-        public List<MonitorDynamicLeverageAccountInfo> Accounts { get; set; }
-        public List<MonitorDynamicLeverageSymbolInfo> Symbols { get; set; }
+        public string StartTime { get; set; }
+        public string EndTime { get; set; }
+        public string hedgingLeverage { get; set; }
+        public MonitorDynamicLeverageAccountInfo Account { get; set; }
+        public List<MonitorDynamicLeverageRulesRelation> RulesRelationList { get; set; }
+        //public List<MonitorDynamicLeverageLevelInfo> Levels { get; set; }
+        //public List<MonitorDynamicLeverageSymbolInfo> Symbols { get; set; }
     }
     #endregion
 
@@ -217,6 +228,10 @@ namespace WebApi.Models
         public string Name { get; set; }            //组名
         public UInt64 Login { get; set; }              //账号
         public List<UInt64> ExcludeLogins { get; set; }       //需要排除的账号
+        public DynamicLeverageRuleMode RuleMode { get; set; }
+        public string StartTime { get; set; }
+        public string EndTime { get; set; }
+        public int HedgeLeverage { get; set; }       //锁仓使用的杠杆
         public List<DynamicLeverageSettingInfo> Settings { get; set; }
     }
 

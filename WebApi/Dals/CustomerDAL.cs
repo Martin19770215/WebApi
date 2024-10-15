@@ -88,9 +88,11 @@ namespace WebApi.Dals
             ReturnModel<List<MasterAccount>> Result = new ReturnModel<List<MasterAccount>>() { ReturnCode = ReturnCode.OK, CnDescription = "成功", EnDescription = "Successfully" };
             List<MasterAccount> lstResult = new List<MasterAccount>();
             List<SlaveAccount> lstSlave = new List<SlaveAccount>();
+            List<SymbolRelations> lstSymbols = new List<SymbolRelations>();
 
-            string sSqlSelectMaster = $"SELECT * FROM PAMM_MasterAcc WHERE AccountName='{AccountName}';";
-            string sSqlSelectSlave = $"SELECT * FROM PAMM_SlaveAcc WHERE AccountName='{AccountName}';";
+            string sSqlSelectMaster = $"SELECT * FROM PAMM_MasterAcc WHERE AccountName in ({AccountName}) AND IsDelete='N';";
+            string sSqlSelectSlave = $"SELECT * FROM PAMM_SlaveAcc WHERE AccountName in ({AccountName}) AND IsDelete='N';";
+            string sSqlSelectSymbols = $"SELECT * FROM PAMM_SymbolRelations WHERE AccountName in ({AccountName}) AND IsDelete='N';";
 
             MasterAccount masteracc = new MasterAccount();
 
@@ -102,38 +104,44 @@ namespace WebApi.Dals
                     lstResult.Add(new MasterAccount
                     {
                         Login = UInt64.Parse(mDr["AccNo"].ToString()),
-                        IsDelete = mDr["IsDelete"].ToString() == "Y",
+                        //IsDelete = mDr["IsDelete"].ToString() == "Y",
                         Comment = mDr["Comment"].ToString(),
-                        CreateTime = DateTime.Parse(mDr["CreateTime"].ToString()),
-                        sCreateTime = mDr["CreateTime"].ToString(),
+                        //CreateTime = DateTime.Parse(mDr["CreateTime"].ToString()),
+                        //sCreateTime = mDr["CreateTime"].ToString(),
                         SlaveCount = 0,
                         Slaves = new List<SlaveAccount>()
                     });
                 }
                 if (isIncludeSlave)
                 {
+                    ds = ws_mysql.ExecuteDataSetBySQL(sSqlSelectSymbols, PublicConst.Database);
+                    foreach (DataRow mDr in ds.Tables[0].Rows)
+                    {
+                        lstSymbols.Add(new SymbolRelations {
+                            MasterAcc=UInt64.Parse(mDr["MasterAcc"].ToString()),
+                            SlaveAcc=UInt64.Parse(mDr["SlaveAcc"].ToString()),
+                            MasterSymbol=mDr["MasterSymbol"].ToString(),
+                            SlaveSymbol=mDr["SlaveSymbol"].ToString(),
+                        });
+                    }
+
                     ds = ws_mysql.ExecuteDataSetBySQL(sSqlSelectSlave, PublicConst.Database);
                     foreach (DataRow mDr in ds.Tables[0].Rows)
                     {
                         lstSlave.Add(new SlaveAccount
                         {
                             Login = UInt64.Parse(mDr["SlaveAcc"].ToString()),
-                            //Symbol = mDr["Symbol"].ToString(),
-                            Symbol = "*",
-                            //Suffix = mDr["Suffix"].ToString(),
-                            //Prefix = mDr["Prefix"].ToString(),
+                            Reverse=mDr["Reverse"].ToString()=="Y",
                             Delay = int.Parse(mDr["Delay"].ToString()),
                             //ProportionType = mDr["ProportionType"].ToString(),
                             ProportionType = mDr["Proportion_Type"].ToString(),
                             Proportion = double.Parse(mDr["Proportion"].ToString()),
-                            //Pedding = mDr["Pedding"].ToString() == "Y",
-                            //SL = mDr["SL"].ToString() == "Y",
-                            //TP = mDr["TP"].ToString() == "Y",
-                            SL=mDr["IsSL"].ToString()=="Y",
-                            TP=mDr["IsTP"].ToString()=="Y",
+                            Pedding = mDr["IsPedding"].ToString() == "Y",
+                            SL = mDr["IsSL"].ToString() == "Y",
+                            TP = mDr["IsTP"].ToString() == "Y",
                             IsFollowClosedOrder = mDr["IsFollowClosedOrder"].ToString() == "Y",
-                            MasterLogin = UInt64.Parse(mDr["MasterAcc"].ToString())
-
+                            MasterLogin = UInt64.Parse(mDr["MasterAcc"].ToString()),
+                            Symbols=lstSymbols.Where(acc=>acc.MasterAcc== UInt64.Parse(mDr["MasterAcc"].ToString()) && acc.SlaveAcc== UInt64.Parse(mDr["SlaveAcc"].ToString())).ToList<SymbolRelations>()
                         });
                     }
                 }

@@ -28,6 +28,8 @@ namespace WebApi.Controllers
             }
         }
 
+        #region DynamicLeverage
+
         [HttpPost]
         public object getDynamicLeverageSettingsList(PluginServerInfo Server)
         {
@@ -77,6 +79,18 @@ namespace WebApi.Controllers
             ReturnCodeInfo Result = new MTWebApiDAL().DynamicLeverage_UploadUserList(UserList.Server, UserList.TimeStamp, UserList.CurTime,UserList.Weekday, UserList.Users);
             return Result.code;
         }
+
+        #endregion
+
+        #region Copy Trader
+        [HttpPost]
+        public object getCopyTraderSettingsList(PluginServerInfo Server)
+        {
+            ReturnModel<List<MasterAccount>> lstCopyTraderResult = new MTWebApiDAL().COPYTRADER_GetMasterList(Server, true);
+            return new { MasterAccounts = lstCopyTraderResult.Values };
+        }
+        #endregion
+
 
         [HttpPost]
         public object getAdvMCSORules(PluginServerInfo Server)

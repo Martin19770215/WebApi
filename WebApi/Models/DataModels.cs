@@ -165,29 +165,34 @@ namespace WebApi.Models
     #endregion
 
     #region Copy Trader
+    public class MasterAccount
+    {
+        public UInt64 Login { get; set; }
+        public int SlaveCount { get; set; }
+        //public bool IsDelete { get; set; }
+        public string Comment { get; set; }
+        //public DateTime CreateTime { get; set; }
+        //public string sCreateTime { get; set; }
+        public List<SlaveAccount> Slaves { get; set; }
+    }
     public class SlaveAccount {
         public UInt64 Login { get; set; }                          
-        public string Symbol { get; set; }                      //跟随商品（主帐户）
-        public string Suffix { get; set; }                      //子账户商品后缀
-        public string Prefix { get; set; }                      //子账户商品前缀
         public int Delay { get; set; }                          //延时时长（秒）
         public string ProportionType { get; set; }              //跟随类型：Open，Solid，Euqity
         public double Proportion { get; set; }                  //跟随比例
+        public bool Reverse { get; set; }                       //是否反向跟单
         public bool Pedding { get; set; }                       //是否跟随挂单
         public bool SL { get; set; }                            //是否跟随止损
         public bool TP { get; set; }                            //是否跟随止盈
         public bool IsFollowClosedOrder { get; set; }           //是否跟随平仓订单（MT4）
         public UInt64 MasterLogin { get; set; }                    //跟随的主账号
+        public List<SymbolRelations> Symbols { get; set; }
     }
-
-    public class MasterAccount {
-        public UInt64 Login { get; set; }
-        public int SlaveCount { get; set; }
-        public bool IsDelete { get; set; }
-        public string Comment { get; set; }
-        public DateTime CreateTime { get; set; }
-        public string sCreateTime { get; set; }
-        public List<SlaveAccount> Slaves { get; set; }
+    public class SymbolRelations {
+        public UInt64 MasterAcc { get; set; }
+        public UInt64 SlaveAcc { get; set; }
+        public string MasterSymbol { get; set; }
+        public string SlaveSymbol { get; set; }
     }
     #endregion
 

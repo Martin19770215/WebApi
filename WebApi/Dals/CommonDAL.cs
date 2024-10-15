@@ -77,14 +77,23 @@ namespace WebApi.Dals
         public PluginModuleInfo getPluginModuleInfo(PluginServerInfo Server)
         {
             PluginModuleInfo Result = new PluginModuleInfo();
-            string strSqlSelect = $"SELECT * FROM MT_PluginModule WHERE MainLableName='{Server.mainLableName}' AND MTType='{Server.mtType}' AND PluginName='{Server.pluginName}' AND ModuleName='{Server.moduleName}' AND SettingName='{Server.settingName}';";
+            string PluginName = Server.moduleName == "CopyTrader" ? "PAMM" : Server.moduleName;
+            List<string> lstAccount = new List<string>();
 
+            string strSqlSelect = $"SELECT * FROM MT_PluginModule WHERE MainLableName='{Server.mainLableName}' AND MTType='{Server.mtType}' AND PluginName='{Server.pluginName}' AND ModuleName='{Server.moduleName}' AND SettingName='{Server.settingName}';";
+            string strSqlAccount = $"SELECT AccountName FROM pluginorders WHERE MainLableName='{Server.mainLableName}' AND MTType='{Server.mtType}' AND PluginName='{PluginName}' AND IsDelete='N' AND ValidDate>='{DateTime.Today.ToString("yyyy-MM-dd HH:mm:ss")}';";
             try
             {
-                DataSet ds= ws_mysql.ExecuteDataSetBySQL(strSqlSelect, PublicConst.Database);
+                DataSet ds = ws_mysql.ExecuteDataSetBySQL(strSqlAccount, PublicConst.Database);
                 foreach (DataRow mDr in ds.Tables[0].Rows)
                 {
-                    Result.AccountName = mDr["AccountName"].ToString();
+                    lstAccount.Add("'" + mDr["AccountName"].ToString() + "'");
+                }
+
+                ds = ws_mysql.ExecuteDataSetBySQL(strSqlSelect, PublicConst.Database);
+                foreach (DataRow mDr in ds.Tables[0].Rows)
+                {
+                    Result.AccountName = string.Join(",", lstAccount);
                     Result.MainLableName = mDr["MainLableName"].ToString();
                     Result.MTType = mDr["MTType"].ToString();
                     Result.PluginName = mDr["PluginName"].ToString();
@@ -93,6 +102,7 @@ namespace WebApi.Dals
                     Result.SettingName = mDr["SettingName"].ToString();
                     Result.SettingURL = mDr["SettingURL"].ToString();
                 }
+
             }
             catch
             {

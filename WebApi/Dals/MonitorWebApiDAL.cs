@@ -41,7 +41,7 @@ namespace WebApi.Dals
                         startDate = dtStart.ToString("yyyy-MM-dd HH:mm:ss"),
                         endDate = dtEnd.ToString("yyyy-MM-dd HH:mm:ss"),
                         availableDay = (dtEnd - DateTime.Now.Date).Days,
-                        enable = mDr["IsDelete"].ToString().Trim().ToUpper() == "Y",
+                        enable = mDr["IsDelete"].ToString().Trim().ToUpper() == "N",
                         restartKey = mDr["RestartKey"].ToString().Trim()
                     });
                 }
@@ -150,6 +150,7 @@ namespace WebApi.Dals
             List<string> lstLastUpdateTime = new List<string>() { "19700101" };
 
             //List<string> lstSymbol = new List<string>();
+            List<string> lstSec = new List<string>();
             List<string> lstAccount = new List<string>();
             List<int> lstLeverage = new List<int>();
             //List<int> lstLevelID = new List<int>();
@@ -186,20 +187,31 @@ namespace WebApi.Dals
 
                             if (DateTime.TryParse(RuleRelation.Symbols.UpdateTime, out dtLastUpdateTime)) { lstLastUpdateTime.Add(dtLastUpdateTime.ToString("yyyyMMddHHmmss")); }
 
-                            lstSettingInfo.Add(new DynamicLeverageSettingInfo
-                            {
-                                Symbol = RuleRelation.Symbols.Type == "2" ? RuleRelation.Symbols.Symbol : "*",
-                                Sec = RuleRelation.Symbols.Type == "1" ? RuleRelation.Symbols.SecName : "*",
-                                Ranges = new CommonDAL().DeepCopy<List<DynamicLeverageSettingRangeInfo>>(lstRange),
-                                ExcludeSymbols = (RuleRelation.Symbols.Type == "2" || string.IsNullOrEmpty(RuleRelation.Symbols.Symbol)) ? new List<string>() : new List<string>(RuleRelation.Symbols.Symbol.Split(','))
+                            //lstSymbol = RuleRelation.Symbols.Type == "2" ? new List<string>(RuleRelation.Symbols.Symbol.Split(',')) : new List<string> { "*" };
+                            lstSec = RuleRelation.Symbols.Type == "1" ? new List<string>(RuleRelation.Symbols.SecName.Split(',')) : new List<string> { "*" };
+
+
+                            //lstSymbol.ForEach(sym => {
+                                lstSec.ForEach(sec => {
+                                    lstSettingInfo.Add(new DynamicLeverageSettingInfo
+                                    {
+                                        //Symbol = sym,
+                                        Symbol= RuleRelation.Symbols.Type == "2" ? RuleRelation.Symbols.Symbol : "*",
+                                        Sec = sec,
+                                        Ranges = new CommonDAL().DeepCopy<List<DynamicLeverageSettingRangeInfo>>(lstRange),
+                                        ExcludeSymbols = (RuleRelation.Symbols.Type == "2" || string.IsNullOrEmpty(RuleRelation.Symbols.Symbol)) ? new List<string>() : new List<string>(RuleRelation.Symbols.Symbol.Split(','))
+                                    });
+                                //});
                             });
 
                             lstRange.Clear();
+                            //lstSymbol.Clear();
+                            lstSec.Clear(); 
                         });
 
                         if (DateTime.TryParse(Rule.Account.UpdateTime, out dtLastUpdateTime)) { lstLastUpdateTime.Add(dtLastUpdateTime.ToString("yyyyMMddHHmmss")); }
 
-                        if (!DateTime.TryParse(Rule.StartTime, out dtRuleStartTime)) { dtRuleStartTime = DateTime.Parse("1970-01-01 0:0:0"); }
+                        if (!DateTime.TryParse(Rule.StartTime, out dtRuleStartTime)) { dtRuleStartTime = DateTime.Parse("1970-01-01 0:0:1"); }
                         if (!DateTime.TryParse(Rule.EndTime, out dtRuleEndTime)) { dtRuleEndTime = DateTime.Parse(DateTime.Today.ToString("yyyy-MM-dd") + " 23:59:59"); }
 
                         if (!int.TryParse(Rule.hedgingLeverage, out intRuleHedgeLeverage)) { intRuleHedgeLeverage = lstLeverage.Min(); }

@@ -24,9 +24,9 @@ namespace WebApi.Dals
 
             PluginModuleInfo ModuleInfo = new CommonDAL().getPluginModuleInfo(Server);
 
-            string strSqlSelect = $"SELECT SettingURL FROM MT_PluginModule WHERE MainLableName='{Server.mainLableName}' AND MTType='{Server.mtType}' AND PluginName='{Server.pluginName}' AND ModuleName='{Server.moduleName}' AND SettingName='{Server.settingName}';";
+            //string strSqlSelect = $"SELECT SettingURL FROM MT_PluginModule WHERE MainLableName='{Server.mainLableName}' AND MTType='{Server.mtType}' AND PluginName='{Server.pluginName}' AND ModuleName='{Server.moduleName}' AND SettingName='{Server.settingName}';";
             string strPostData = "{\"server\":{\"mainLableName\":\"" + Server.mainLableName + "\",\"mTType\":\"" + Server.mtType + "\",\"pluginName\":\"" + Server.moduleName + "\"},\"symbolList\":[";
-            string strPostResult = "";
+            MonitorReturnInfo PostResult = new MonitorReturnInfo();
 
             List<string> lstSql = new List<string>() { $"DELETE FROM MT_Symbol WHERE MainLableName='{Server.mainLableName.Trim()}' AND MTType='{Server.mtType}';" };
             List<string> lstPostData = new List<string>();
@@ -53,7 +53,7 @@ namespace WebApi.Dals
 
             try
             {
-                strPostResult = ModuleInfo.SettingURL;
+                PostResult = Newtonsoft.Json.JsonConvert.DeserializeObject<MonitorReturnInfo>(ws_common.Post(ModuleInfo.SettingURL, strPostData));
 
                 Result.code = ws_mysql.ExecuteTransactionBySql(lstSql.ToArray(), PublicConst.Database) ? ReturnCode.OK : ReturnCode.SQL_TransactionErr;
                 //lstSql.ForEach(sql => {
@@ -121,20 +121,22 @@ namespace WebApi.Dals
             {
                 PluginModuleInfo ModuleInfo = new CommonDAL().getPluginModuleInfo(Server);
 
-                switch (ModuleInfo.PluginType)
+                if (!ModuleInfo.IsExpired)
                 {
-                    case "Monitor":
-                        Result = new MonitorWebApiDAL().getRemoteJsonString(new MonitorPluginInfo() { mainLableName = Server.mainLableName, mtType = Server.mtType, pluginName = Server.moduleName }, ModuleInfo.SettingURL);
-                        break;
-                    case "CRM":
+                    switch (ModuleInfo.PluginType)
+                    {
+                        case "Monitor":
+                            Result = new MonitorWebApiDAL().getRemoteJsonString(new MonitorPluginInfo() { mainLableName = Server.mainLableName, mtType = Server.mtType, pluginName = Server.moduleName }, ModuleInfo.SettingURL);
+                            break;
+                        case "CRM":
 
-                        break;
-                    default:
-                        //自身系统
-                        Result = new CustomerDAL().DYNAMICLEVERAGE_GetSettingList(Server);
-                        break;
+                            break;
+                        default:
+                            //自身系统
+                            Result = new CustomerDAL().DYNAMICLEVERAGE_GetSettingList(Server);
+                            break;
+                    }
                 }
-
                 //DataSet dt = ws_mysql.ExecuteDataSetBySQL(sSelect, PublicConst.Database);
                 //foreach (DataRow mDr in dt.Tables[0].Rows)
                 //{
@@ -285,11 +287,8 @@ namespace WebApi.Dals
             List<UInt64> lstSqlUser = new List<UInt64>();
 
             string sSQLUserCheck = $"SELECT Login FROM Riskmanagement_DynamicLeverageUser WHERE MainLableName='{Server.mainLableName.Trim()}' AND MTType='{Server.mtType}';";
-            //string sSQLUserUpdate = "";
 
             DateTime dt;
-            //int intResult = 0;
-            //int intCount = 0;
 
             if ((CurTimeStamp == 0) || (!DateTime.TryParse(CurTime, out dt))) { Result.code = ReturnCode.DATA_TimeStampError; return Result; }
 
@@ -307,27 +306,16 @@ namespace WebApi.Dals
                     {
                         if ((DayOfWeek)WeekDay == DayOfWeek.Sunday)
                             lstSql.Add($"UPDATE Riskmanagement_DynamicLeverageUser SET EquityDaily={user.EquityDaily},EquityWeekly={user.EquityDaily},CurTimeStamp={CurTimeStamp},CurTime='{CurTime}',WeekDay={WeekDay} WHERE MainLableName='{Server.mainLableName.Trim()}' AND MTType='{Server.mtType}' AND Login={user.Login};");
-                        //sSQLUserUpdate =$"UPDATE Riskmanagement_DynamicLeverageUser SET EquityDaily={user.EquityDaily},EquityWeekly={user.EquityDaily},CurTimeStamp={CurTimeStamp},CurTime='{CurTime}',WeekDay={WeekDay} WHERE MainLableName='{Server.mainLableName.Trim()}' AND MTType='{Server.mtType}' AND Login={user.Login}";
                         else
                             lstSql.Add($"UPDATE Riskmanagement_DynamicLeverageUser SET EquityDaily={user.EquityDaily},CurTimeStamp={CurTimeStamp},CurTime='{CurTime}',WeekDay={WeekDay} WHERE MainLableName='{Server.mainLableName.Trim()}' AND MTType='{Server.mtType}' AND Login={user.Login};");
-                            //sSQLUserUpdate=$"UPDATE Riskmanagement_DynamicLeverageUser SET EquityDaily={user.EquityDaily},CurTimeStamp={CurTimeStamp},CurTime='{CurTime}',WeekDay={WeekDay} WHERE MainLableName='{Server.mainLableName.Trim()}' AND MTType='{Server.mtType}' AND Login={user.Login}";
                     }
                     else
                     {
                         lstSql.Add($"INSERT INTO Riskmanagement_DynamicLeverageUser VALUES(NULL,{user.Login},{user.EquityDaily},{user.EquityDaily},{CurTimeStamp},'{CurTime}',{WeekDay},'{Server.mainLableName.Trim()}','{Server.mtType}');");
-                        //sSQLUserUpdate=$"INSERT INTO Riskmanagement_DynamicLeverageUser VALUES(NULL,{user.Login},{user.EquityDaily},{user.EquityDaily},{CurTimeStamp},'{CurTime}',{WeekDay},'{Server.mainLableName.Trim()}','{Server.mtType}')";
                     }
-
-                    //intCount= ws_mysql.ExecuteNonQuery(param.ToArray(), PublicConst.CommandTypeDefault, sSQLUserUpdate, PublicConst.Database);
-
-                    //if (intCount !=1) {
-                    //    intCount = user.Login;
-                    //}
-                    //intResult += intCount;
                 });
 
                 Result.code = ws_mysql.ExecuteTransactionBySql(lstSql.ToArray(), PublicConst.Database) ? ReturnCode.OK : ReturnCode.SQL_TransactionErr;
-                //Result.code = intResult == Users.Count ? ReturnCode.OK : ReturnCode.SQL_TransactionErr;
 
             }
             catch (Exception ex)

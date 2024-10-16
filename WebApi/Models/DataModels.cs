@@ -60,6 +60,7 @@ namespace WebApi.Models
         public string ModuleName { get; set; }
         public string SettingName { get; set; }
         public string SettingURL { get; set; }
+        public bool IsExpired { get; set; }
     }
     #endregion
 
@@ -69,6 +70,13 @@ namespace WebApi.Models
         public string mtType { get; set; }
         public string pluginName { get; set; }
 
+    }
+
+    public class MonitorReturnInfo {
+        public ReturnCode returnCode { get; set; }
+        public string cnDescription { get; set; }
+        public string enDescription { get; set; }
+        public string value { get; set; }
     }
 
     #region Dynamic Leverage

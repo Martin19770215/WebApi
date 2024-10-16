@@ -90,6 +90,8 @@ namespace WebApi.Dals
                     lstAccount.Add("'" + mDr["AccountName"].ToString() + "'");
                 }
 
+                Result.IsExpired = lstAccount.Count <= 0;
+
                 ds = ws_mysql.ExecuteDataSetBySQL(strSqlSelect, PublicConst.Database);
                 foreach (DataRow mDr in ds.Tables[0].Rows)
                 {

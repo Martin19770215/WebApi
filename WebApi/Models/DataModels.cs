@@ -155,6 +155,21 @@ namespace WebApi.Models
         //public List<MonitorDynamicLeverageLevelInfo> Levels { get; set; }
         //public List<MonitorDynamicLeverageSymbolInfo> Symbols { get; set; }
     }
+
+    public class MonitorDynamicLeverageCreditExposure {
+        public uint account { get; set; }                       //Login
+        public string name { get; set; }                        //帐户名称
+        public string group { get; set; }                       //帐户所在组
+        public double balance { get; set; }                     //帐户余额
+        public double credit { get; set; }                      //帐户信用额
+        public double equity { get; set; }                      //帐户净值
+        public double freeMargin { get; set; }                  //可用保证金
+        public double marginLevel { get; set; }                 //保证金杠杆
+        public string marginRule { get; set; }                  //使用的规则名称
+        public string lastLoginTime { get; set; }               //最后登录时间
+        public string lastTradingTime { get; set; }             //最后交易时间
+        public double pl { get; set; }                          //帐户盈亏
+    }
     #endregion
 
 

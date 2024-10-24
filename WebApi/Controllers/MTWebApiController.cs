@@ -80,6 +80,12 @@ namespace WebApi.Controllers
             return Result.code;
         }
 
+        [HttpPost]
+        public object UploadDynamicLeverageUserList(DynamicLeverageSymbolSummary Info)
+        {
+            ReturnCodeInfo Result = new ReturnCodeInfo();
+            return Result.code;
+        }
         #endregion
 
         #region Copy Trader

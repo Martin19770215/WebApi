@@ -135,6 +135,59 @@ namespace WebApi.Dals
 
         #endregion
 
+        #region 获取  LevelDetail
+        public ReturnModel<List<MonitorDynamicLeverageSymbolSummary>> getLevelDetail(MonitorPluginInfo Server, uint Login)
+        {
+            ReturnModel<List<MonitorDynamicLeverageSymbolSummary>> Result = new ReturnModel<List<MonitorDynamicLeverageSymbolSummary>>() { ReturnCode = ReturnCode.OK, CnDescription = "成功" };
+            List<MonitorDynamicLeverageSymbolSummary> lstResult = new List<MonitorDynamicLeverageSymbolSummary>();
+            List<MonitoryDynamicLeverageSymbolLevelDetail> lstSubResult = new List<MonitoryDynamicLeverageSymbolLevelDetail>();
+
+
+            string sSqlSelect = $"SELECT Symbol,HedgeVolume FROM RiskManagement_DynamicLeverageSymbolSummary WHERE MainLableName='{Server.mainLableName}' AND MTType='{Server.mtType}' AND Login={Login}";
+            string sSqlSubSelect = $"SELECT * FROM RiskManagement_DynamicLeverageSymbolLevelDetail WHERE MainLableName='{Server.mainLableName}' AND MTType='{Server.mtType}' AND Login={Login}";
+            try
+            {
+                DataSet ds = ws_mysql.ExecuteDataSetBySQL(sSqlSubSelect, PublicConst.Database);
+                foreach (DataRow mDr in ds.Tables[0].Rows)
+                {
+                    lstSubResult.Add(new MonitoryDynamicLeverageSymbolLevelDetail {
+                        login = Login,
+                        symbol = mDr["Symbol"].ToString(),
+                        levelFrom = Math.Round(int.Parse(mDr["LevelFrom"].ToString()) / 100.00, 2),
+                        levelTo = Math.Round(int.Parse(mDr["LevelTo"].ToString()) / 100.00, 2),
+                        leverage = uint.Parse(mDr["LevelLeverage"].ToString()),
+                        netVolume = Math.Round(uint.Parse(mDr["NetVolume"].ToString()) / 100.00, 2),
+                        levelMargin = Math.Round(double.Parse(mDr["LevelMargin"].ToString()), 2),
+                        updateTime=string.Format( mDr["UpdateTime"].ToString(),"yyyy-MM-dd HH:mm:ss")
+                    });
+                }
+
+                ds = ws_mysql.ExecuteDataSetBySQL(sSqlSelect, PublicConst.Database);
+                foreach (DataRow mDr in ds.Tables[0].Rows)
+                {
+                    lstResult.Add(new MonitorDynamicLeverageSymbolSummary {
+                        login=Login,
+                        symbol=mDr["Symbol"].ToString(),
+                        hedgeVolume=Math.Round( uint.Parse( mDr["HedgeVolume"].ToString())/100.00,2),
+                        details=lstSubResult.Where(level=>level.symbol==mDr["Symbol"].ToString()).ToList<MonitoryDynamicLeverageSymbolLevelDetail>()
+                    });
+                }
+
+                Result.Values = lstResult;
+            }
+            catch (Exception ex)
+            {
+                new CommonDAL().UploadErrMsg(Server, new ErrMsg { ErrorMsg = ex.Message, RouteName = "MonitorWebApi/getLevelDetail/" + Server.pluginName+"/Login="+Login.ToString() });
+                Result.ReturnCode = ReturnCode.RunningError;
+                Result.CnDescription = "失败";
+                lstResult.Clear();
+            }
+
+            return Result;
+
+        }
+        #endregion
+
         #region Private ProcuduresOrFunctions
         private ReturnModel<List<DynamicLeverageSetting>> getDynamicLeverageSettingList(MonitorPluginInfo Server, string sJsonSetting)
         {

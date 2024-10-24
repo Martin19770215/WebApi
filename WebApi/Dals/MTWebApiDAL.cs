@@ -329,72 +329,79 @@ namespace WebApi.Dals
         #endregion
 
         #region 上传帐户信息（帐户资金情况，帐户持仓情况，每25秒更新）
-        public ReturnCodeInfo DynamicLeverage_UpdloadAccountList(PluginServerInfo Server, List<DynamicLeverageAccountSummaryInfo> Accounts)
+        public ReturnCodeInfo DynamicLeverage_UpdloadAccountList(PluginServerInfo Server,List<DynamicLeverageSymbolSummaryNodeInfo> Symbols)
         {
             ReturnCodeInfo Result = new ReturnCodeInfo();
 
-            List<string> lstSql = new List<string>();
-            List<uint> lstSqlUser = new List<uint>();
-
-            string sSQLUserCheck = $"SELECT Login FROM RiskManagement_DynamicLeverageAccount WHERE MainLableName='{Server.mainLableName.Trim()}' AND MTType='{Server.mtType}';";
-
-            try
-            {
-                DataSet ds = ws_mysql.ExecuteDataSetBySQL(sSQLUserCheck, PublicConst.Database);
-                foreach (DataRow mDr in ds.Tables[0].Rows)
-                {
-                    lstSqlUser.Add(uint.Parse(mDr["Login"].ToString()));
-                }
-
-                Accounts.ForEach(acc =>
-                {
-                    if (lstSqlUser.Exists(SqlUser => SqlUser == acc.Login))
-                    {
-                            lstSql.Add($"UPDATE RiskManagement_DynamicLeverageAccount SET `Login`={acc.Login},`Name`='{acc.Name}',`Group`='{acc.Group}',`Balance`={acc.Balance},`Credit`={acc.Credit},`Equity`={acc.Equity},`Margin`={acc.Margin},`FreeMargin`={acc.FreeMargin},`MarginLevel`={acc.MarginLevel},`MarginRuleID`={acc.MarginRuleID},`LastLoginTime`='{acc.LastLoginTime}',`LastTradeTime`='{acc.LastTradeTime}' WHERE MainLableName='{Server.mainLableName.Trim()}' AND MTType='{Server.mtType}' AND Login={acc.Login};");
-                    }
-                    else
-                    {
-                        lstSql.Add($"INSERT INTO RiskManagement_DynamicLeverageAccount(`Login`,`Name`,`Group`,`Balance`,`Credit`,`Equity`,`Margin`,`FreeMargin`,`MarginLevel`,`MarginRuleID`,`LastLoginTime`,`LastTradeTime`,`MainLableName`,`MTType`) VALUES({acc.Login},'{acc.Name}','{acc.Group}',{acc.Balance},{acc.Credit},{acc.Equity},{acc.Margin},{acc.FreeMargin},{acc.MarginLevel},{acc.MarginRuleID},'{acc.LastLoginTime},'{acc.LastTradeTime}','{Server.mainLableName.Trim()}','{Server.mtType}');");
-                    }
-                });
-
-                lstSql.Add("UPDATE RiskManagement_DynamicLeverageAccount SET MarginRule=RiskManagement_DynamicLeverageMarginRule.RuleName FROM RiskManagement_DynamicLeverageMarginRule WHERE RiskManagement_DynamicLeverageAccount.MainLableName=RiskManagement_DynamicLeverageMarginRule.MainLableName AND RiskManagement_DynamicLeverageAccount.MTType=RiskManagement_DynamicLeverageMarginRule.MTType AND RiskManagement_DynamicLeverageAccount.MarginRuleID=RiskManagement_DynamicLeverageMarginRule.RuleID;");
-                
-
-                Result.code = ws_mysql.ExecuteTransactionBySql(lstSql.ToArray(), PublicConst.Database) ? ReturnCode.OK : ReturnCode.SQL_TransactionErr;
-            }
-            catch (Exception ex)
-            {
-                new CommonDAL().UploadErrMsg(Server, new ErrMsg { ErrorMsg = ex.Message, RouteName = "MTWebApi/UploadSymbolList/" + Server.pluginName + "/" + Server.moduleName });
-                Result.code = ReturnCode.RunningError;
-            }
-
-            string strPostUserData = "{\"server\":{\"mainLableName\":\"" + Server.mainLableName + "\",\"mTType\":\"" + Server.mtType + "\",\"pluginName\":\"" + Server.moduleName + "\"}";
-            string strPostTradeData = "{\"server\":{\"mainLableName\":\"" + Server.mainLableName + "\",\"mTType\":\"" + Server.mtType + "\",\"pluginName\":\"" + Server.moduleName + "\"}";
-
-            List<string> lstPostUser = new List<string>() ;
-            List<string> lstPostTrade = new List<string>();
-
-            PluginModuleInfo ModuleInfo = new CommonDAL().getPluginModuleInfo(Server);
-
-            string strPostUserItem = "";
-
-            switch (ModuleInfo.PluginType.ToUpper())
-            {
-                case "MONITOR":
-                    Accounts.ForEach(acc => { });
-                    break;
-                default:
-                    break;
-            }
-
-            Accounts.ForEach(acc => {
-
-            });
-
-
             return Result;
         }
+
+        //public ReturnCodeInfo DynamicLeverage_UpdloadAccountList(PluginServerInfo Server, List<DynamicLeverageAccountSummaryInfo> Accounts)
+        //{
+        //    ReturnCodeInfo Result = new ReturnCodeInfo();
+
+        //    List<string> lstSql = new List<string>();
+        //    List<uint> lstSqlUser = new List<uint>();
+
+        //    string sSQLUserCheck = $"SELECT Login FROM RiskManagement_DynamicLeverageAccount WHERE MainLableName='{Server.mainLableName.Trim()}' AND MTType='{Server.mtType}';";
+
+        //    try
+        //    {
+        //        DataSet ds = ws_mysql.ExecuteDataSetBySQL(sSQLUserCheck, PublicConst.Database);
+        //        foreach (DataRow mDr in ds.Tables[0].Rows)
+        //        {
+        //            lstSqlUser.Add(uint.Parse(mDr["Login"].ToString()));
+        //        }
+
+        //        Accounts.ForEach(acc =>
+        //        {
+        //            if (lstSqlUser.Exists(SqlUser => SqlUser == acc.Login))
+        //            {
+        //                    lstSql.Add($"UPDATE RiskManagement_DynamicLeverageAccount SET `Login`={acc.Login},`Name`='{acc.Name}',`Group`='{acc.Group}',`Balance`={acc.Balance},`Credit`={acc.Credit},`Equity`={acc.Equity},`Margin`={acc.Margin},`FreeMargin`={acc.FreeMargin},`MarginLevel`={acc.MarginLevel},`MarginRuleID`={acc.MarginRuleID},`LastLoginTime`='{acc.LastLoginTime}',`LastTradeTime`='{acc.LastTradeTime}' WHERE MainLableName='{Server.mainLableName.Trim()}' AND MTType='{Server.mtType}' AND Login={acc.Login};");
+        //            }
+        //            else
+        //            {
+        //                lstSql.Add($"INSERT INTO RiskManagement_DynamicLeverageAccount(`Login`,`Name`,`Group`,`Balance`,`Credit`,`Equity`,`Margin`,`FreeMargin`,`MarginLevel`,`MarginRuleID`,`LastLoginTime`,`LastTradeTime`,`MainLableName`,`MTType`) VALUES({acc.Login},'{acc.Name}','{acc.Group}',{acc.Balance},{acc.Credit},{acc.Equity},{acc.Margin},{acc.FreeMargin},{acc.MarginLevel},{acc.MarginRuleID},'{acc.LastLoginTime},'{acc.LastTradeTime}','{Server.mainLableName.Trim()}','{Server.mtType}');");
+        //            }
+        //        });
+
+        //        lstSql.Add("UPDATE RiskManagement_DynamicLeverageAccount SET MarginRule=RiskManagement_DynamicLeverageMarginRule.RuleName FROM RiskManagement_DynamicLeverageMarginRule WHERE RiskManagement_DynamicLeverageAccount.MainLableName=RiskManagement_DynamicLeverageMarginRule.MainLableName AND RiskManagement_DynamicLeverageAccount.MTType=RiskManagement_DynamicLeverageMarginRule.MTType AND RiskManagement_DynamicLeverageAccount.MarginRuleID=RiskManagement_DynamicLeverageMarginRule.RuleID;");
+
+
+        //        Result.code = ws_mysql.ExecuteTransactionBySql(lstSql.ToArray(), PublicConst.Database) ? ReturnCode.OK : ReturnCode.SQL_TransactionErr;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        new CommonDAL().UploadErrMsg(Server, new ErrMsg { ErrorMsg = ex.Message, RouteName = "MTWebApi/UploadSymbolList/" + Server.pluginName + "/" + Server.moduleName });
+        //        Result.code = ReturnCode.RunningError;
+        //    }
+
+        //    string strPostUserData = "{\"server\":{\"mainLableName\":\"" + Server.mainLableName + "\",\"mTType\":\"" + Server.mtType + "\",\"pluginName\":\"" + Server.moduleName + "\"}";
+        //    string strPostTradeData = "{\"server\":{\"mainLableName\":\"" + Server.mainLableName + "\",\"mTType\":\"" + Server.mtType + "\",\"pluginName\":\"" + Server.moduleName + "\"}";
+
+        //    List<string> lstPostUser = new List<string>() ;
+        //    List<string> lstPostTrade = new List<string>();
+
+        //    PluginModuleInfo ModuleInfo = new CommonDAL().getPluginModuleInfo(Server);
+
+        //    string strPostUserItem = "";
+
+        //    switch (ModuleInfo.PluginType.ToUpper())
+        //    {
+        //        case "MONITOR":
+        //            Accounts.ForEach(acc => { });
+        //            break;
+        //        default:
+        //            break;
+        //    }
+
+        //    Accounts.ForEach(acc => {
+
+        //    });
+
+
+        //    return Result;
+        //}
         #endregion
 
 

@@ -158,25 +158,25 @@ namespace WebApi.Models
         //public List<MonitorDynamicLeverageSymbolInfo> Symbols { get; set; }
     }
 
-    public class MonitorDynamicLeverageCreditExposure {
-        public uint account { get; set; }                       //Login
-        public string name { get; set; }                        //帐户名称
-        public string group { get; set; }                       //帐户所在组
-        public double balance { get; set; }                     //帐户余额
-        public double credit { get; set; }                      //帐户信用额
-        public double equity { get; set; }                      //帐户净值
-        public double freeMargin { get; set; }                  //可用保证金
-        public double marginLevel { get; set; }                 //保证金杠杆
-        public string marginRule { get; set; }                  //使用的规则名称
-        public string lastLoginTime { get; set; }               //最后登录时间
-        public string lastTradingTime { get; set; }             //最后交易时间
-        public double pl { get; set; }                          //帐户盈亏
+    public class MonitorDynamicLeverageLevelDetailRequestInfo {
+        public MonitorPluginInfo server { get; set; }
+        public uint login { get; set; }
     }
-
-    public class MonitorDynamicLeverageTrades {
-        public uint ticket { get; set; }                        //订单号
-        public string netPositions { get; set; }                //净头寸
-        public string margin { get; set; }                      //这个订单产生的保证金变化（从...到...）
+    public class MonitoryDynamicLeverageSymbolLevelDetail {
+        public uint login { get; set; }
+        public string symbol { get; set; }
+        public double levelFrom { get; set; }
+        public double levelTo { get; set; }
+        public uint leverage { get; set; }
+        public double netVolume { get; set; }
+        public double levelMargin { get; set; }
+        public string updateTime { get; set; }
+    }
+    public class MonitorDynamicLeverageSymbolSummary {
+        public uint login { get; set; }
+        public string symbol { get; set; }
+        public double hedgeVolume { get; set; }
+        public List<MonitoryDynamicLeverageSymbolLevelDetail> details { get; set; }
     }
     #endregion
 
@@ -277,41 +277,57 @@ namespace WebApi.Models
         public double EquityDaily { get; set; }
         public double EquityWeekly { get; set; }
     }
-
-    public class DynamicLeverageTradeInfo {
-        public uint Ticket { get; set; }                        //订单号
-        public string Symbol { get; set; }
-        public int LongCount { get; set; }                      //持仓笔数（多仓）
-        public int ShortCount { get; set; }                     //持仓笔数（空仓）
-        public int LongVolume { get; set; }                   //持仓手数（多仓，MT4-放大100倍）
-        public int ShortVolume { get; set; }                  //持仓手数（空仓，MT4-放大100倍）
-        public double LongPrice { get; set; }                   //持仓平均价格（多仓）
-        public double ShortPrice { get; set; }                  //持仓平均价格（空仓）
-        public int HedgeVolume { get; set; }                  //锁仓手数（MT4-放大100倍，MT5-放大10^8倍）
-        public double Commissions { get; set; }                 //持仓手续费（仅MT4，暂不支持MT5）
-        public double Swaps { get; set; }                       //隔夜利息（仅MT4，暂不支持MT5）
-        public double Profit { get; set; }                      //持仓浮动盈亏
-        public string NetPositionChanges { get; set; }          //此订单的开仓（或平仓）对净头寸的影响（从...到...）
-        public string MarginChanges { get; set; }               //此订单的开仓（或平仓）对保证金的影响（从...到...）
-    }
-
-    public class DynamicLeverageAccountSummaryInfo
+    public class DynamicLeverageLevelDetail
     {
-        public int Login { get; set; }
-        public string Name { get; set; }
-        public string Group { get; set; }
-        public double Balance { get; set; }
-        public double Credit { get; set; }
-        public double Equity { get; set; }
-        public double Margin { get; set; }                      //已用保证金
-        public double FreeMargin { get; set; }                  //可用保证金
-        public double MarginLevel { get; set; }                 //保证金比例
-        public int MarginRuleID { get; set; }                   //使用的杠杆规则 ID
-        public string LastLoginTime { get; set; }               //最后登录时间
-        public string LastTradeTime { get; set; }               //最后交易时间
-        public List<DynamicLeverageTradeInfo> Trades { get; set; }          //持仓订单信息（最近的 5 分钟）
-        public List<uint> lstTradesClosedID { get; set; }               //已经平仓的订单ID （最近的 5 分钟）
+        public uint From { get; set; }
+        public uint To { get; set; }
+        public uint Leverage { get; set; }
+        public uint NetVolume { get; set; }
+        public int Margin { get; set; }
     }
+    public class DynamicLeverageSymbolSummaryNodeInfo
+    {
+        public uint Login { get; set; }
+        public string Sybmol { get; set; }
+        public uint HedgeVolume { get; set; }
+        public uint RuleID { get; set; }
+        public List<DynamicLeverageLevelDetail> Detail { get; set; }
+    }
+
+    //public class DynamicLeverageTradeInfo {
+    //    public uint Ticket { get; set; }                        //订单号
+    //    public string Symbol { get; set; }
+    //    public int LongCount { get; set; }                      //持仓笔数（多仓）
+    //    public int ShortCount { get; set; }                     //持仓笔数（空仓）
+    //    public int LongVolume { get; set; }                   //持仓手数（多仓，MT4-放大100倍）
+    //    public int ShortVolume { get; set; }                  //持仓手数（空仓，MT4-放大100倍）
+    //    public double LongPrice { get; set; }                   //持仓平均价格（多仓）
+    //    public double ShortPrice { get; set; }                  //持仓平均价格（空仓）
+    //    public int HedgeVolume { get; set; }                  //锁仓手数（MT4-放大100倍，MT5-放大10^8倍）
+    //    public double Commissions { get; set; }                 //持仓手续费（仅MT4，暂不支持MT5）
+    //    public double Swaps { get; set; }                       //隔夜利息（仅MT4，暂不支持MT5）
+    //    public double Profit { get; set; }                      //持仓浮动盈亏
+    //    public string NetPositionChanges { get; set; }          //此订单的开仓（或平仓）对净头寸的影响（从...到...）
+    //    public string MarginChanges { get; set; }               //此订单的开仓（或平仓）对保证金的影响（从...到...）
+    //}
+
+    //public class DynamicLeverageAccountSummaryInfo
+    //{
+    //    public int Login { get; set; }
+    //    public string Name { get; set; }
+    //    public string Group { get; set; }
+    //    public double Balance { get; set; }
+    //    public double Credit { get; set; }
+    //    public double Equity { get; set; }
+    //    public double Margin { get; set; }                      //已用保证金
+    //    public double FreeMargin { get; set; }                  //可用保证金
+    //    public double MarginLevel { get; set; }                 //保证金比例
+    //    public int MarginRuleID { get; set; }                   //使用的杠杆规则 ID
+    //    public string LastLoginTime { get; set; }               //最后登录时间
+    //    public string LastTradeTime { get; set; }               //最后交易时间
+    //    public List<DynamicLeverageTradeInfo> Trades { get; set; }          //持仓订单信息（最近的 5 分钟）
+    //    public List<uint> lstTradesClosedID { get; set; }               //已经平仓的订单ID （最近的 5 分钟）
+    //}
 
     #endregion
 
@@ -361,6 +377,11 @@ namespace WebApi.Models
         public string CurTime { get; set; }
         public int Weekday { get; set; }
         public List<DynamicLeverageEquityInfo> Users { get; set; }
+    }
+
+    public class DynamicLeverageSymbolSummary {
+        public PluginServerInfo Server { get; set; }
+        public List<DynamicLeverageSymbolSummaryNodeInfo> Symbols { get; set; }
     }
     #endregion
 }

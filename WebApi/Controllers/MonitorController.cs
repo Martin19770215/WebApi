@@ -31,6 +31,12 @@ namespace WebApi.Controllers
             ReturnModel<List<PluginSymbolInfo>> Result = new MonitorWebApiDAL().getSymbolList(server);
             return new { code = Result.ReturnCode, description = Result.CnDescription, total = Result.Values.Count, rows = Result.Values };
         }
+        [HttpGet]
+        public object getLevelDetail(MonitorDynamicLeverageLevelDetailRequestInfo info)
+        {
+            ReturnModel<List<MonitorDynamicLeverageSymbolSummary>> Result = new MonitorWebApiDAL().getLevelDetail(info.server, info.login);
+            return new { code = Result.ReturnCode, description = Result.CnDescription, total = Result.Values.Count, rows = Result.Values };
+        }
         #endregion
     }
 }

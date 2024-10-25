@@ -81,9 +81,9 @@ namespace WebApi.Controllers
         }
 
         [HttpPost]
-        public object UploadDynamicLeverageUserList(DynamicLeverageSymbolSummary Info)
+        public object UploadDynamicLeverageAccountList(DynamicLeverageSymbolSummary Info)
         {
-            ReturnCodeInfo Result = new ReturnCodeInfo();
+            ReturnCodeInfo Result = new MTWebApiDAL().DynamicLeverage_UploadAccountList(Info.Server, Info.Symbols);
             return Result.code;
         }
         #endregion

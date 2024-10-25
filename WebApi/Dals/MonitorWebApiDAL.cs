@@ -168,7 +168,7 @@ namespace WebApi.Dals
                     lstResult.Add(new MonitorDynamicLeverageSymbolSummary {
                         login=Login,
                         symbol=mDr["Symbol"].ToString(),
-                        hedgeVolume=Math.Round( uint.Parse( mDr["HedgeVolume"].ToString())/100.00,2),
+                        hedgeVolume=Math.Round( double.Parse( mDr["HedgeVolume"].ToString()),2),
                         details=lstSubResult.Where(level=>level.symbol==mDr["Symbol"].ToString()).ToList<MonitoryDynamicLeverageSymbolLevelDetail>()
                     });
                 }
@@ -274,6 +274,8 @@ namespace WebApi.Dals
                         {
                             lstResult.Add(new DynamicLeverageSetting
                             {
+                                RuleID = Rule.id,
+                                RuleName=Rule.ruleName,
                                 Login = Rule.Account.Type == "2" ? UInt64.Parse(accInfo) : 0,
                                 Name = Rule.Account.Type == "1" ? accInfo : "*",
                                 RuleMode = (DynamicLeverageRuleMode)Enum.Parse(typeof(DynamicLeverageRuleMode), Rule.Type),

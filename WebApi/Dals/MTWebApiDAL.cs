@@ -181,6 +181,7 @@ namespace WebApi.Dals
                         Currency = mDr["Currency"].ToString(),
                         MarginCurrency = mDr["MarginCurrency"].ToString(),
                         MarginRate = double.Parse(mDr["MarginRate"].ToString()),
+                        OpenPrice=double.Parse(mDr["OpenPrice"].ToString()),
                         Volume = int.Parse(mDr["Volume"].ToString())
                     });
                 }
@@ -242,11 +243,11 @@ namespace WebApi.Dals
                 case DynamicLeveragePositionMode.UPDATE_ALL_POSITION:
                     Positions.ForEach(info =>
                     {
-                        lstSql.Add($"INSERT INTO Riskmanagement_DynamicLeveragePosition(`OrderId`,`Login`,`Symbol`,`Cmd`,`Currency`,`MarginCurrency`,`MarginRate`,`Volume`,`MTType`,`MainLableName`) VALUES({info.OrderID},{info.Login},'{info.Symbol}',{info.Cmd},'{info.Currency}','{info.MarginCurrency}',{info.MarginRate},{info.Volume},'{Server.mtType}','{Server.mainLableName.Trim()}');");
+                        lstSql.Add($"INSERT INTO Riskmanagement_DynamicLeveragePosition(`OrderId`,`Login`,`Symbol`,`Cmd`,`Currency`,`MarginCurrency`,`MarginRate`,`OpenPrice`,`Volume`,`MTType`,`MainLableName`) VALUES({info.OrderID},{info.Login},'{info.Symbol}',{info.Cmd},'{info.Currency}','{info.MarginCurrency}',{info.MarginRate},{info.OpenPrice},{info.Volume},'{Server.mtType}','{Server.mainLableName.Trim()}');");
                     });
                     break;
                 case DynamicLeveragePositionMode.UPDATE_NEW_POSITION:
-                    lstSql.Add($"INSERT INTO Riskmanagement_DynamicLeveragePosition(`OrderId`,`Login`,`Symbol`,`Cmd`,`Currency`,`MarginCurrency`,`MarginRate`,`Volume`,`MTType`,`MainLableName`) VALUES({Positions[0].OrderID},{Positions[0].Login},'{Positions[0].Symbol}',{Positions[0].Cmd},'{Positions[0].Currency}','{Positions[0].MarginCurrency}',{Positions[0].MarginRate},{Positions[0].Volume},'{Server.mtType}','{Server.mainLableName.Trim()}');");
+                    lstSql.Add($"INSERT INTO Riskmanagement_DynamicLeveragePosition(`OrderId`,`Login`,`Symbol`,`Cmd`,`Currency`,`MarginCurrency`,`MarginRate`,`OpenPrice`,`Volume`,`MTType`,`MainLableName`) VALUES({Positions[0].OrderID},{Positions[0].Login},'{Positions[0].Symbol}',{Positions[0].Cmd},'{Positions[0].Currency}','{Positions[0].MarginCurrency}',{Positions[0].MarginRate},{Positions[0].OpenPrice},{Positions[0].Volume},'{Server.mtType}','{Server.mainLableName.Trim()}');");
                     break;
                 case DynamicLeveragePositionMode.UPDATE_ACTIVE_POSITION:
                     lstSql.Add($"UPDATE Riskmanagement_DynamicLeveragePosition SET MarginRate={Positions[0].MarginRate},Cmd='{Positions[0].Cmd}' WHERE OrderID={Positions[0].OrderID} AND MainLableName='{Server.mainLableName.Trim()}' AND MTType='{Server.mtType}';");
@@ -329,10 +330,46 @@ namespace WebApi.Dals
         #endregion
 
         #region 上传帐户信息（帐户资金情况，帐户持仓情况，每25秒更新）
-        public ReturnCodeInfo DynamicLeverage_UpdloadAccountList(PluginServerInfo Server,List<DynamicLeverageSymbolSummaryNodeInfo> Symbols)
+        public ReturnCodeInfo DynamicLeverage_UploadAccountList(PluginServerInfo Server,List<DynamicLeverageSymbolSummaryNodeInfo> Symbols)
         {
             ReturnCodeInfo Result = new ReturnCodeInfo();
+            List<string> lstSql = new List<string>();
+            List<string> lstSqlCheck = new List<string>();
 
+            string sSQLCheck = $"SELECT Login,Symbol FROM RiskManagement_DynamicLeverageSymbolSummary WHERE MainLableName='{Server.mainLableName.Trim()}' AND MTType='{Server.mtType}';";
+
+            try
+            {
+                DataSet ds = ws_mysql.ExecuteDataSetBySQL(sSQLCheck, PublicConst.Database);
+                foreach (DataRow mDr in ds.Tables[0].Rows)
+                {
+                    lstSqlCheck.Add(mDr["Login"].ToString() + "|" + mDr["Symbol"].ToString());
+                }
+
+
+                lstSql.Add($"DELETE FROM RiskManagement_DynamicLeverageSymbolLevelDetail WHERE MainLableName='{Server.mainLableName.Trim()}' AND MTType='{Server.mtType}';");
+
+                Symbols.ForEach(sym => {
+                    if (lstSqlCheck.Exists(info => info == sym.Login.ToString() + "|" + sym.Symbol))
+                    {
+                        lstSql.Add($"UPDATE RiskManagement_DynamicLeverageSymbolSummary SET `HedgeVolume`={sym.HedgeVolume},`RuleID`={sym.RuleID},`UpdateTime`='" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + $"' WHERE MainLableName='{Server.mainLableName}' AND MTType='{Server.mtType}';");
+                    }
+                    else
+                    {
+                        lstSql.Add($"INSERT RiskManagement_DynamicLeverageSymbolSummary(`Login`,`Symbol`,`HedgeVolume`,`RuleID`,`MainLableName`,`MTType`) VALUES({sym.Login},'{sym.Symbol}',{sym.HedgeVolume},{sym.RuleID},'{Server.mainLableName}','{Server.mtType}');");
+                    }
+                    sym.Details.ForEach(detail => {
+                        lstSql.Add($"INSERT INTO RiskManagement_DynamicLeverageSymbolLevelDetail(`Login`,`Symbol`,`LevelFrom`,`LevelTo`,`LevelLeverage`,`NetVolume`,`LevelMargin`,`MainLableName`,`MTType`) VALUES({sym.Login},'{sym.Symbol}',{detail.From},{detail.To},{detail.Leverage},{detail.NetVolume},{detail.NetVolume * sym.AverageRealPrice / detail.Leverage},'{Server.mainLableName.Trim()}','{Server.mtType}');");
+                    });
+                });
+
+                Result.code = ws_mysql.ExecuteTransactionBySql(lstSql.ToArray(), PublicConst.Database) ? ReturnCode.OK : ReturnCode.SQL_TransactionErr;
+            }
+            catch (Exception ex)
+            {
+                new CommonDAL().UploadErrMsg(Server, new ErrMsg { ErrorMsg = ex.Message, RouteName = "MTWebApi/UpdloadAccountList/" + Server.pluginName + "/" + Server.moduleName });
+                Result.code = ReturnCode.RunningError;
+            }
             return Result;
         }
 

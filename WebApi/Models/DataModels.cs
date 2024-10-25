@@ -236,6 +236,7 @@ namespace WebApi.Models
         public int Cmd { get; set; }
         public int Volume { get; set; }
         public double MarginRate { get; set; }
+        public double OpenPrice { get; set; }
         public string Currency { get; set; }
         public string MarginCurrency { get; set; }
     }
@@ -261,6 +262,8 @@ namespace WebApi.Models
 
     public class DynamicLeverageSetting
     {
+        public int RuleID { get; set; }
+        public string RuleName { get; set; }
         public string Name { get; set; }            //组名
         public UInt64 Login { get; set; }              //账号
         public List<UInt64> ExcludeLogins { get; set; }       //需要排除的账号
@@ -283,15 +286,15 @@ namespace WebApi.Models
         public uint To { get; set; }
         public uint Leverage { get; set; }
         public uint NetVolume { get; set; }
-        public int Margin { get; set; }
     }
     public class DynamicLeverageSymbolSummaryNodeInfo
     {
         public uint Login { get; set; }
-        public string Sybmol { get; set; }
-        public uint HedgeVolume { get; set; }
+        public string Symbol { get; set; }
+        public double HedgeVolume { get; set; }
         public uint RuleID { get; set; }
-        public List<DynamicLeverageLevelDetail> Detail { get; set; }
+        public double AverageRealPrice { get; set; }
+        public List<DynamicLeverageLevelDetail> Details { get; set; }
     }
 
     //public class DynamicLeverageTradeInfo {

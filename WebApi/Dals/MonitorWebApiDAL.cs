@@ -144,22 +144,26 @@ namespace WebApi.Dals
 
 
             string sSqlSelect = $"SELECT Symbol,HedgeVolume FROM RiskManagement_DynamicLeverageSymbolSummary WHERE MainLableName='{Server.mainLableName}' AND MTType='{Server.mtType}' AND Login={Login}";
-            string sSqlSubSelect = $"SELECT * FROM RiskManagement_DynamicLeverageSymbolLevelDetail WHERE MainLableName='{Server.mainLableName}' AND MTType='{Server.mtType}' AND Login={Login}";
+            string sSqlSubSelect = $"SELECT * FROM RiskManagement_DynamicLeverageSymbolLevelDetail WHERE MainLableName='{Server.mainLableName}' AND MTType='{Server.mtType}' AND Login={Login} ORDER BY LevelFrom;";
             try
             {
                 DataSet ds = ws_mysql.ExecuteDataSetBySQL(sSqlSubSelect, PublicConst.Database);
                 foreach (DataRow mDr in ds.Tables[0].Rows)
                 {
-                    lstSubResult.Add(new MonitoryDynamicLeverageSymbolLevelDetail {
-                        login = Login,
-                        symbol = mDr["Symbol"].ToString(),
-                        levelFrom = Math.Round(int.Parse(mDr["LevelFrom"].ToString()) / 100.00, 2),
-                        levelTo = Math.Round(int.Parse(mDr["LevelTo"].ToString()) / 100.00, 2),
-                        leverage = uint.Parse(mDr["LevelLeverage"].ToString()),
-                        netVolume = Math.Round(uint.Parse(mDr["NetVolume"].ToString()) / 100.00, 2),
-                        levelMargin = Math.Round(double.Parse(mDr["LevelMargin"].ToString()), 2),
-                        updateTime=string.Format( mDr["UpdateTime"].ToString(),"yyyy-MM-dd HH:mm:ss")
-                    });
+                    if (uint.Parse(mDr["NetVolume"].ToString()) > 0)
+                    {
+                        lstSubResult.Add(new MonitoryDynamicLeverageSymbolLevelDetail
+                        {
+                            login = Login,
+                            symbol = mDr["Symbol"].ToString(),
+                            levelFrom = Math.Round(int.Parse(mDr["LevelFrom"].ToString()) / 100.00, 2),
+                            levelTo = Math.Round(int.Parse(mDr["LevelTo"].ToString()) / 100.00, 2),
+                            leverage = uint.Parse(mDr["LevelLeverage"].ToString()),
+                            netVolume = Math.Round(uint.Parse(mDr["NetVolume"].ToString()) / 100.00, 2),
+                            levelMargin = Math.Round(double.Parse(mDr["LevelMargin"].ToString()), 2),
+                            updateTime = string.Format(mDr["UpdateTime"].ToString(), "yyyy-MM-dd HH:mm:ss")
+                        });
+                    }
                 }
 
                 ds = ws_mysql.ExecuteDataSetBySQL(sSqlSelect, PublicConst.Database);
@@ -280,7 +284,11 @@ namespace WebApi.Dals
                                 Name = Rule.Account.Type == "1" ? accInfo : "*",
                                 RuleMode = (DynamicLeverageRuleMode)Enum.Parse(typeof(DynamicLeverageRuleMode), Rule.Type),
                                 StartTime = dtRuleStartTime.ToString("yyyy-MM-dd HH:mm:ss"),
+                                StartTimeStamp=(dtRuleStartTime.ToUniversalTime().Ticks - 621355968000000000) / 10000000,
+                                //StartTimeStamp=new DateTimeOffset(dtRuleStartTime.ToUniversalTime()).ToUnixTimeSeconds(),
                                 EndTime = dtRuleEndTime.ToString("yyyy-MM-dd HH:mm:ss"),
+                                EndTimeStamp=(dtRuleEndTime.ToUniversalTime().Ticks - 621355968000000000) / 10000000,
+                                //EndTimeStamp=new DateTimeOffset(dtRuleEndTime.ToUniversalTime()).ToUnixTimeSeconds(),
                                 HedgeLeverage = intRuleHedgeLeverage,
                                 ExcludeLogins = (Rule.Account.Type == "2" || string.IsNullOrEmpty(Rule.Account.MTLogins)) ? new List<ulong>() : new List<UInt64>(Rule.Account.MTLogins.Split(',').Select(UInt64.Parse).ToArray()),
 

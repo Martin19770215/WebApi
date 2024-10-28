@@ -269,7 +269,9 @@ namespace WebApi.Models
         public List<UInt64> ExcludeLogins { get; set; }       //需要排除的账号
         public DynamicLeverageRuleMode RuleMode { get; set; }
         public string StartTime { get; set; }
+        public long StartTimeStamp { get; set; }
         public string EndTime { get; set; }
+        public long EndTimeStamp { get; set; }
         public int HedgeLeverage { get; set; }       //锁仓使用的杠杆
         public List<DynamicLeverageSettingInfo> Settings { get; set; }
     }
@@ -292,6 +294,7 @@ namespace WebApi.Models
         public uint Login { get; set; }
         public string Symbol { get; set; }
         public double HedgeVolume { get; set; }
+        public double HedgeMargin { get; set; }
         public uint RuleID { get; set; }
         public double AverageRealPrice { get; set; }
         public List<DynamicLeverageLevelDetail> Details { get; set; }

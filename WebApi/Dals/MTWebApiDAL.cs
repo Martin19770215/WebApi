@@ -352,14 +352,17 @@ namespace WebApi.Dals
                 Symbols.ForEach(sym => {
                     if (lstSqlCheck.Exists(info => info == sym.Login.ToString() + "|" + sym.Symbol))
                     {
-                        lstSql.Add($"UPDATE RiskManagement_DynamicLeverageSymbolSummary SET `HedgeVolume`={sym.HedgeVolume},`RuleID`={sym.RuleID},`UpdateTime`='" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + $"' WHERE MainLableName='{Server.mainLableName}' AND MTType='{Server.mtType}';");
+                        lstSql.Add($"UPDATE RiskManagement_DynamicLeverageSymbolSummary SET `HedgeVolume`={sym.HedgeMargin},`HedgeMargin`={sym.HedgeMargin}*{sym.AverageRealPrice},`RuleID`={sym.RuleID},`UpdateTime`='" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + $"' WHERE MainLableName='{Server.mainLableName}' AND MTType='{Server.mtType}' AND Login={sym.Login} AND Symbol='{sym.Symbol}';");
                     }
                     else
                     {
-                        lstSql.Add($"INSERT RiskManagement_DynamicLeverageSymbolSummary(`Login`,`Symbol`,`HedgeVolume`,`RuleID`,`MainLableName`,`MTType`) VALUES({sym.Login},'{sym.Symbol}',{sym.HedgeVolume},{sym.RuleID},'{Server.mainLableName}','{Server.mtType}');");
+                        lstSql.Add($"INSERT RiskManagement_DynamicLeverageSymbolSummary(`Login`,`Symbol`,`HedgeVolume`,`RuleID`,`MainLableName`,`MTType`) VALUES({sym.Login},'{sym.Symbol}',{sym.HedgeMargin},{sym.RuleID},'{Server.mainLableName}','{Server.mtType}');");
                     }
                     sym.Details.ForEach(detail => {
-                        lstSql.Add($"INSERT INTO RiskManagement_DynamicLeverageSymbolLevelDetail(`Login`,`Symbol`,`LevelFrom`,`LevelTo`,`LevelLeverage`,`NetVolume`,`LevelMargin`,`MainLableName`,`MTType`) VALUES({sym.Login},'{sym.Symbol}',{detail.From},{detail.To},{detail.Leverage},{detail.NetVolume},{detail.NetVolume * sym.AverageRealPrice / detail.Leverage},'{Server.mainLableName.Trim()}','{Server.mtType}');");
+                        if (detail.NetVolume != 0)
+                        {
+                            lstSql.Add($"INSERT INTO RiskManagement_DynamicLeverageSymbolLevelDetail(`Login`,`Symbol`,`LevelFrom`,`LevelTo`,`LevelLeverage`,`NetVolume`,`LevelMargin`,`MainLableName`,`MTType`) VALUES({sym.Login},'{sym.Symbol}',{detail.From},{detail.To},{detail.Leverage},{detail.NetVolume},{detail.NetVolume * sym.AverageRealPrice / detail.Leverage},'{Server.mainLableName.Trim()}','{Server.mtType}');");
+                        }
                     });
                 });
 

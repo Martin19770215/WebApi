@@ -376,6 +376,130 @@ namespace WebApi.Dals
             return Result;
         }
 
+        public ReturnCodeInfo DynamicLeverage_UploadAccountSummaryList(PluginServerInfo Server, List<DynamicLeverageAccountSummaryInfo> Accounts)
+        {
+            ReturnCodeInfo Result = new ReturnCodeInfo();
+            List<string> lstSql = new List<string>();
+            List<string> lstSqlCheck = new List<string>();
+
+
+            DateTime dtLastTradingTime, dtLastOpenTime,dtLastCloseTime;
+            double Profit = 0.0;
+
+            string sSQLCheck = $"SELECT Login FROM RiskManagement_DynamicLeverageAccount WHERE MainLableName='{Server.mainLableName.Trim()}' AND MTType='{Server.mtType}';";
+            string sSQLSelect = $"SELECT Acc.`Login`,Acc.`Name`,Acc.`Group`,Acc.`LastOpenTime`,Acc.`LastCloseTime`,Acc.`LastLoginTime`,Summary.`Balance`,Summary.`Credit`,Summary.`Equity`,Summary.`Margin`,Summary.`FreeMargin`,Summary.`MarginLevel`,Summary.`Profit` FROM MT_Accounts as Acc,RiskManagement_DynamicLeverageAccount as Summary WHERE Acc.Login=Summary.Login AND Acc.MainLableName='{Server.mainLableName.Trim()}' AND Acc.MTType='{Server.mtType}' AND Summary.MainLableName='{Server.mainLableName.Trim()}' AND Summary.MTType='{Server.mtType}';";
+            try
+            {
+                DataSet ds = ws_mysql.ExecuteDataSetBySQL(sSQLCheck, PublicConst.Database);
+                foreach (DataRow mDr in ds.Tables[0].Rows)
+                {
+                    lstSqlCheck.Add(mDr["Login"].ToString());
+                }
+
+                Accounts.ForEach(acc =>
+                {
+                    //dtLastLoginTime = TimeZoneInfo.ConvertTimeFromUtc(new DateTime(1970, 1, 1, 0, 0, 0), TimeZoneInfo.Local).Add(new TimeSpan(acc.LastLoginTime * 10000000));
+                    //dtLastTradeTime = TimeZoneInfo.ConvertTimeFromUtc(new DateTime(1970, 1, 1, 0, 0, 0), TimeZoneInfo.Local).Add(new TimeSpan(acc.LastTradeTime * 10000000));
+                    Profit = Math.Round(acc.Equity - acc.Balance - acc.Credit, 2);
+                    if (lstSqlCheck.Exists(info => info == acc.Login.ToString()))
+                    {
+                        lstSql.Add($"UPDATE RiskManagement_DynamicLeverageAccount SET `Balance`={Math.Round(acc.Balance, 2)},`Credit`={Math.Round(acc.Credit, 2)},`Equity`={Math.Round(acc.Equity,2)},`Margin`={Math.Round(acc.Margin, 2)},`FreeMargin`={Math.Round(acc.FreeMargin, 2)},`MarginLevel`={Math.Round(acc.MarginLevel, 2)},`Profit`={Profit},`UpdateTime`='{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}' WHERE MainLableName='{Server.mainLableName.Trim()}' AND MTType='{Server.mtType}' AND Login={acc.Login};");
+                    }
+                    else
+                    {
+                        lstSql.Add($"INSERT INTO RiskManagement_DynamicLeverageAccount(`Login`,`Balance`,`Credit`,`Equity`,`Margin`,`FreeMargin`,`MarginLevel`,`LastLoginTime`,`LastTradeTime`,`Profit`,`MainLableName`,`MTType`,`UpdateTime`) VALUES({acc.Login},{Math.Round(acc.Balance, 2)},{Math.Round(acc.Credit, 2)},{Math.Round(acc.Equity,2)},{Math.Round(acc.Margin, 2)},{Math.Round(acc.FreeMargin, 2)},{Math.Round(acc.MarginLevel, 2)},{Profit},'{Server.mainLableName.Trim()}','{Server.mtType}','{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}');");
+                    }
+                });
+
+                Result.code = ws_mysql.ExecuteTransactionBySql(lstSql.ToArray(), PublicConst.Database) ? ReturnCode.OK : ReturnCode.SQL_TransactionErr;
+
+                if (Result.code == ReturnCode.OK)
+                {
+                    PluginModuleInfo ModuleInfo = new CommonDAL().getPluginModuleInfo(Server);
+
+                    lstSql.Clear();
+                    lstSql.Add($"CALL `{PublicConst.Database}`.`CreateIndex`('{ModuleInfo.ReportDataBase}','{ModuleInfo.Index_TableName}','{ModuleInfo.IndexName}','{ModuleInfo.IndexField}');");
+
+                    //bool TmpResult = ws_mysql.ExecuteTransactionBySql(lstSql.ToArray(), PublicConst.Database);
+
+                    //param.Clear();
+                    //param.Add($"[@DataBaseName],[{ModuleInfo.ReportDataBase}]");
+                    //param.Add($"[@TableName],[{ModuleInfo.Index_TableName}]");
+                    //param.Add($"[@IndexName],[{ModuleInfo.IndexName}]");
+                    //param.Add($"[@IndexField],[{ModuleInfo.IndexField}]");
+
+                    //string TmpResult= ws_mysql.ExecuteScalar(param.ToArray(), PublicConst.StoredProcedure, "CreateIndex", PublicConst.Database);            //创建索引
+
+                    lstSql.Add($"DELETE FROM MT_Accounts WHERE MainLableName='{Server.mainLableName.Trim()}' AND MTType='{Server.mtType}';");
+                    lstSql.Add($"INSERT INTO MT_Accounts(`Login`,`LastOpenTime`,`LastCloseTime`,`MainLableName`,`MTType`) SELECT Login,Max(Open_Time) as LastOpenTime,Max(Close_Time) as LastCloseTime,'{Server.mainLableName.Trim()}' AS MainLableName,'{Server.mtType}' AS MTType FROM `{ModuleInfo.ReportDataBase}`.`{ModuleInfo.Index_TableName}` WHERE `{ModuleInfo.ReportDataBase}`.`{ModuleInfo.Index_TableName}`.`cmd`<2 GROUP BY Login;");
+                    lstSql.Add($"UPDATE MT_Accounts Acc,`{ModuleInfo.ReportDataBase}`.`mt4_users` MT_Acc SET Acc.`Name`=MT_Acc.`Name`,Acc.`Group`=MT_Acc.`Group`,Acc.LastLoginTime=MT_Acc.`LastDate` WHERE Acc.Login=MT_Acc.Login AND Acc.MainLableName='{Server.mainLableName.Trim()}' AND Acc.MTType='{Server.mtType}';");
+
+                    Result.code = ws_mysql.ExecuteTransactionBySql(lstSql.ToArray(), PublicConst.Database) ? ReturnCode.OK : ReturnCode.SQL_TransactionErr;
+
+                    if (Result.code == ReturnCode.OK)
+                    {
+                        //string strSqlSelect = $"SELECT SettingURL FROM MT_PluginModule WHERE MainLableName='{Server.mainLableName}' AND MTType='{Server.mtType}' AND PluginName='{Server.pluginName}' AND ModuleName='{Server.moduleName}' AND SettingName='{Server.settingName}';";
+                        string strPostData = "{\"server\":{\"mainLableName\":\"" + Server.mainLableName + "\",\"mTType\":\"" + Server.mtType + "\",\"pluginName\":\"" + Server.moduleName + "\"}";
+                        switch (ModuleInfo.PluginType)
+                        {
+                            case "Monitor":
+                                List<MonitorDynamicLevergeAccountSummary> lstMonitorAccount = new List<Models.MonitorDynamicLevergeAccountSummary>();
+
+                                ds = ws_mysql.ExecuteDataSetBySQL(sSQLSelect, PublicConst.Database);
+                                foreach (DataRow mDr in ds.Tables[0].Rows)
+                                {
+                                    if (!DateTime.TryParse(mDr["LastOpenTime"].ToString(), out dtLastOpenTime)) { dtLastOpenTime = DateTime.Parse("1970-1-1 0:0:0"); }
+                                    if (!DateTime.TryParse(mDr["LastCloseTime"].ToString(), out dtLastCloseTime)) { dtLastCloseTime = DateTime.Parse("1970-1-1 0:0:0"); }
+
+                                    dtLastTradingTime = (DateTime.Compare(dtLastOpenTime, dtLastCloseTime) > 0) ? dtLastOpenTime : dtLastCloseTime;
+
+                                    lstMonitorAccount.Add(new MonitorDynamicLevergeAccountSummary
+                                    {
+                                        account = int.Parse(mDr["Login"].ToString()),
+                                        name = mDr["Name"].ToString(),
+                                        group = mDr["Group"].ToString(),
+                                        balance = Math.Round(double.Parse(mDr["Balance"].ToString()), 2),
+                                        credit = Math.Round(double.Parse(mDr["Credit"].ToString()), 2),
+                                        equity = Math.Round(double.Parse(mDr["Equity"].ToString()), 2),
+                                        margin = Math.Round(double.Parse(mDr["Margin"].ToString()), 2),
+                                        freeMargin = Math.Round(double.Parse(mDr["FreeMargin"].ToString()), 2),
+                                        marginLevel = double.Parse(mDr["MarginLevel"].ToString()).ToString("f2"),
+                                        marginRule = "",
+                                        lastLoginTime =DateTime.Parse( mDr["LastLoginTime"].ToString()).ToString("yyyy-MM-dd HH:mm:ss"),
+                                        lastTradingTime = dtLastTradingTime.ToString("yyyy-MM-dd HH:mm:ss"),
+                                        pl = Math.Round(Profit, 2)
+                                    });
+                                }
+                                MonitorReturnInfo PostResult = new MonitorReturnInfo();
+
+                                List<string> lstPostData = new List<string>();
+
+                                var postdata = Newtonsoft.Json.JsonConvert.SerializeObject(lstMonitorAccount);
+                                strPostData += ",\"creditExposureList\":" + postdata.ToString() + "}";
+
+                                PostResult = Newtonsoft.Json.JsonConvert.DeserializeObject<MonitorReturnInfo>(ws_common.Post(ModuleInfo.SettingURL, strPostData));
+
+                                Result.code = PostResult.returnCode;
+                                break;
+                            case "CRM":
+                                break;
+                            default:
+                                break;
+                        }
+
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                new CommonDAL().UploadErrMsg(Server, new ErrMsg { ErrorMsg = ex.Message, RouteName = "MTWebApi/UploadAccountSummaryList/" + Server.pluginName + "/" + Server.moduleName });
+                Result.code = ReturnCode.RunningError;
+            }
+            finally {
+                param.Clear();
+            }
+            return Result;
+        }
         //public ReturnCodeInfo DynamicLeverage_UpdloadAccountList(PluginServerInfo Server, List<DynamicLeverageAccountSummaryInfo> Accounts)
         //{
         //    ReturnCodeInfo Result = new ReturnCodeInfo();

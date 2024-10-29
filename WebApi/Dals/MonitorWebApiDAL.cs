@@ -192,6 +192,16 @@ namespace WebApi.Dals
         }
         #endregion
 
+        #region 上传 AccountSummary
+        public ReturnCodeInfo DynamicLeverage_UploadAccountSummary(MonitorPluginInfo Server, List<MonitorDynamicLevergeAccountSummary> creditExposureList)
+        {
+            ReturnCodeInfo Result = new Models.ReturnCodeInfo();
+
+
+            return Result;
+        }
+        #endregion
+
         #region Private ProcuduresOrFunctions
         private ReturnModel<List<DynamicLeverageSetting>> getDynamicLeverageSettingList(MonitorPluginInfo Server, string sJsonSetting)
         {

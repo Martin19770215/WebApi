@@ -86,6 +86,13 @@ namespace WebApi.Controllers
             ReturnCodeInfo Result = new MTWebApiDAL().DynamicLeverage_UploadAccountList(Info.Server, Info.Symbols);
             return Result.code;
         }
+
+        [HttpPost]
+        public object UploadDynamicLeverageAccountSummaryList(DynamicLeverageAccountSummary Info)
+        {
+            ReturnCodeInfo Result = new MTWebApiDAL().DynamicLeverage_UploadAccountSummaryList(Info.Server, Info.Accounts);
+            return Result.code;
+        }
         #endregion
 
         #region Copy Trader

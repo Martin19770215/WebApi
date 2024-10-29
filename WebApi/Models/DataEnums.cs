@@ -13,6 +13,7 @@ namespace WebApi.Models
         DATA_Existed=501,
         DATA_TimeStampError,
         DATA_LicenseTimeOut,
+        DATA_UploadError,
         RunningError=901,
     }
 

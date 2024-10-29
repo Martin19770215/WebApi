@@ -61,6 +61,9 @@ namespace WebApi.Models
         public string SettingName { get; set; }
         public string SettingURL { get; set; }
         public string ReportDataBase { get; set; }
+        public string Index_TableName { get; set; }                 //需要创建索引的表名称
+        public string IndexName { get; set; }                       //需要创建的索引名称
+        public string IndexField { get; set; }                      //需要索引的字段，以 , 分割，需要符合索引的格式
         public bool IsExpired { get; set; }
     }
     #endregion
@@ -177,6 +180,22 @@ namespace WebApi.Models
         public string symbol { get; set; }
         public double hedgeVolume { get; set; }
         public List<MonitoryDynamicLeverageSymbolLevelDetail> details { get; set; }
+    }
+
+    public class MonitorDynamicLevergeAccountSummary {
+        public int account { get; set; }
+        public string name { get; set; }
+        public string group { get; set; }
+        public double balance { get; set; }
+        public double credit { get; set; }
+        public double equity { get; set; }
+        public double margin { get; set; }
+        public double freeMargin { get; set; }
+        public string marginLevel { get; set; }             //保证金百分比
+        public string marginRule { get; set; }              //使用的规则名称
+        public string lastLoginTime { get; set; }
+        public string lastTradingTime { get; set; }
+        public double pl { get; set; }                      //盈利
     }
     #endregion
 
@@ -317,23 +336,23 @@ namespace WebApi.Models
     //    public string MarginChanges { get; set; }               //此订单的开仓（或平仓）对保证金的影响（从...到...）
     //}
 
-    //public class DynamicLeverageAccountSummaryInfo
-    //{
-    //    public int Login { get; set; }
-    //    public string Name { get; set; }
-    //    public string Group { get; set; }
-    //    public double Balance { get; set; }
-    //    public double Credit { get; set; }
-    //    public double Equity { get; set; }
-    //    public double Margin { get; set; }                      //已用保证金
-    //    public double FreeMargin { get; set; }                  //可用保证金
-    //    public double MarginLevel { get; set; }                 //保证金比例
-    //    public int MarginRuleID { get; set; }                   //使用的杠杆规则 ID
-    //    public string LastLoginTime { get; set; }               //最后登录时间
-    //    public string LastTradeTime { get; set; }               //最后交易时间
-    //    public List<DynamicLeverageTradeInfo> Trades { get; set; }          //持仓订单信息（最近的 5 分钟）
-    //    public List<uint> lstTradesClosedID { get; set; }               //已经平仓的订单ID （最近的 5 分钟）
-    //}
+    public class DynamicLeverageAccountSummaryInfo
+    {
+        public int Login { get; set; }
+        public string Name { get; set; }
+        public string Group { get; set; }
+        public double Balance { get; set; }
+        public double Credit { get; set; }
+        public double Equity { get; set; }
+        public double Margin { get; set; }                      //已用保证金
+        public double FreeMargin { get; set; }                  //可用保证金
+        public double MarginLevel { get; set; }                 //保证金比例
+        public int RuleID { get; set; }                   //使用的杠杆规则 ID
+        public long LastLoginTime { get; set; }               //最后登录时间（时间戳）
+        public long LastTradeTime { get; set; }               //最后交易时间（时间戳）
+        //public List<DynamicLeverageTradeInfo> Trades { get; set; }          //持仓订单信息（最近的 5 分钟）
+        //public List<uint> lstTradesClosedID { get; set; }               //已经平仓的订单ID （最近的 5 分钟）
+    }
 
     #endregion
 
@@ -388,6 +407,11 @@ namespace WebApi.Models
     public class DynamicLeverageSymbolSummary {
         public PluginServerInfo Server { get; set; }
         public List<DynamicLeverageSymbolSummaryNodeInfo> Symbols { get; set; }
+    }
+
+    public class DynamicLeverageAccountSummary {
+        public PluginServerInfo Server { get; set; }
+        public List<DynamicLeverageAccountSummaryInfo> Accounts { get; set; }
     }
     #endregion
 }

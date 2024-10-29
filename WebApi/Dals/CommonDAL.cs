@@ -103,6 +103,10 @@ namespace WebApi.Dals
                     Result.ModuleName = mDr["ModuleName"].ToString();
                     Result.SettingName = mDr["SettingName"].ToString();
                     Result.SettingURL = mDr["SettingURL"].ToString();
+                    Result.ReportDataBase = mDr["DataBaseName"].ToString();
+                    Result.Index_TableName = mDr["DataTableName"].ToString();
+                    Result.IndexName = mDr["IndexName"].ToString();
+                    Result.IndexField = mDr["IndexField"].ToString();
                 }
 
             }

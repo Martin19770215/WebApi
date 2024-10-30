@@ -90,7 +90,13 @@ namespace WebApi.Controllers
         [HttpPost]
         public object UploadDynamicLeverageAccountSummaryList(DynamicLeverageAccountSummary Info)
         {
-            ReturnCodeInfo Result = new MTWebApiDAL().DynamicLeverage_UploadAccountSummaryList(Info.Server, Info.Accounts);
+            ReturnCodeInfo Result = new ReturnCodeInfo();
+            if (Info.Accounts == null) {   Result.code = ReturnCode.OK ; }
+            else
+            {
+                Result = new MTWebApiDAL().DynamicLeverage_UploadAccountSummaryList(Info.Server, Info.Accounts);
+            }
+            //ReturnCodeInfo Result = new ReturnCodeInfo() { code = ReturnCode.OK };
             return Result.code;
         }
         #endregion

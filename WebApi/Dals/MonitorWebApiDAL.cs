@@ -143,7 +143,7 @@ namespace WebApi.Dals
             List<MonitoryDynamicLeverageSymbolLevelDetail> lstSubResult = new List<MonitoryDynamicLeverageSymbolLevelDetail>();
 
 
-            string sSqlSelect = $"SELECT Symbol,HedgeVolume FROM RiskManagement_DynamicLeverageSymbolSummary WHERE MainLableName='{Server.mainLableName}' AND MTType='{Server.mtType}' AND Login={Login}";
+            string sSqlSelect = $"SELECT Symbol,HedgeVolume,HedgeMargin FROM RiskManagement_DynamicLeverageSymbolSummary WHERE MainLableName='{Server.mainLableName}' AND MTType='{Server.mtType}' AND Login={Login}";
             string sSqlSubSelect = $"SELECT * FROM RiskManagement_DynamicLeverageSymbolLevelDetail WHERE MainLableName='{Server.mainLableName}' AND MTType='{Server.mtType}' AND Login={Login} ORDER BY LevelFrom;";
             try
             {
@@ -173,6 +173,7 @@ namespace WebApi.Dals
                         login=Login,
                         symbol=mDr["Symbol"].ToString(),
                         hedgeVolume=Math.Round( double.Parse( mDr["HedgeVolume"].ToString()),2),
+                        hedgeMargin=Math.Round(double.Parse(mDr["HedgeMargin"].ToString()),2),
                         details=lstSubResult.Where(level=>level.symbol==mDr["Symbol"].ToString()).ToList<MonitoryDynamicLeverageSymbolLevelDetail>()
                     });
                 }
@@ -209,6 +210,8 @@ namespace WebApi.Dals
 
             List<DynamicLeverageSetting> lstResult = new List<DynamicLeverageSetting>();
 
+            List<string> lstSql = new List<string>() { $"DELETE FROM RiskManagement_DynamicLeverageMarginRule WHERE MainLableName='{Server.mainLableName.Trim()}' AND MTType='{Server.mtType}';"};
+
             if (string.IsNullOrEmpty(sJsonSetting)) { Result.ReturnCode = ReturnCode.EmptySettingString; Result.CnDescription = "设置信息无法识别"; Result.Values = lstResult; return Result; }
 
             List<DynamicLeverageSettingInfo> lstSettingInfo = new List<DynamicLeverageSettingInfo>();
@@ -238,6 +241,8 @@ namespace WebApi.Dals
                 {
                     if (Rule.Status == "1")
                     {
+                        lstSql.Add($"INSERT INTO RiskManagement_DynamicLeverageMarginRule(`RuleID`,`RuleName`,`MainLableName`,`MTType`) VALUES({Rule.id},'{Rule.ruleName}','{Server.mainLableName.Trim()}','{Server.mtType}');");
+
                         Rule.RulesRelationList.ForEach(RuleRelation =>
                         {
                             RuleRelation.Level.LevelGradeList.ForEach(Level =>
@@ -310,6 +315,8 @@ namespace WebApi.Dals
                         lstSettingInfo.Clear();
                     }
                 });
+
+                ws_mysql.ExecuteTransactionBySql(lstSql.ToArray(), PublicConst.Database);
             }
             catch (Exception ex)
             {

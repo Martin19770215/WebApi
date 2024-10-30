@@ -383,11 +383,11 @@ namespace WebApi.Dals
             List<string> lstSqlCheck = new List<string>();
 
 
-            DateTime dtLastTradingTime, dtLastOpenTime,dtLastCloseTime;
+            DateTime dtLastLoginTime,dtLastTradingTime, dtLastOpenTime,dtLastCloseTime;
             double Profit = 0.0;
 
             string sSQLCheck = $"SELECT Login FROM RiskManagement_DynamicLeverageAccount WHERE MainLableName='{Server.mainLableName.Trim()}' AND MTType='{Server.mtType}';";
-            string sSQLSelect = $"SELECT Acc.`Login`,Acc.`Name`,Acc.`Group`,Acc.`LastOpenTime`,Acc.`LastCloseTime`,Acc.`LastLoginTime`,Summary.`Balance`,Summary.`Credit`,Summary.`Equity`,Summary.`Margin`,Summary.`FreeMargin`,Summary.`MarginLevel`,Summary.`Profit` FROM MT_Accounts as Acc,RiskManagement_DynamicLeverageAccount as Summary WHERE Acc.Login=Summary.Login AND Acc.MainLableName='{Server.mainLableName.Trim()}' AND Acc.MTType='{Server.mtType}' AND Summary.MainLableName='{Server.mainLableName.Trim()}' AND Summary.MTType='{Server.mtType}';";
+            string sSQLSelect = $"SELECT Acc.`Login`,Acc.`Name`,Acc.`Group`,Acc.`LastOpenTime`,Acc.`LastCloseTime`,Summary.`Balance`,Summary.`Credit`,Summary.`Equity`,Summary.`Margin`,Summary.`FreeMargin`,Summary.`MarginLevel`,Summary.`Profit`,Summary.`LastLoginTime`,Summary.`MarginRule` FROM MT_Accounts as Acc,RiskManagement_DynamicLeverageAccount as Summary WHERE Acc.Login=Summary.Login AND Acc.MainLableName='{Server.mainLableName.Trim()}' AND Acc.MTType='{Server.mtType}' AND Summary.MainLableName='{Server.mainLableName.Trim()}' AND Summary.MTType='{Server.mtType}';";
             try
             {
                 DataSet ds = ws_mysql.ExecuteDataSetBySQL(sSQLCheck, PublicConst.Database);
@@ -398,16 +398,16 @@ namespace WebApi.Dals
 
                 Accounts.ForEach(acc =>
                 {
-                    //dtLastLoginTime = TimeZoneInfo.ConvertTimeFromUtc(new DateTime(1970, 1, 1, 0, 0, 0), TimeZoneInfo.Local).Add(new TimeSpan(acc.LastLoginTime * 10000000));
+                    dtLastLoginTime = TimeZoneInfo.ConvertTimeFromUtc(new DateTime(1970, 1, 1, 0, 0, 0), TimeZoneInfo.Local).Add(new TimeSpan(acc.LastLoginTime * 10000000));
                     //dtLastTradeTime = TimeZoneInfo.ConvertTimeFromUtc(new DateTime(1970, 1, 1, 0, 0, 0), TimeZoneInfo.Local).Add(new TimeSpan(acc.LastTradeTime * 10000000));
                     Profit = Math.Round(acc.Equity - acc.Balance - acc.Credit, 2);
                     if (lstSqlCheck.Exists(info => info == acc.Login.ToString()))
                     {
-                        lstSql.Add($"UPDATE RiskManagement_DynamicLeverageAccount SET `Balance`={Math.Round(acc.Balance, 2)},`Credit`={Math.Round(acc.Credit, 2)},`Equity`={Math.Round(acc.Equity,2)},`Margin`={Math.Round(acc.Margin, 2)},`FreeMargin`={Math.Round(acc.FreeMargin, 2)},`MarginLevel`={Math.Round(acc.MarginLevel, 2)},`Profit`={Profit},`UpdateTime`='{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}' WHERE MainLableName='{Server.mainLableName.Trim()}' AND MTType='{Server.mtType}' AND Login={acc.Login};");
+                        lstSql.Add($"UPDATE RiskManagement_DynamicLeverageAccount SET `Balance`={Math.Round(acc.Balance, 2)},`Credit`={Math.Round(acc.Credit, 2)},`Equity`={Math.Round(acc.Equity,2)},`Margin`={Math.Round(acc.Margin, 2)},`FreeMargin`={Math.Round(acc.FreeMargin, 2)},`MarginLevel`={Math.Round(acc.MarginLevel, 2)},`LastLoginTime`='{dtLastLoginTime.ToString("yyyy-MM-dd HH:mm:ss")}',`Profit`={Profit},`UpdateTime`='{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}' WHERE MainLableName='{Server.mainLableName.Trim()}' AND MTType='{Server.mtType}' AND Login={acc.Login};");
                     }
                     else
                     {
-                        lstSql.Add($"INSERT INTO RiskManagement_DynamicLeverageAccount(`Login`,`Balance`,`Credit`,`Equity`,`Margin`,`FreeMargin`,`MarginLevel`,`LastLoginTime`,`LastTradeTime`,`Profit`,`MainLableName`,`MTType`,`UpdateTime`) VALUES({acc.Login},{Math.Round(acc.Balance, 2)},{Math.Round(acc.Credit, 2)},{Math.Round(acc.Equity,2)},{Math.Round(acc.Margin, 2)},{Math.Round(acc.FreeMargin, 2)},{Math.Round(acc.MarginLevel, 2)},{Profit},'{Server.mainLableName.Trim()}','{Server.mtType}','{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}');");
+                        lstSql.Add($"INSERT INTO RiskManagement_DynamicLeverageAccount(`Login`,`Balance`,`Credit`,`Equity`,`Margin`,`FreeMargin`,`MarginLevel`,`LastLoginTime`,`Profit`,`MainLableName`,`MTType`,`UpdateTime`) VALUES({acc.Login},{Math.Round(acc.Balance, 2)},{Math.Round(acc.Credit, 2)},{Math.Round(acc.Equity,2)},{Math.Round(acc.Margin, 2)},{Math.Round(acc.FreeMargin, 2)},{Math.Round(acc.MarginLevel, 2)},'{dtLastLoginTime.ToString("yyyy-MM-dd HH:mm:ss")}',{Profit},'{Server.mainLableName.Trim()}','{Server.mtType}','{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}');");
                     }
                 });
 
@@ -432,7 +432,8 @@ namespace WebApi.Dals
 
                     lstSql.Add($"DELETE FROM MT_Accounts WHERE MainLableName='{Server.mainLableName.Trim()}' AND MTType='{Server.mtType}';");
                     lstSql.Add($"INSERT INTO MT_Accounts(`Login`,`LastOpenTime`,`LastCloseTime`,`MainLableName`,`MTType`) SELECT Login,Max(Open_Time) as LastOpenTime,Max(Close_Time) as LastCloseTime,'{Server.mainLableName.Trim()}' AS MainLableName,'{Server.mtType}' AS MTType FROM `{ModuleInfo.ReportDataBase}`.`{ModuleInfo.Index_TableName}` WHERE `{ModuleInfo.ReportDataBase}`.`{ModuleInfo.Index_TableName}`.`cmd`<2 GROUP BY Login;");
-                    lstSql.Add($"UPDATE MT_Accounts Acc,`{ModuleInfo.ReportDataBase}`.`mt4_users` MT_Acc SET Acc.`Name`=MT_Acc.`Name`,Acc.`Group`=MT_Acc.`Group`,Acc.LastLoginTime=MT_Acc.`LastDate` WHERE Acc.Login=MT_Acc.Login AND Acc.MainLableName='{Server.mainLableName.Trim()}' AND Acc.MTType='{Server.mtType}';");
+                    lstSql.Add($"UPDATE MT_Accounts Acc,`{ModuleInfo.ReportDataBase}`.`mt4_users` MT_Acc SET Acc.`Name`=MT_Acc.`Name`,Acc.`Group`=MT_Acc.`Group` WHERE Acc.Login=MT_Acc.Login AND Acc.MainLableName='{Server.mainLableName.Trim()}' AND Acc.MTType='{Server.mtType}';");
+                    lstSql.Add($"UPDATE RiskManagement_DynamicLeverageAccount Acc,RiskManagement_DynamicLeverageSymbolSummary Summary,RiskManagement_DynamicLeverageMarginRule Rule SET Acc.`MarginRuleID`=Rule.`RuleID`,Acc.`MarginRule`=Rule.`RuleName` WHERE Acc.Login=Summary.Login AND Acc.MainLableName=Summary.MainLableName AND Acc.MTType=Summary.MTType AND Summary.RuleID=Rule.RuleID AND Summary.MainLableName=Rule.MainLableName AND Summary.MTType=Rule.MTType;");
 
                     Result.code = ws_mysql.ExecuteTransactionBySql(lstSql.ToArray(), PublicConst.Database) ? ReturnCode.OK : ReturnCode.SQL_TransactionErr;
 
@@ -464,10 +465,10 @@ namespace WebApi.Dals
                                         margin = Math.Round(double.Parse(mDr["Margin"].ToString()), 2),
                                         freeMargin = Math.Round(double.Parse(mDr["FreeMargin"].ToString()), 2),
                                         marginLevel = double.Parse(mDr["MarginLevel"].ToString()).ToString("f2"),
-                                        marginRule = "",
-                                        lastLoginTime =DateTime.Parse( mDr["LastLoginTime"].ToString()).ToString("yyyy-MM-dd HH:mm:ss"),
+                                        marginRule = mDr["MarginRule"].ToString(),
+                                        lastLoginTime = DateTime.Parse(mDr["LastLoginTime"].ToString()).ToString("yyyy-MM-dd HH:mm:ss"),
                                         lastTradingTime = dtLastTradingTime.ToString("yyyy-MM-dd HH:mm:ss"),
-                                        pl = Math.Round(Profit, 2)
+                                        pl = Math.Round(double.Parse(mDr["Profit"].ToString()), 2)
                                     });
                                 }
                                 MonitorReturnInfo PostResult = new MonitorReturnInfo();

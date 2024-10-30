@@ -179,6 +179,7 @@ namespace WebApi.Models
         public uint login { get; set; }
         public string symbol { get; set; }
         public double hedgeVolume { get; set; }
+        public double hedgeMargin { get; set; }
         public List<MonitoryDynamicLeverageSymbolLevelDetail> details { get; set; }
     }
 

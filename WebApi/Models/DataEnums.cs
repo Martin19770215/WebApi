@@ -19,12 +19,15 @@ namespace WebApi.Models
 
     public enum DynamicLeveragePositionMode
     {
-        UPDATE_ALL_POSITION = 0,
-        UPDATE_NEW_POSITION,
-        UPDATE_ACTIVE_POSITION,
-        UPDATE_CLOSE_POSITION,
-        UPDATE_DELETE_POSITION,
-        UPDATE_RESOTRE_POSITION
+        UPLOAD_ALL_POSITION = 0,
+        UPLOAD_NEW_POSITION,
+        UPLOAD_ACTIVE_POSITION,
+        UPLOAD_CLOSE_POSITION,
+        UPLOAD_DELETE_POSITION,
+        UPLOAD_RESOTRE_POSITION
+        //UPDATE_NEW_POSITION = 10,
+        //UPDATE_CLOSE_POSITION,
+        //UPDATE_DELETE_POSITION
     }
 
     public enum DynamicLeverageRuleMode

@@ -240,30 +240,34 @@ namespace WebApi.Dals
 
             switch (mode)
             {
-                case DynamicLeveragePositionMode.UPDATE_ALL_POSITION:
+                case DynamicLeveragePositionMode.UPLOAD_ALL_POSITION:
                     Positions.ForEach(info =>
                     {
                         lstSql.Add($"INSERT INTO Riskmanagement_DynamicLeveragePosition(`OrderId`,`Login`,`Symbol`,`Cmd`,`Currency`,`MarginCurrency`,`MarginRate`,`OpenPrice`,`Volume`,`MTType`,`MainLableName`) VALUES({info.OrderID},{info.Login},'{info.Symbol}',{info.Cmd},'{info.Currency}','{info.MarginCurrency}',{info.MarginRate},{info.OpenPrice},{info.Volume},'{Server.mtType}','{Server.mainLableName.Trim()}');");
                     });
                     break;
-                case DynamicLeveragePositionMode.UPDATE_NEW_POSITION:
+                case DynamicLeveragePositionMode.UPLOAD_NEW_POSITION:
                     lstSql.Add($"INSERT INTO Riskmanagement_DynamicLeveragePosition(`OrderId`,`Login`,`Symbol`,`Cmd`,`Currency`,`MarginCurrency`,`MarginRate`,`OpenPrice`,`Volume`,`MTType`,`MainLableName`) VALUES({Positions[0].OrderID},{Positions[0].Login},'{Positions[0].Symbol}',{Positions[0].Cmd},'{Positions[0].Currency}','{Positions[0].MarginCurrency}',{Positions[0].MarginRate},{Positions[0].OpenPrice},{Positions[0].Volume},'{Server.mtType}','{Server.mainLableName.Trim()}');");
                     break;
-                case DynamicLeveragePositionMode.UPDATE_ACTIVE_POSITION:
+                case DynamicLeveragePositionMode.UPLOAD_ACTIVE_POSITION:
                     lstSql.Add($"UPDATE Riskmanagement_DynamicLeveragePosition SET MarginRate={Positions[0].MarginRate},Cmd='{Positions[0].Cmd}' WHERE OrderID={Positions[0].OrderID} AND MainLableName='{Server.mainLableName.Trim()}' AND MTType='{Server.mtType}';");
                     break;
-                case DynamicLeveragePositionMode.UPDATE_RESOTRE_POSITION:
+                case DynamicLeveragePositionMode.UPLOAD_RESOTRE_POSITION:
                     lstSql.Add($"UPDATE Riskmanagement_DynamicLeveragePosition SET Enable=1 WHERE OrderID={Positions[0].OrderID} AND MainLableName='{Server.mainLableName.Trim()}' AND MTType='{Server.mtType}';");
                     break;
-                default:
+                case DynamicLeveragePositionMode.UPLOAD_CLOSE_POSITION:
+                case DynamicLeveragePositionMode.UPLOAD_DELETE_POSITION:
                     //Close(3),Delete(4)
-                    lstSql.Add($"UPDATE Riskmanagement_DynamicLeveragePosition SET Enable=0 WHERE OrderID={Positions[0].OrderID} AND MainLableName='{Server.mainLableName.Trim()}' AND MTType='{Server.mtType}';");
+                    lstSql.Add($"UPDATE Riskmanagement_DynamicLeveragePosition SET NetVolumeBeforeClosed={Positions[0].NetVolumeBeforeClosed},NetVolumeAfterClosed={Positions[0].NetVolumeAfterClosed},MarginBeforeClosed={Positions[0].MarginBeforeClosed},MarginAfterClosed={Positions[0].MarginAfterClosed},CloseTime='{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}', Enable=0 WHERE OrderID={Positions[0].OrderID} AND MainLableName='{Server.mainLableName.Trim()}' AND MTType='{Server.mtType}';");
+                    break;
+                default:
                     break;
             }
 
             try
             {
-                if (mode == DynamicLeveragePositionMode.UPDATE_NEW_POSITION)
+                //if (mode == DynamicLeveragePositionMode.UPLOAD_NEW_POSITION || mode==DynamicLeveragePositionMode.UPDATE_NEW_POSITION)
+                if (mode == DynamicLeveragePositionMode.UPLOAD_NEW_POSITION)
                 {
                     if (int.Parse(ws_mysql.ExecuteScalar(param.ToArray(), PublicConst.CommandTypeDefault, sSqlCheck, PublicConst.Database)) > 0) { Result.code = ReturnCode.DATA_Existed; return Result; }
                 }
@@ -352,11 +356,11 @@ namespace WebApi.Dals
                 Symbols.ForEach(sym => {
                     if (lstSqlCheck.Exists(info => info == sym.Login.ToString() + "|" + sym.Symbol))
                     {
-                        lstSql.Add($"UPDATE RiskManagement_DynamicLeverageSymbolSummary SET `HedgeVolume`={sym.HedgeMargin},`HedgeMargin`={sym.HedgeMargin}*{sym.AverageRealPrice},`RuleID`={sym.RuleID},`UpdateTime`='" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + $"' WHERE MainLableName='{Server.mainLableName}' AND MTType='{Server.mtType}' AND Login={sym.Login} AND Symbol='{sym.Symbol}';");
+                        lstSql.Add($"UPDATE RiskManagement_DynamicLeverageSymbolSummary SET `LongDeals`={sym.LongDeals},`LongVolume`={sym.LongVolume},`ShortDeals`={sym.ShortDeals},`ShortVolume`={sym.ShortVolume}, `HedgeVolume`={sym.HedgeMargin},`HedgeMargin`={sym.HedgeMargin}*{sym.AverageRealPrice},`RuleID`={sym.RuleID},`UpdateTime`='" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + $"' WHERE MainLableName='{Server.mainLableName}' AND MTType='{Server.mtType}' AND Login={sym.Login} AND Symbol='{sym.Symbol}';");
                     }
                     else
                     {
-                        lstSql.Add($"INSERT RiskManagement_DynamicLeverageSymbolSummary(`Login`,`Symbol`,`HedgeVolume`,`RuleID`,`MainLableName`,`MTType`) VALUES({sym.Login},'{sym.Symbol}',{sym.HedgeMargin},{sym.RuleID},'{Server.mainLableName}','{Server.mtType}');");
+                        lstSql.Add($"INSERT RiskManagement_DynamicLeverageSymbolSummary(`Login`,`Symbol`,`LongDeals`,`LongVolume`,`ShortDeals`,`ShortVolume`,`HedgeVolume`,`RuleID`,`MainLableName`,`MTType`) VALUES({sym.Login},'{sym.Symbol}',{sym.LongDeals},{sym.LongVolume},{sym.ShortDeals},{sym.ShortVolume},{sym.HedgeMargin},{sym.RuleID},'{Server.mainLableName}','{Server.mtType}');");
                     }
                     sym.Details.ForEach(detail => {
                         if (detail.NetVolume != 0)
@@ -387,7 +391,7 @@ namespace WebApi.Dals
             double Profit = 0.0;
 
             string sSQLCheck = $"SELECT Login FROM RiskManagement_DynamicLeverageAccount WHERE MainLableName='{Server.mainLableName.Trim()}' AND MTType='{Server.mtType}';";
-            string sSQLSelect = $"SELECT Acc.`Login`,Acc.`Name`,Acc.`Group`,Acc.`LastOpenTime`,Acc.`LastCloseTime`,Summary.`Balance`,Summary.`Credit`,Summary.`Equity`,Summary.`Margin`,Summary.`FreeMargin`,Summary.`MarginLevel`,Summary.`Profit`,Summary.`LastLoginTime`,Summary.`MarginRule` FROM MT_Accounts as Acc,RiskManagement_DynamicLeverageAccount as Summary WHERE Acc.Login=Summary.Login AND Acc.MainLableName='{Server.mainLableName.Trim()}' AND Acc.MTType='{Server.mtType}' AND Summary.MainLableName='{Server.mainLableName.Trim()}' AND Summary.MTType='{Server.mtType}';";
+            string sSQLSelect = $"SELECT Acc.`Login`,Acc.`Name`,Acc.`Group`,Acc.`LastOpenTime`,Acc.`LastCloseTime`,Summary.`Balance`,Summary.`Credit`,Summary.`Equity`,Summary.`Margin`,Summary.`FreeMargin`,Summary.`MarginLevel`,Summary.`Profit`,Summary.`LastLoginTime`,Summary.`MarginRule`,Summary.`PositionCount` FROM MT_Accounts as Acc,RiskManagement_DynamicLeverageAccount as Summary WHERE Acc.Login=Summary.Login AND Acc.MainLableName='{Server.mainLableName.Trim()}' AND Acc.MTType='{Server.mtType}' AND Summary.MainLableName='{Server.mainLableName.Trim()}' AND Summary.MTType='{Server.mtType}';";
             try
             {
                 DataSet ds = ws_mysql.ExecuteDataSetBySQL(sSQLCheck, PublicConst.Database);
@@ -434,6 +438,7 @@ namespace WebApi.Dals
                     lstSql.Add($"INSERT INTO MT_Accounts(`Login`,`LastOpenTime`,`LastCloseTime`,`MainLableName`,`MTType`) SELECT Login,Max(Open_Time) as LastOpenTime,Max(Close_Time) as LastCloseTime,'{Server.mainLableName.Trim()}' AS MainLableName,'{Server.mtType}' AS MTType FROM `{ModuleInfo.ReportDataBase}`.`{ModuleInfo.Index_TableName}` WHERE `{ModuleInfo.ReportDataBase}`.`{ModuleInfo.Index_TableName}`.`cmd`<2 GROUP BY Login;");
                     lstSql.Add($"UPDATE MT_Accounts Acc,`{ModuleInfo.ReportDataBase}`.`mt4_users` MT_Acc SET Acc.`Name`=MT_Acc.`Name`,Acc.`Group`=MT_Acc.`Group` WHERE Acc.Login=MT_Acc.Login AND Acc.MainLableName='{Server.mainLableName.Trim()}' AND Acc.MTType='{Server.mtType}';");
                     lstSql.Add($"UPDATE RiskManagement_DynamicLeverageAccount Acc,RiskManagement_DynamicLeverageSymbolSummary Summary,RiskManagement_DynamicLeverageMarginRule Rule SET Acc.`MarginRuleID`=Rule.`RuleID`,Acc.`MarginRule`=Rule.`RuleName` WHERE Acc.Login=Summary.Login AND Acc.MainLableName=Summary.MainLableName AND Acc.MTType=Summary.MTType AND Summary.RuleID=Rule.RuleID AND Summary.MainLableName=Rule.MainLableName AND Summary.MTType=Rule.MTType;");
+                    lstSql.Add($"UPDATE RiskManagement_DynamicLeverageAccount Acc,(SELECT `Login`, SUM(`LongDeals`)+SUM(`ShortDeals`) AS PositionCount FROM RiskManagement_DynamicLeverageSymbolSummary WHERE `MainLableName`='{Server.mainLableName.Trim()}' AND `MTType`='{Server.mtType}' GROUP BY `Login`) Summary SET Acc.`PositionCount`=Summary.`PositionCount` WHERE Acc.`Login`=Summary.`Login` AND Acc.`MainLableName`='{Server.mainLableName.Trim()}' AND Acc.`MTType`='{Server.mtType}';");
 
                     Result.code = ws_mysql.ExecuteTransactionBySql(lstSql.ToArray(), PublicConst.Database) ? ReturnCode.OK : ReturnCode.SQL_TransactionErr;
 
@@ -444,6 +449,8 @@ namespace WebApi.Dals
                         switch (ModuleInfo.PluginType)
                         {
                             case "Monitor":
+
+                                #region 上传帐户汇总信息
                                 List<MonitorDynamicLevergeAccountSummary> lstMonitorAccount = new List<Models.MonitorDynamicLevergeAccountSummary>();
 
                                 ds = ws_mysql.ExecuteDataSetBySQL(sSQLSelect, PublicConst.Database);
@@ -468,12 +475,13 @@ namespace WebApi.Dals
                                         marginRule = mDr["MarginRule"].ToString(),
                                         lastLoginTime = DateTime.Parse(mDr["LastLoginTime"].ToString()).ToString("yyyy-MM-dd HH:mm:ss"),
                                         lastTradingTime = dtLastTradingTime.ToString("yyyy-MM-dd HH:mm:ss"),
-                                        pl = Math.Round(double.Parse(mDr["Profit"].ToString()), 2)
+                                        pl = Math.Round(double.Parse(mDr["Profit"].ToString()), 2),
+                                        positionCount=int.Parse(mDr["PositionCount"].ToString())
                                     });
                                 }
                                 MonitorReturnInfo PostResult = new MonitorReturnInfo();
 
-                                List<string> lstPostData = new List<string>();
+                                //List<string> lstPostData = new List<string>();
 
                                 var postdata = Newtonsoft.Json.JsonConvert.SerializeObject(lstMonitorAccount);
                                 strPostData += ",\"creditExposureList\":" + postdata.ToString() + "}";
@@ -481,6 +489,41 @@ namespace WebApi.Dals
                                 PostResult = Newtonsoft.Json.JsonConvert.DeserializeObject<MonitorReturnInfo>(ws_common.Post(ModuleInfo.SettingURL, strPostData));
 
                                 Result.code = PostResult.returnCode;
+                                #endregion
+
+                                #region 上传已平仓订单的 净头寸 保证金 信息
+
+                                Server.settingName = "UploadTrade";
+                                ModuleInfo = new CommonDAL().getPluginModuleInfo(Server);
+
+                                strPostData = "{\"server\":{\"mainLableName\":\"" + Server.mainLableName + "\",\"mTType\":\"" + Server.mtType + "\",\"pluginName\":\"" + Server.moduleName + "\"}";
+
+                                List<MonitorDynamicLeverageClosedOrder> lstMonitorClosedOrders = new List<MonitorDynamicLeverageClosedOrder>();
+
+                                sSQLSelect = $"SELECT OrderID,NetVolumeBeforeClosed,NetVolumeAfterClosed,MarginBeforeClosed,MarginAfterClosed FROM RiskManagement_DynamicLeveragePosition WHERE MainLableName='{Server.mainLableName}' AND MTType='{Server.mtType}' AND CloseTime>'{DateTime.Now.AddMinutes(-5).ToString("yyyy-MM-dd HH:mm:ss")}';";
+                                ds = ws_mysql.ExecuteDataSetBySQL(sSQLSelect, PublicConst.Database);
+                                string NetVolumeBeforeClosed = "", NetVolumeAfterClosed = "";
+                                foreach (DataRow mDr in ds.Tables[0].Rows)
+                                {
+                                    NetVolumeBeforeClosed = Math.Round(double.Parse(mDr["NetVolumeBeforeClosed"].ToString()) / 100.00, 2).ToString();
+                                    NetVolumeAfterClosed = Math.Round(double.Parse(mDr["NetVolumeAfterClosed"].ToString()) / 100.00, 2).ToString();
+
+                                    lstMonitorClosedOrders.Add(new MonitorDynamicLeverageClosedOrder
+                                    {
+                                        ticket = int.Parse(mDr["OrderID"].ToString()),
+                                        netPositions =  double.Parse(NetVolumeBeforeClosed).ToString("n2") + " - " + double.Parse(NetVolumeAfterClosed).ToString("n2"),
+                                        margin =  double.Parse(mDr["MarginBeforeClosed"].ToString()).ToString("n2") + " - " + double.Parse(mDr["MarginAfterClosed"].ToString()).ToString("n2")
+                                    });
+                                }
+
+                                postdata = Newtonsoft.Json.JsonConvert.SerializeObject(lstMonitorClosedOrders);
+                                strPostData += ",\"tradesVo\":" + postdata.ToString() + "}";
+
+                                PostResult = Newtonsoft.Json.JsonConvert.DeserializeObject<MonitorReturnInfo>(ws_common.Post(ModuleInfo.SettingURL, strPostData));
+
+                                Result.code = PostResult.returnCode;
+
+                                #endregion
                                 break;
                             case "CRM":
                                 break;

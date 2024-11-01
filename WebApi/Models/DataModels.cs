@@ -197,6 +197,13 @@ namespace WebApi.Models
         public string lastLoginTime { get; set; }
         public string lastTradingTime { get; set; }
         public double pl { get; set; }                      //盈利
+        public int positionCount { get; set; }
+    }
+
+    public class MonitorDynamicLeverageClosedOrder {
+        public int ticket { get; set; }
+        public string netPositions { get; set; }
+        public string margin { get; set; }
     }
     #endregion
 
@@ -259,6 +266,11 @@ namespace WebApi.Models
         public double OpenPrice { get; set; }
         public string Currency { get; set; }
         public string MarginCurrency { get; set; }
+        public int NetVolumeBeforeClosed { get; set; }
+        public int NetVolumeAfterClosed { get; set; }
+        public double MarginBeforeClosed { get; set; }
+        public double MarginAfterClosed { get; set; }
+        public DateTime CloseTime { get; set; }                     //北京时间
     }
 
     [Serializable]
@@ -313,6 +325,10 @@ namespace WebApi.Models
     {
         public uint Login { get; set; }
         public string Symbol { get; set; }
+        public int LongDeals { get; set; }
+        public int LongVolume { get; set; }
+        public int ShortDeals { get; set; }
+        public int ShortVolume { get; set; }
         public double HedgeVolume { get; set; }
         public double HedgeMargin { get; set; }
         public uint RuleID { get; set; }
@@ -348,6 +364,7 @@ namespace WebApi.Models
         public double Margin { get; set; }                      //已用保证金
         public double FreeMargin { get; set; }                  //可用保证金
         public double MarginLevel { get; set; }                 //保证金比例
+        public int PositionCount { get; set; }                  //持仓笔数
         public int RuleID { get; set; }                   //使用的杠杆规则 ID
         public long LastLoginTime { get; set; }               //最后登录时间（时间戳）
         public long LastTradeTime { get; set; }               //最后交易时间（时间戳）

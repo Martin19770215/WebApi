@@ -407,7 +407,14 @@ namespace WebApi.Dals
                     Profit = Math.Round(acc.Equity - acc.Balance - acc.Credit, 2);
                     if (lstSqlCheck.Exists(info => info == acc.Login.ToString()))
                     {
-                        lstSql.Add($"UPDATE RiskManagement_DynamicLeverageAccount SET `Balance`={Math.Round(acc.Balance, 2)},`Credit`={Math.Round(acc.Credit, 2)},`Equity`={Math.Round(acc.Equity,2)},`Margin`={Math.Round(acc.Margin, 2)},`FreeMargin`={Math.Round(acc.FreeMargin, 2)},`MarginLevel`={Math.Round(acc.MarginLevel, 2)},`LastLoginTime`='{dtLastLoginTime.ToString("yyyy-MM-dd HH:mm:ss")}',`Profit`={Profit},`UpdateTime`='{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}' WHERE MainLableName='{Server.mainLableName.Trim()}' AND MTType='{Server.mtType}' AND Login={acc.Login};");
+                        //if (acc.IsUpdate)
+                        //{
+                            lstSql.Add("UPDATE RiskManagement_DynamicLeverageAccount SET `Balance`=" + Math.Round(acc.Balance, 2).ToString() + ",`Credit`=" + Math.Round(acc.Credit, 2).ToString() + ",`Equity`=" + Math.Round(acc.Equity, 2).ToString() + ",`Margin`=" + Math.Round(acc.Margin, 2).ToString() + ",`FreeMargin`=" + Math.Round(acc.FreeMargin, 2).ToString() + ",`MarginLevel`=" + Math.Round(acc.MarginLevel, 2).ToString() + "," + (acc.LastLoginTime == 0 ? "" : "`LastLoginTime`='" + dtLastLoginTime.ToString("yyyy-MM-dd HH:mm:ss") + "',")+"`Profit`=" + Profit.ToString() + ",`UpdateTime`='" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "' WHERE MainLableName='" + Server.mainLableName.Trim() + "' AND MTType='" + Server.mtType + "' AND Login=" + acc.Login.ToString() + ";");
+                        //}
+                        //else if(acc.LastLoginTime>0)
+                        //{ 
+                        //    lstSql.Add("UPDATE RiskManagement_DynamicLeverageAccount SET `LastLoginTime`='" + dtLastLoginTime.ToString("yyyy-MM-dd HH:mm:ss") + "',`UpdateTime`='" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "' WHERE MainLableName='" + Server.mainLableName.Trim() + "' AND MTType='" + Server.mtType + "' AND Login=" + acc.Login.ToString() + ";");
+                        //}
                     }
                     else
                     {

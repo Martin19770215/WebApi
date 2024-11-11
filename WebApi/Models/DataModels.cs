@@ -368,6 +368,7 @@ namespace WebApi.Models
         public int RuleID { get; set; }                   //使用的杠杆规则 ID
         public long LastLoginTime { get; set; }               //最后登录时间（时间戳）
         public long LastTradeTime { get; set; }               //最后交易时间（时间戳）
+        public bool IsUpdate { get; set; }                      //记录账号是否经过杠杆重新计算，如果是False，仅更新LastLoginTime
         //public List<DynamicLeverageTradeInfo> Trades { get; set; }          //持仓订单信息（最近的 5 分钟）
         //public List<uint> lstTradesClosedID { get; set; }               //已经平仓的订单ID （最近的 5 分钟）
     }

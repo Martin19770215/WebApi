@@ -66,6 +66,16 @@ namespace WebApi.Models
         public string IndexField { get; set; }                      //需要索引的字段，以 , 分割，需要符合索引的格式
         public bool IsExpired { get; set; }
     }
+
+    public class PluginLicenseInfo {
+        public string MailLableName { get; set; }
+        public string MTType { get; set; }
+        public string ModuleName { get; set; }
+        public bool IsExpired { get; set; }
+        public string ExpiredTime { get; set; }                 //格式：yyyy-MM-dd HH:mm:ss
+        public string ExpiredInfo { get; set; }                 //记录日期信息：VaildTime:******，CurrentTime：*******，均以Web服务器时间为准（+8 时区）
+        public string MD5Value { get; set; }                    //MD5校验值：MainLableName+","+ExpiredTime+",Kangaroo"
+    }
     #endregion
 
     #region MONITOR

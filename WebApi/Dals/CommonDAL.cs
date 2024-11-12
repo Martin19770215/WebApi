@@ -12,6 +12,7 @@ namespace WebApi.Dals
     public class CommonDAL
     {
         com.logicnx.ws.mysql.WS_MYSQL ws_mysql = new com.logicnx.ws.mysql.WS_MYSQL();
+        com.logicnx.ws.common.WS_COMMON ws_common = new com.logicnx.ws.common.WS_COMMON();
         List<string> param = new List<string>();
 
         public void UploadErrMsg(PluginServerInfo Server,ErrMsg ErrMsg)
@@ -42,6 +43,37 @@ namespace WebApi.Dals
             }
         }
 
+        public List<PluginLicenseInfo> getPluginLicenseList(PluginServerInfo Server)
+        {
+            List<PluginLicenseInfo> Result = new List<Models.PluginLicenseInfo>();
+            string sSqlSelect = $"SELECT * FROM PluginOrders WHERE MainLableName='{Server.mainLableName.Trim()}' AND MTType='{Server.mtType}';";
+
+            try
+            {
+                DataSet dt = ws_mysql.ExecuteDataSetBySQL(sSqlSelect, PublicConst.Database);
+                foreach (DataRow mDr in dt.Tables[0].Rows)
+                {
+                    DateTime dtExpiredTime;
+                    if (!DateTime.TryParse(mDr["ValidDate"].ToString(), out dtExpiredTime)) { dtExpiredTime = new DateTime(1970, 1, 1, 0, 0, 0); }
+                    Result.Add(new PluginLicenseInfo
+                    {
+                        MailLableName = Server.mainLableName.Trim(),
+                        MTType = Server.mtType,
+                        ModuleName = (mDr["PluginName"].ToString().ToUpper() == "PAMM") ? "CopyTrader" : mDr["PluginName"].ToString(),
+                        ExpiredTime = DateTime.Parse(mDr["ValidDate"].ToString()).ToString("yyyy-MM-dd"),
+                        IsExpired = DateTime.Compare(dtExpiredTime.Date, DateTime.UtcNow.Date) < 0,
+                        ExpiredInfo = "(ValidDate:" + dtExpiredTime.ToString("yyyy-MM-dd") + ",Current Date:" + DateTime.UtcNow.ToString("yyyy-MM-dd") + ")",
+                        MD5Value = ws_common.GetMD5(Server.mainLableName.Trim() + "," + dtExpiredTime.ToString("yyyy-MM-dd") + ",Kangaroo")
+                    });
+                }
+            }
+            catch
+            {
+
+            }
+
+            return Result;
+        }
 
         public List<PluginModuleInfo> getPluginModuleList()
         {

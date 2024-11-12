@@ -13,6 +13,12 @@ namespace WebApi.Controllers
     public class MTWebApiController : ApiController
     {
         [HttpPost]
+        public object getPluginLicense(PluginServerInfo Server)
+        {
+            List<PluginLicenseInfo> Licenses = new CommonDAL().getPluginLicenseList(Server);
+            return new { Licenses = Licenses };
+        }
+        [HttpPost]
         public object getPluginSettings(PluginServerInfo Server)
         {
             switch (Server.pluginName.ToUpper())

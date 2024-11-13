@@ -62,7 +62,7 @@ namespace WebApi.Dals
                         ModuleName = (mDr["PluginName"].ToString().ToUpper() == "PAMM") ? "CopyTrader" : mDr["PluginName"].ToString(),
                         ExpiredTime = DateTime.Parse(mDr["ValidDate"].ToString()).ToString("yyyy-MM-dd"),
                         IsExpired = DateTime.Compare(dtExpiredTime.Date, DateTime.UtcNow.Date) < 0,
-                        ExpiredInfo = "(ValidDate:" + dtExpiredTime.ToString("yyyy-MM-dd") + ",Current Date:" + DateTime.UtcNow.ToString("yyyy-MM-dd") + ")",
+                        LicenseInfo = "(ValidDate:" + dtExpiredTime.ToString("yyyy-MM-dd") + ",Current Date:" + DateTime.UtcNow.ToString("yyyy-MM-dd") + ")",
                         MD5Value = ws_common.GetMD5(Server.mainLableName.Trim() + "," + dtExpiredTime.ToString("yyyy-MM-dd") + ",Kangaroo")
                     });
                 }

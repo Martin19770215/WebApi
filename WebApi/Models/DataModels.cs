@@ -73,7 +73,7 @@ namespace WebApi.Models
         public string ModuleName { get; set; }
         public bool IsExpired { get; set; }
         public string ExpiredTime { get; set; }                 //格式：yyyy-MM-dd HH:mm:ss
-        public string ExpiredInfo { get; set; }                 //记录日期信息：VaildTime:******，CurrentTime：*******，均以Web服务器时间为准（+8 时区）
+        public string LicenseInfo { get; set; }                 //记录日期信息：VaildTime:******，CurrentTime：*******，均以Web服务器时间为准（+8 时区）
         public string MD5Value { get; set; }                    //MD5校验值：MainLableName+","+ExpiredTime+",Kangaroo"
     }
     #endregion

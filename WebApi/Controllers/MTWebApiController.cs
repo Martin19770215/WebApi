@@ -15,8 +15,8 @@ namespace WebApi.Controllers
         [HttpPost]
         public object getPluginLicense(PluginServerInfo Server)
         {
-            List<PluginLicenseInfo> Licenses = new CommonDAL().getPluginLicenseList(Server);
-            return new { Licenses = Licenses };
+//            ReturnModel<List<PluginLicenseInfo>> Licenses = new CommonDAL().getPluginLicenseList(Server);
+            return new CommonDAL().getPluginLicenseList(Server);
         }
         [HttpPost]
         public object getPluginSettings(PluginServerInfo Server)

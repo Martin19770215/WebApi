@@ -43,9 +43,10 @@ namespace WebApi.Dals
             }
         }
 
-        public List<PluginLicenseInfo> getPluginLicenseList(PluginServerInfo Server)
+        public ReturnModel<List<PluginLicenseInfo>> getPluginLicenseList(PluginServerInfo Server)
         {
-            List<PluginLicenseInfo> Result = new List<Models.PluginLicenseInfo>();
+            ReturnModel<List<PluginLicenseInfo>> Result = new ReturnModel<List<PluginLicenseInfo>>() { ReturnCode = ReturnCode.OK };
+            List<PluginLicenseInfo> lstResult = new List<Models.PluginLicenseInfo>();
             string sSqlSelect = $"SELECT * FROM PluginOrders WHERE MainLableName='{Server.mainLableName.Trim()}' AND MTType='{Server.mtType}';";
 
             try
@@ -55,7 +56,7 @@ namespace WebApi.Dals
                 {
                     DateTime dtExpiredTime;
                     if (!DateTime.TryParse(mDr["ValidDate"].ToString(), out dtExpiredTime)) { dtExpiredTime = new DateTime(1970, 1, 1, 0, 0, 0); }
-                    Result.Add(new PluginLicenseInfo
+                    lstResult.Add(new PluginLicenseInfo
                     {
                         MailLableName = Server.mainLableName.Trim(),
                         MTType = Server.mtType,
@@ -69,9 +70,10 @@ namespace WebApi.Dals
             }
             catch
             {
-
+                Result.ReturnCode = ReturnCode.RunningError;
             }
 
+            Result.Values = lstResult;
             return Result;
         }
 

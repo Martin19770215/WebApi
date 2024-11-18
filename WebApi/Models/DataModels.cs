@@ -68,7 +68,7 @@ namespace WebApi.Models
     }
 
     public class PluginLicenseInfo {
-        public string MailLableName { get; set; }
+        public string MainLableName { get; set; }
         public string MTType { get; set; }
         public string ModuleName { get; set; }
         public bool IsExpired { get; set; }

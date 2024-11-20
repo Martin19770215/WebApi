@@ -21,6 +21,7 @@ namespace WebApi.Models
         public string pluginName { get; set; }
         public string moduleName { get; set; }
         public string settingName { get; set; }
+        public long CurrentTimeStamp { get; set; }            //当前请求是MT平台的时间戳（转换成GMT+0）
     }
 
     public class PluginSymbolInfo

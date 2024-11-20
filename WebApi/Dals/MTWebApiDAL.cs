@@ -126,7 +126,7 @@ namespace WebApi.Dals
                     switch (ModuleInfo.PluginType)
                     {
                         case "Monitor":
-                            Result = new MonitorWebApiDAL().getRemoteJsonString(new MonitorPluginInfo() { mainLableName = Server.mainLableName, mtType = Server.mtType, pluginName = Server.moduleName }, ModuleInfo.SettingURL);
+                            Result = new MonitorWebApiDAL().getRemoteJsonString(new MonitorPluginInfo() { mainLableName = Server.mainLableName, mtType = Server.mtType, pluginName = Server.moduleName }, ModuleInfo.SettingURL,Server.CurrentTimeStamp);
                             break;
                         case "CRM":
 

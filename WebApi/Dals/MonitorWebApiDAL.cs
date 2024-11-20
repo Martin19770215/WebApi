@@ -103,7 +103,7 @@ namespace WebApi.Dals
         #region 获取  PluginSetting
 
         #region Dynamic Leverage
-        public ReturnModel<List<DynamicLeverageSetting>> getRemoteJsonString(MonitorPluginInfo Server, string RemoteJsonURL)
+        public ReturnModel<List<DynamicLeverageSetting>> getRemoteJsonString(MonitorPluginInfo Server, string RemoteJsonURL,long CurrentTimeStamp)
         {
             ReturnModel<List<DynamicLeverageSetting>> Result = new ReturnModel<List<DynamicLeverageSetting>>();
 
@@ -116,7 +116,7 @@ namespace WebApi.Dals
                 switch (Server.pluginName.Trim().ToUpper())
                 {
                     case "DYNAMICLEVERAGE":
-                        Result = getDynamicLeverageSettingList(Server, joRules["value"].ToString());
+                        Result = getDynamicLeverageSettingList(Server, joRules["value"].ToString(),CurrentTimeStamp);
                         break;
                     default:
                         break;
@@ -204,7 +204,7 @@ namespace WebApi.Dals
         #endregion
 
         #region Private ProcuduresOrFunctions
-        private ReturnModel<List<DynamicLeverageSetting>> getDynamicLeverageSettingList(MonitorPluginInfo Server, string sJsonSetting)
+        private ReturnModel<List<DynamicLeverageSetting>> getDynamicLeverageSettingList(MonitorPluginInfo Server, string sJsonSetting,long CurrentTimeStamp)
         {
             ReturnModel<List<DynamicLeverageSetting>> Result = new ReturnModel<List<DynamicLeverageSetting>>() { ReturnCode = ReturnCode.OK };
 

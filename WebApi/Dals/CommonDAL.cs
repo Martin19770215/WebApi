@@ -152,6 +152,18 @@ namespace WebApi.Dals
             return Result;
         }
 
+        public void UploadSettingsToFile(string Settings,string MainLableName,string ModuleName,string LastUpdateDate)
+        {
+            string FileName = "~\\Content\\SettingFiles\\" + MainLableName.Replace(" ", "_").Replace(".", "") + "\\" + ModuleName + "\\" + LastUpdateDate + ".json";
+            string sUserFile = System.Web.HttpContext.Current.Server.MapPath(FileName);
+            string sUserFolds = sUserFile.Substring(0, sUserFile.LastIndexOf('\\'));
+            if (!Directory.Exists(sUserFolds)) {
+                Directory.CreateDirectory(sUserFolds);
+            }
+
+            File.WriteAllText(sUserFile, Settings);
+        }
+
         #region 类深拷贝
         public T DeepCopy<T>(T obj)
         {

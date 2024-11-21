@@ -227,8 +227,14 @@ namespace WebApi.Dals
 
             DateTime dtLastUpdateTime;
 
-            DateTime dtRuleStartTime, dtRuleEndTime;
+            DateTime dtRuleStartTime, dtRuleEndTime, dtCurrentMTTime;
+            long lngRuleStartTimeStamp, lngRuleEndTimeStamp;
+
             int intRuleHedgeLeverage = 100;
+
+            dtCurrentMTTime = TimeZoneInfo.ConvertTimeFromUtc(new DateTime(1970, 1, 1, 0, 0, 0), TimeZoneInfo.Local).Add(new TimeSpan(CurrentTimeStamp * 10000000));
+            int intCurrentMTWeekDay = Convert.ToInt16(dtCurrentMTTime.DayOfWeek.ToString("d"));             //0-Sunday，... ，6-Saturday
+                
 
             try
             {
@@ -250,7 +256,7 @@ namespace WebApi.Dals
                                 lstRange.Add(new DynamicLeverageSettingRangeInfo
                                 {
                                     From = Convert.ToInt32(Math.Round(Level.Begin * 100, 0)),
-                                    To = Convert.ToInt32(Math.Round(Level.End * 100, 0)),
+                                    To = Level.End == 0 ? 999999999 : Convert.ToInt32(Math.Round(Level.End * 100, 0)),
                                     Leverage = Level.Lever
                                 });
                                 lstLeverage.Add(Level.Lever);
@@ -283,9 +289,12 @@ namespace WebApi.Dals
 
                         if (DateTime.TryParse(Rule.Account.UpdateTime, out dtLastUpdateTime)) { lstLastUpdateTime.Add(dtLastUpdateTime.ToString("yyyyMMddHHmmss")); }
 
-                        if (!DateTime.TryParse(Rule.StartTime, out dtRuleStartTime)) { dtRuleStartTime = DateTime.Parse("1970-01-01 0:0:1"); }
+                        if (!DateTime.TryParse(Rule.StartTime, out dtRuleStartTime)) { dtRuleStartTime = DateTime.Parse("1970-01-01 0:0:0"); }
                         if (!DateTime.TryParse(Rule.EndTime, out dtRuleEndTime)) { dtRuleEndTime = DateTime.Parse(DateTime.Today.ToString("yyyy-MM-dd") + " 23:59:59"); }
 
+                        lngRuleStartTimeStamp = (dtRuleStartTime.ToUniversalTime().Ticks - 621355968000000000) / 10000000;
+                        lngRuleEndTimeStamp = (dtRuleEndTime.ToUniversalTime().Ticks - 621355968000000000) / 10000000;
+                        
                         if (!int.TryParse(Rule.hedgingLeverage, out intRuleHedgeLeverage)) { intRuleHedgeLeverage = lstLeverage.Min(); }
 
                         lstAccount = Rule.Account.Type == "1" ? Rule.Account.MTGroups.Split(',').ToList() : Rule.Account.MTLogins.Split(',').ToList();
@@ -299,10 +308,10 @@ namespace WebApi.Dals
                                 Name = Rule.Account.Type == "1" ? accInfo : "*",
                                 RuleMode = (DynamicLeverageRuleMode)Enum.Parse(typeof(DynamicLeverageRuleMode), Rule.Type),
                                 StartTime = dtRuleStartTime.ToString("yyyy-MM-dd HH:mm:ss"),
-                                StartTimeStamp=(dtRuleStartTime.ToUniversalTime().Ticks - 621355968000000000) / 10000000,
+                                StartTimeStamp=lngRuleStartTimeStamp,
                                 //StartTimeStamp=new DateTimeOffset(dtRuleStartTime.ToUniversalTime()).ToUnixTimeSeconds(),
                                 EndTime = dtRuleEndTime.ToString("yyyy-MM-dd HH:mm:ss"),
-                                EndTimeStamp=(dtRuleEndTime.ToUniversalTime().Ticks - 621355968000000000) / 10000000,
+                                EndTimeStamp=lngRuleEndTimeStamp,
                                 //EndTimeStamp=new DateTimeOffset(dtRuleEndTime.ToUniversalTime()).ToUnixTimeSeconds(),
                                 HedgeLeverage = intRuleHedgeLeverage,
                                 ExcludeLogins = (Rule.Account.Type == "2" || string.IsNullOrEmpty(Rule.Account.MTLogins)) ? new List<ulong>() : new List<UInt64>(Rule.Account.MTLogins.Split(',').Select(UInt64.Parse).ToArray()),
@@ -317,6 +326,8 @@ namespace WebApi.Dals
                 });
 
                 ws_mysql.ExecuteTransactionBySql(lstSql.ToArray(), PublicConst.Database);
+
+                new CommonDAL().UploadSettingsToFile(sJsonSetting, Server.mainLableName, Server.pluginName, lstLastUpdateTime.Max());
             }
             catch (Exception ex)
             {

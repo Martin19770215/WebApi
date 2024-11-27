@@ -217,6 +217,9 @@ namespace WebApi.Dals
             List<DynamicLeverageSettingInfo> lstSettingInfo = new List<DynamicLeverageSettingInfo>();
             List<DynamicLeverageSettingRangeInfo> lstRange = new List<DynamicLeverageSettingRangeInfo>();
 
+            List<MonitorDynamicLeverageWeekTime> lstRuleWeekTime = new List<MonitorDynamicLeverageWeekTime>();
+            MonitorDynamicLeverageWeekTime WeekTime = new MonitorDynamicLeverageWeekTime();
+
             List<string> lstLastUpdateTime = new List<string>() { "19700101" };
 
             //List<string> lstSymbol = new List<string>();
@@ -289,8 +292,41 @@ namespace WebApi.Dals
 
                         if (DateTime.TryParse(Rule.Account.UpdateTime, out dtLastUpdateTime)) { lstLastUpdateTime.Add(dtLastUpdateTime.ToString("yyyyMMddHHmmss")); }
 
-                        if (!DateTime.TryParse(Rule.StartTime, out dtRuleStartTime)) { dtRuleStartTime = DateTime.Parse("1970-01-01 0:0:0"); }
-                        if (!DateTime.TryParse(Rule.EndTime, out dtRuleEndTime)) { dtRuleEndTime = DateTime.Parse(DateTime.Today.ToString("yyyy-MM-dd") + " 23:59:59"); }
+                        dtRuleStartTime = DateTime.Parse("1970-01-01 0:0:0");
+                        dtRuleEndTime = DateTime.Parse("1970-01-01 0:0:0");
+
+                        if (Rule.TimeType.Trim() == "1")
+                        {
+                            //使用绝对时间区段
+                            if (!DateTime.TryParse(Rule.StartTime, out dtRuleStartTime)) { dtRuleStartTime = DateTime.Parse("1970-01-01 0:0:0"); }
+                            if (!DateTime.TryParse(Rule.EndTime, out dtRuleEndTime)) { dtRuleEndTime = DateTime.Parse("1970-01-01 0:0:0"); }
+
+                        }
+                        else if (Rule.TimeType.Trim() == "2")
+                        {
+                            //按 周几 读取当前时间 适用的时间段
+
+                            lstRuleWeekTime = new JavaScriptSerializer().Deserialize<List<MonitorDynamicLeverageWeekTime>>(Rule.weekTime.ToString());
+                            WeekTime = lstRuleWeekTime[intCurrentMTWeekDay];
+
+                            bool isContinue = true;
+                            WeekTime.Time.ForEach(wtTime => {
+                                if (isContinue)
+                                {
+                                    if (!DateTime.TryParse(dtCurrentMTTime.ToString("yyyy-MM-dd ") + wtTime.StartTime + ":00", out dtRuleStartTime)) { dtRuleStartTime = DateTime.Parse("1970-01-01 0:0:0"); }
+                                    if (!DateTime.TryParse(dtCurrentMTTime.ToString("yyyy-MM-dd ") + wtTime.EndTime + ":59", out dtRuleEndTime)) { dtRuleEndTime = DateTime.Parse("1970-01-01 0:0:0"); }
+
+                                    if (DateTime.Compare(dtRuleStartTime, dtCurrentMTTime) <= 0 && DateTime.Compare(dtCurrentMTTime, dtRuleEndTime) <= 0) { isContinue = false; }
+                                }
+                            });
+                            if (isContinue)
+                            {
+                                //说明没有匹配到合适的时间
+                                dtRuleStartTime = DateTime.Parse("1970-01-01 0:0:0");
+                                dtRuleEndTime = DateTime.Parse("1970-01-01 0:0:0");
+                            }
+
+                        }
 
                         lngRuleStartTimeStamp = (dtRuleStartTime.ToUniversalTime().Ticks - 621355968000000000) / 10000000;
                         lngRuleEndTimeStamp = (dtRuleEndTime.ToUniversalTime().Ticks - 621355968000000000) / 10000000;

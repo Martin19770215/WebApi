@@ -157,14 +157,27 @@ namespace WebApi.Models
         public MonitorDynamicLeverageLevelInfo Level { get; set; }
         public MonitorDynamicLeverageSymbolInfo Symbols { get; set; }
     }
+
+    [Serializable]
+    public class MonitorDynamicLeverageWeekDetailTime {
+        public string StartTime { get; set; }
+        public string EndTime { get; set; }
+    }
+
+    public class MonitorDynamicLeverageWeekTime {
+        public string Day { get; set; }
+        public List<MonitorDynamicLeverageWeekDetailTime> Time { get; set; }
+    }
     public class MonitorDynamicLeverageRuleInfo
     {
         public int id { get; set; }
         public string ruleName { get; set; }
         public string Type { get; set; }
         public string Status { get; set; }
+        public string TimeType { get; set; }                //时间类型：1 - 绝对区间     2 - 每周按日设定的区间
         public string StartTime { get; set; }
         public string EndTime { get; set; }
+        public string weekTime { get; set; }                //格式：List<MonitorDynamicLeverageWeekTime>
         public string hedgingLeverage { get; set; }
         public MonitorDynamicLeverageAccountInfo Account { get; set; }
         public List<MonitorDynamicLeverageRulesRelation> RulesRelationList { get; set; }

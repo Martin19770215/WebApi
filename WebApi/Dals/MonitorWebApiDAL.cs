@@ -292,6 +292,8 @@ namespace WebApi.Dals
 
                         if (DateTime.TryParse(Rule.Account.UpdateTime, out dtLastUpdateTime)) { lstLastUpdateTime.Add(dtLastUpdateTime.ToString("yyyyMMddHHmmss")); }
 
+                        if (DateTime.TryParse(Rule.UpdateTime, out dtLastUpdateTime)) { lstLastUpdateTime.Add(dtLastUpdateTime.ToString("yyyyMMddHHmmss")); }
+
                         dtRuleStartTime = DateTime.Parse("1970-01-01 0:0:0");
                         dtRuleEndTime = DateTime.Parse("1970-01-01 0:0:0");
 
@@ -316,7 +318,7 @@ namespace WebApi.Dals
                                     if (!DateTime.TryParse(dtCurrentMTTime.ToString("yyyy-MM-dd ") + wtTime.StartTime + ":00", out dtRuleStartTime)) { dtRuleStartTime = DateTime.Parse("1970-01-01 0:0:0"); }
                                     if (!DateTime.TryParse(dtCurrentMTTime.ToString("yyyy-MM-dd ") + wtTime.EndTime + ":59", out dtRuleEndTime)) { dtRuleEndTime = DateTime.Parse("1970-01-01 0:0:0"); }
 
-                                    if (DateTime.Compare(dtRuleStartTime, dtCurrentMTTime) <= 0 && DateTime.Compare(dtCurrentMTTime, dtRuleEndTime) <= 0) { isContinue = false; }
+                                    if ((DateTime.Compare(dtRuleStartTime, dtCurrentMTTime) <= 0 && DateTime.Compare(dtCurrentMTTime, dtRuleEndTime) <= 0)||(DateTime.Compare(dtCurrentMTTime,dtRuleStartTime)<=0)) { isContinue = false; }
                                 }
                             });
                             if (isContinue)

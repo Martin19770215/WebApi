@@ -179,6 +179,7 @@ namespace WebApi.Models
         public string EndTime { get; set; }
         public string weekTime { get; set; }                //格式：List<MonitorDynamicLeverageWeekTime>
         public string hedgingLeverage { get; set; }
+        public string UpdateTime { get; set; }
         public MonitorDynamicLeverageAccountInfo Account { get; set; }
         public List<MonitorDynamicLeverageRulesRelation> RulesRelationList { get; set; }
         //public List<MonitorDynamicLeverageLevelInfo> Levels { get; set; }

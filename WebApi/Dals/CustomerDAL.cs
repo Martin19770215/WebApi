@@ -131,7 +131,7 @@ namespace WebApi.Dals
                         lstSlave.Add(new SlaveAccount
                         {
                             Login = UInt64.Parse(mDr["SlaveAcc"].ToString()),
-                            Reverse=mDr["Reverse"].ToString()=="Y",
+                            Reverse = mDr["Reverse"].ToString() == "Y",
                             Delay = int.Parse(mDr["Delay"].ToString()),
                             //ProportionType = mDr["ProportionType"].ToString(),
                             ProportionType = mDr["Proportion_Type"].ToString(),
@@ -140,6 +140,7 @@ namespace WebApi.Dals
                             SL = mDr["IsSL"].ToString() == "Y",
                             TP = mDr["IsTP"].ToString() == "Y",
                             IsFollowClosedOrder = mDr["IsFollowClosedOrder"].ToString() == "Y",
+                            //Tradable = mDr["IsTradable"].ToString() == "Y",
                             MasterLogin = UInt64.Parse(mDr["MasterAcc"].ToString()),
                             Symbols=lstSymbols.Where(acc=>acc.MasterAcc== UInt64.Parse(mDr["MasterAcc"].ToString()) && acc.SlaveAcc== UInt64.Parse(mDr["SlaveAcc"].ToString())).ToList<SymbolRelations>()
                         });

@@ -268,6 +268,7 @@ namespace WebApi.Models
         public bool SL { get; set; }                            //是否跟随止损
         public bool TP { get; set; }                            //是否跟随止盈
         public bool IsFollowClosedOrder { get; set; }           //是否跟随平仓订单（MT4）
+        public bool Tradable { get; set; }                       //在跟随状态下，是否允许自行操作
         public UInt64 MasterLogin { get; set; }                    //跟随的主账号
         public List<SymbolRelations> Symbols { get; set; }
     }

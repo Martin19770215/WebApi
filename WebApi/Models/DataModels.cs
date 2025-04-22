@@ -419,6 +419,38 @@ namespace WebApi.Models
 
     #endregion
 
+    #region QuoteControl
+    public class SymbolPriceRule {
+        public uint RuleID { get; set; }
+        public string Symbol { get; set; }
+        public string SymbolOriginal { get; set; }
+        public double TargetPrice { get; set; }
+        public int Direct { get; set; }
+        public double Maintenance_PriceMax { get; set; }
+        public double Maintenance_PriceMin { get; set; }
+        public string IsFixChart { get; set; }
+        public UInt64 FixTimeStart { get; set; }
+        public UInt64 FixTimeEnd { get; set; }
+        public int RunningStatus { get; set; }
+        public int RemainingTime { get; set; }
+        public double Volumes { get; set; }
+        public double CurrentPrice { get; set; }
+    }
+
+    public class PriceTickInfo {
+        public string Symbol { get; set; }
+        public UInt64 Time { get; set; }
+        public double Bid { get; set; }
+        public double Ask { get; set; }
+        public int Digit { get; set; }
+    }
+
+    public class PriceSymbolVolumeInfo {
+        public string Symbol { get; set; }
+        public double Volumes { get; set; }
+    }
+    #endregion
+
     #endregion
 
     #region Combination（组合）
@@ -457,6 +489,12 @@ namespace WebApi.Models
     public class DynamicLeverageAccountSummary {
         public PluginServerInfo Server { get; set; }
         public List<DynamicLeverageAccountSummaryInfo> Accounts { get; set; }
+    }
+
+    public class QuoteControlSymbolTickInfo {
+        public PluginServerInfo Server { get; set; }
+        public List<PriceTickInfo> PriceData { get; set; }
+        public List<PriceSymbolVolumeInfo> PriceVolumeData { get; set; }
     }
     #endregion
 }

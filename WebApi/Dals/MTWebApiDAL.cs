@@ -671,6 +671,143 @@ namespace WebApi.Dals
         #endregion
         #endregion
 
+        #region QuoteControl
+
+        #region 返回调控商品价格
+        public ReturnModel<List<SymbolPriceRule>> QuoteControl_getSymbolPriceRules(PluginServerInfo Server)
+        {
+            ReturnModel<List<SymbolPriceRule>> Result = new ReturnModel<List<SymbolPriceRule>>();
+            List<SymbolPriceRule> lstResult = new List<SymbolPriceRule>();
+
+            string sSqlLicense = $"SELECT ValidDate FROM vwPluginOrders WHERE MainLableName='{Server.mainLableName}' AND PluginName='{Server.moduleName}';";
+            string sSqlSelect = $"SELECT * FROM vwPosition WHERE MainLableName='{Server.mainLableName}' AND PluginName='{Server.moduleName}';";
+            string sSqlUpdate = "";
+
+            DateTime sValidDate;
+
+            string sIDs = "";
+
+            string sID_Rules = "";
+
+            try
+            {
+                //                ws_mysql.Credentials = new System.Net.NetworkCredential(PublicConst.Sys_WSUserName, PublicConst.Sys_WSUserPWD);
+
+                sValidDate = DateTime.Parse(ws_mysql.ExecuteScalar(param.ToArray(), "", sSqlLicense, PublicConst.Database));
+                if (sValidDate > DateTime.Now)
+                {
+                    DataSet ds = ws_mysql.ExecuteDataSetBySQL(sSqlSelect, PublicConst.Database);
+                    string NextStepSQL = "";
+                    foreach (DataRow dr in ds.Tables[0].Rows)
+                    {
+                        if (!string.IsNullOrEmpty(dr["ID_Rule"].ToString()))
+                        {
+                            lstResult.Add(new SymbolPriceRule
+                            {
+                                RuleID = uint.Parse(dr["ID_Rule"].ToString()),
+                                Symbol = dr["Symbol"].ToString(),
+                                SymbolOriginal = dr["SymbolOriginal"].ToString(),
+                                TargetPrice = double.Parse(dr["TargetPrice"].ToString()),
+                                Direct = int.Parse(dr["Direct"].ToString()),
+                                Maintenance_PriceMax = double.Parse(dr["Maintenance_PriceMax"].ToString()),
+                                Maintenance_PriceMin = double.Parse(dr["Maintenance_PriceMin"].ToString()),
+                                IsFixChart = dr["IsFixChart"].ToString(),
+                                FixTimeStart = string.IsNullOrEmpty(dr["FixTimeStart"].ToString()) ? 0 : UInt64.Parse(dr["FixTimeStart"].ToString()),
+                                FixTimeEnd = string.IsNullOrEmpty(dr["FixTimeEnd"].ToString()) ? 0 : UInt64.Parse(dr["FixTimeEnd"].ToString()),
+                                RunningStatus = int.Parse(dr["RunningStatus"].ToString()),
+                                RemainingTime = int.Parse(dr["RemainingTime"].ToString()),
+                                Volumes = string.IsNullOrEmpty(dr["Volumns"].ToString()) ? 0.0 : double.Parse(dr["Volumns"].ToString()),
+                                CurrentPrice = string.IsNullOrEmpty(dr["CurrentPrice"].ToString()) ? 0.0 : double.Parse(dr["CurrentPrice"].ToString())
+                            });
+
+                            if (!string.IsNullOrEmpty(dr["ID_Price"].ToString())) { sIDs += dr["ID_Price"].ToString() + ","; }
+
+                            if (!string.IsNullOrEmpty(dr["NextStepSQL"].ToString())) { NextStepSQL += dr["NextStepSQL"].ToString(); }
+
+                            sID_Rules += dr["ID_Rule"].ToString() + ",";
+                        }
+                    }
+
+                    if (!string.IsNullOrEmpty(sIDs))
+                    {
+                        sIDs = sIDs.Substring(0, sIDs.Length - 1);
+                        sSqlUpdate += $"UPDATE PriceManagement_Prices SET `Enable`='N' WHERE ID IN (" + sIDs + ");";
+
+                    }
+                    sID_Rules = sID_Rules.Substring(0, sID_Rules.Length - 1);
+
+                    sSqlUpdate += "UPDATE PriceManagement_Rules SET Volumns=(CASE WHEN RemainingTime<>0 THEN Volumns-Volumns/RemainingTime*5 ELSE 0 END) WHERE RunningStatus='2' AND ID IN (" + sID_Rules + ");";
+                    sSqlUpdate += "UPDATE PriceManagement_Rules SET RemainingTime=(CASE WHEN RemainingTime>5 THEN RemainingTime-5 ELSE 0 END) WHERE (RunningStatus='5' OR RunningStatus='2') AND ID IN (" + sID_Rules + ");";
+                    sSqlUpdate += "UPDATE PriceManagement_Rules SET RunningStatus='1' WHERE RunningStatus='2' AND RemainingTime=0 AND ID IN (" + sID_Rules + ");";
+                    sSqlUpdate += "UPDATE PriceManagement_Rules SET Volumns=0 WHERE RunningStatus='1' AND ID IN (" + sID_Rules + ");";
+                    sSqlUpdate += "UPDATE PriceManagement_Rules SET IsFixChart='N',FixTimeStart=0,FixTimeEnd=0 WHERE IsFixChart='Y' AND ID IN (" + sID_Rules + ");";
+                    ws_mysql.ExecuteNonQuery(param.ToArray(), "", sSqlUpdate, PublicConst.Database);
+
+                    if (!string.IsNullOrEmpty(NextStepSQL)) { ws_mysql.ExecuteNonQuery(param.ToArray(), "", NextStepSQL, PublicConst.Database); }
+                }
+            }
+            catch (Exception ex)
+            {
+                new CommonDAL().UploadErrMsg(Server, new ErrMsg { ErrorMsg = ex.Message, RouteName = "MTWebApi/getQuoteControlSymbolPriceRules" });
+                Result.ReturnCode = ReturnCode.RunningError;
+                Result.CnDescription = "失败";
+                Result.EnDescription = "Failure";
+                lstResult.Clear();
+            }
+            finally
+            {
+                param.Clear();
+            }
+
+            Result.Values = lstResult;
+            return Result;
+        }
+        #endregion
+
+        #region 更新商品最新报价到Web
+        public ReturnCodeInfo QuoteControl_UploadPriceSymbolInfo(QuoteControlSymbolTickInfo TickInfo)
+        {
+            ReturnCodeInfo Result = new ReturnCodeInfo();
+            Result.code = ReturnCode.OK;
+            string sResult = "0";
+            string sUpdate = "";
+
+            int i;
+            for (i = 0; i <TickInfo.PriceData.Count; i = i + 1)
+            {
+                if (!string.IsNullOrEmpty(TickInfo.PriceData[i].Symbol))
+                {
+                    sUpdate += $"INSERT INTO PriceManagement_Ticks(`MainLableName`,`Symbol`,`TimeStamp`,`Bid`,`Ask`,`Digit`) VALUES('{TickInfo.Server.mainLableName}','{TickInfo.PriceData[i].Symbol}',{TickInfo.PriceData[i].Time},{TickInfo.PriceData[i].Bid},{TickInfo.PriceData[i].Ask},{TickInfo.PriceData[i].Digit}) ON DUPLICATE KEY UPDATE TimeStamp={TickInfo.PriceData[i].Time}, Bid={TickInfo.PriceData[i].Bid},Ask={TickInfo.PriceData[i].Ask};";
+                    sUpdate += $"UPDATE PriceManagement_Ticks SET Digit ={ TickInfo.PriceData[i].Digit} WHERE MainLableName='{TickInfo.Server.mainLableName}' AND Symbol='{TickInfo.PriceData[i].Symbol}' AND Digit<{TickInfo.PriceData[i].Digit};";
+                }
+            }
+
+            for (i = 0; i < TickInfo.PriceVolumeData.Count; i = i + 1)
+            {
+                if (!string.IsNullOrEmpty(TickInfo.PriceVolumeData[i].Symbol))
+                {
+                    sUpdate += $"UPDATE PriceManagement_Rules SET Volumns={TickInfo.PriceVolumeData[i].Volumes} WHERE ID_Plugin IN (SELECT ID FROM PluginOrders WHERE  MainLableName='{TickInfo.Server.mainLableName}' AND MTType='{TickInfo.Server.mtType}' AND PluginName='{TickInfo.Server.moduleName}') AND RunningStatus<>'2' AND RunningStatus<>'1' AND Symbol='{TickInfo.PriceVolumeData[i].Symbol}';";
+                }
+            }
+            try
+            {
+                sResult = ws_mysql.ExecuteNonQuery(param.ToArray(), "", sUpdate, PublicConst.Database).ToString();
+                Result.description = "更新了 " + sResult + " 条信息";
+                Result.enDescription = sResult + " records upload.";
+            }
+            catch (Exception ex)
+            {
+                new CommonDAL().UploadErrMsg(TickInfo.Server, new ErrMsg { ErrorMsg = ex.Message, RouteName = "MTWebApi/getDynamicLeverageSettingsList" });
+                Result.code = ReturnCode.RunningError;
+            }
+
+            return Result;
+
+        }
+        #endregion
+
+        #endregion
+
         #region DelaySlip
 
         #endregion

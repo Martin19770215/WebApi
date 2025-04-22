@@ -117,6 +117,22 @@ namespace WebApi.Controllers
         #endregion
 
 
+        #region QuoteControl
+        [HttpPost]
+        public object getQuoteControlSymbolPrice(PluginServerInfo Server)
+        {
+            ReturnModel<List<SymbolPriceRule>> lstQuoteControlSymbolPrice = new MTWebApiDAL().QuoteControl_getSymbolPriceRules(Server);
+            return new { Rules = lstQuoteControlSymbolPrice.Values };
+        }
+
+        [HttpPost]
+        public object uploadQuoteControlPriceSymbolInfo(QuoteControlSymbolTickInfo TickInfo)
+        {
+            ReturnCodeInfo Result = new MTWebApiDAL().QuoteControl_UploadPriceSymbolInfo(TickInfo);
+            return new { resultInfo = Result }; 
+        }
+        #endregion
+
         [HttpPost]
         public object getAdvMCSORules(PluginServerInfo Server)
         {

@@ -812,6 +812,7 @@ namespace WebApi.Dals
 
         #endregion
 
+        #region RiskManage
         #region AdvMCSO
         public ReturnModel<List<RiskManagementAdvMCSOInfo>> getAdvMCSORules(PluginServerInfo Server)
         {
@@ -836,9 +837,9 @@ namespace WebApi.Dals
                     });
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                new CommonDAL().UploadErrMsg(Server, new ErrMsg { ErrorMsg = ex.Message, RouteName = "MTWebApi/getDynamicLeverageSettingsList" });
+                new CommonDAL().UploadErrMsg(Server, new ErrMsg { ErrorMsg = ex.Message, RouteName = "MTWebApi/getAdvMCSORules" });
                 Result.ReturnCode = ReturnCode.RunningError;
                 Result.CnDescription = "失败";
                 Result.EnDescription = "Failure";
@@ -848,6 +849,44 @@ namespace WebApi.Dals
             return Result;
         }
         #endregion
+
+        #region AdvPOLMT
+        public ReturnModel<List<RiskManagementAdvPOLMTInfo>> getAdvPOLMTRules(PluginServerInfo Server)
+        {
+            ReturnModel<List<RiskManagementAdvPOLMTInfo>> Result = new ReturnModel<List<RiskManagementAdvPOLMTInfo>>();
+            List<RiskManagementAdvPOLMTInfo> lstResult = new List<RiskManagementAdvPOLMTInfo>();
+            string strSql = $"SELECT * FROM RiskManagement_AdvPOLMTSettings WHERE MTType='{Server.mtType}' AND MainLableName='{Server.mainLableName}' AND Enable=1;";
+
+            try
+            {
+                DataSet ds = ws_mysql.ExecuteDataSetBySQL(strSql, PublicConst.Database);
+                foreach (DataRow dr in ds.Tables[0].Rows)
+                {
+                    lstResult.Add(new RiskManagementAdvPOLMTInfo() {
+                        GroupName = dr["GroupName"].ToString(),
+                        Login = UInt64.Parse(dr["Login"].ToString()),
+                        POLMTType=(RiskManage_AdvPOLMT_Type)int.Parse(dr["POLMTTYpe"].ToString()),
+                        Symbol=dr["SymbolName"].ToString(),
+                        VolumeLimit=UInt64.Parse(dr["VolumeLimit"].ToString()),
+                        SummaryType=(RiskMange_AdvPOLMT_SummaryType)int.Parse(dr["SummaryType"].ToString()),
+                        HedgeType=(RiskMange_AdvPOLMT_HedgeType)int.Parse(dr["HedgeType"].ToString())
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                new CommonDAL().UploadErrMsg(Server, new ErrMsg { ErrorMsg = ex.Message, RouteName = "MTWebApi/getAdvPOLMTRules" });
+                Result.ReturnCode = ReturnCode.RunningError;
+                Result.CnDescription = "失败";
+                Result.EnDescription = "Failure";
+                lstResult.Clear();
+            }
+            Result.Values = lstResult;
+            return Result;
+        }
+        #endregion
+        #endregion
+
 
         #region QuoteControll
 

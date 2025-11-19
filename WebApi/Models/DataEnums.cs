@@ -36,4 +36,23 @@ namespace WebApi.Models
         DailyEquity,
         WeeklyEquity
     }
+
+    public enum RiskManage_AdvPOLMT_Type
+    {
+        No_Limit=0,
+        OnlyNum,
+        OnlyVolume,
+        Both
+    }
+
+    public enum RiskMange_AdvPOLMT_SummaryType {
+        Merge=1,
+        Single
+    }
+
+    public enum RiskMange_AdvPOLMT_HedgeType {
+        Summary=0,
+        Larger,
+        Netting
+    }
 }

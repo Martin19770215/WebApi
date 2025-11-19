@@ -115,8 +115,7 @@ namespace WebApi.Controllers
             return new { MasterAccounts = lstCopyTraderResult.Values };
         }
         #endregion
-
-
+        
         #region QuoteControl
         [HttpPost]
         public object getQuoteControlSymbolPrice(PluginServerInfo Server)
@@ -133,12 +132,21 @@ namespace WebApi.Controllers
         }
         #endregion
 
+        #region RiskManage
         [HttpPost]
         public object getAdvMCSORules(PluginServerInfo Server)
         {
             ReturnModel<List<RiskManagementAdvMCSOInfo>> Result = new MTWebApiDAL().getAdvMCSORules(Server);
             return new { Groups = Result.Values.Where(grp => grp.Login == 0), Accounts = Result.Values.Where(acc => acc.GroupName == "*") };
         }
+
+        [HttpPost]
+        public object getAdvPOLMTRules(PluginServerInfo Server)
+        {
+            ReturnModel<List<RiskManagementAdvPOLMTInfo>> Result = new MTWebApiDAL().getAdvPOLMTRules(Server);
+            return new { groups = Result.Values.Where(grp => grp.Login == 0), Accounts = Result.Values.Where(acc => acc.GroupName == "*") };
+        }
+        #endregion
 
 
         [HttpPost]

@@ -419,6 +419,19 @@ namespace WebApi.Models
 
     #endregion
 
+    #region AdvPOLMT
+    public class RiskManagementAdvPOLMTInfo
+    {
+        public string GroupName { get; set; }
+        public UInt64 Login { get; set; }
+        public RiskManage_AdvPOLMT_Type POLMTType { get; set; }
+        public string Symbol { get; set; }
+        public UInt64 VolumeLimit { get; set; }
+        public RiskMange_AdvPOLMT_SummaryType SummaryType { get; set; }
+        public RiskMange_AdvPOLMT_HedgeType HedgeType { get; set; }
+    }
+    #endregion
+
     #region QuoteControl
     public class SymbolPriceRule {
         public uint RuleID { get; set; }

@@ -144,7 +144,7 @@ namespace WebApi.Controllers
         public object getAdvPOLMTRules(PluginServerInfo Server)
         {
             ReturnModel<List<RiskManagementAdvPOLMTInfo>> Result = new MTWebApiDAL().getAdvPOLMTRules(Server);
-            return new { groups = Result.Values.Where(grp => grp.Login == 0), Accounts = Result.Values.Where(acc => acc.GroupName == "*") };
+            return new { Groups = Result.Values.Where(grp => grp.Login == 0), Accounts = Result.Values.Where(acc => acc.GroupName == "*") };
         }
         #endregion
 

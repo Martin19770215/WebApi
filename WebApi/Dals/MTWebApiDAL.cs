@@ -818,10 +818,13 @@ namespace WebApi.Dals
         {
             ReturnModel<List<RiskManagementAdvMCSOInfo>> Result = new ReturnModel<List<RiskManagementAdvMCSOInfo>>();
             List<RiskManagementAdvMCSOInfo> lstResult = new List<RiskManagementAdvMCSOInfo>();
+            string strCount = $"SELECT COUNT(id) AS iCount FROM PluginOrders WHERE MainLableName='{Server.mainLableName}' AND MTType='{Server.mtType}' AND PluginName='AdvMCSO' AND ValidDate>='{DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")}';";
             string strSql = $"SELECT * FROM RiskManagement_AdvMCSOSettings WHERE MTType='{Server.mtType}' AND MainLableName='{Server.mainLableName}' AND Enable=1;";
 
             try
             {
+                if (int.Parse(ws_mysql.ExecuteScalar(param.ToArray(), "", strCount, PublicConst.Database) )==0) { Result.Values = lstResult; return Result; }
+
                 DataSet ds = ws_mysql.ExecuteDataSetBySQL(strSql, PublicConst.Database);
                 foreach (DataRow dr in ds.Tables[0].Rows)
                 {
@@ -855,10 +858,14 @@ namespace WebApi.Dals
         {
             ReturnModel<List<RiskManagementAdvPOLMTInfo>> Result = new ReturnModel<List<RiskManagementAdvPOLMTInfo>>();
             List<RiskManagementAdvPOLMTInfo> lstResult = new List<RiskManagementAdvPOLMTInfo>();
+            string strCount = $"SELECT COUNT(id) AS iCount FROM PluginOrders WHERE MainLableName='{Server.mainLableName}' AND MTType='{Server.mtType}' AND PluginName='AdvPOLMT' AND ValidDate>='{DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")}';";
+
             string strSql = $"SELECT * FROM RiskManagement_AdvPOLMTSettings WHERE MTType='{Server.mtType}' AND MainLableName='{Server.mainLableName}' AND Enable=1;";
 
             try
             {
+                if (int.Parse(ws_mysql.ExecuteScalar(param.ToArray(), "", strCount, PublicConst.Database)) == 0) { Result.Values = lstResult; return Result; }
+
                 DataSet ds = ws_mysql.ExecuteDataSetBySQL(strSql, PublicConst.Database);
                 foreach (DataRow dr in ds.Tables[0].Rows)
                 {

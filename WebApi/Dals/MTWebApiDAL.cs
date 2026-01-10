@@ -813,6 +813,7 @@ namespace WebApi.Dals
         #endregion
 
         #region RiskManage
+
         #region AdvMCSO
         public ReturnModel<List<RiskManagementAdvMCSOInfo>> getAdvMCSORules(PluginServerInfo Server)
         {
@@ -875,8 +876,8 @@ namespace WebApi.Dals
                         POLMTType=(RiskManage_AdvPOLMT_Type)int.Parse(dr["POLMTTYpe"].ToString()),
                         Symbol=dr["SymbolName"].ToString(),
                         VolumeLimit=UInt64.Parse(dr["VolumeLimit"].ToString()),
-                        SummaryType=(RiskMange_AdvPOLMT_SummaryType)int.Parse(dr["SummaryType"].ToString()),
-                        HedgeType=(RiskMange_AdvPOLMT_HedgeType)int.Parse(dr["HedgeType"].ToString())
+                        SummaryType=(RiskManage_AdvPOLMT_SummaryType)int.Parse(dr["SummaryType"].ToString()),
+                        HedgeType=(RiskManage_AdvPOLMT_HedgeType)int.Parse(dr["HedgeType"].ToString())
                     });
                 }
             }
@@ -892,6 +893,47 @@ namespace WebApi.Dals
             return Result;
         }
         #endregion
+
+        #region AdvTransFreq
+        public ReturnModel<List<RiskManagementAdvTransFreqInfo>> getAdvTransFreqRules(PluginServerInfo Server)
+        {
+            ReturnModel<List<RiskManagementAdvTransFreqInfo>> Result = new ReturnModel<List<RiskManagementAdvTransFreqInfo>>();
+            List<RiskManagementAdvTransFreqInfo> lstResult = new List<RiskManagementAdvTransFreqInfo>();
+            string strCount = $"SELECT COUNT(id) AS iCount FROM PluginOrders WHERE MainLableName='{Server.mainLableName}' AND MTType='{Server.mtType}' AND PluginName='AdvPOLMT' AND ValidDate>='{DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")}';";
+
+            string strSql = $"SELECT * FROM RiskManagement_AdvTransFreqSettings WHERE MTType='{Server.mtType}' AND MainLableName='{Server.mainLableName}' AND Enable=1;";
+
+            try
+            {
+                if (int.Parse(ws_mysql.ExecuteScalar(param.ToArray(), "", strCount, PublicConst.Database)) == 0) { Result.Values = lstResult; return Result; }
+
+                DataSet ds = ws_mysql.ExecuteDataSetBySQL(strSql, PublicConst.Database);
+                foreach (DataRow dr in ds.Tables[0].Rows)
+                {
+                    lstResult.Add(new RiskManagementAdvTransFreqInfo()
+                    {
+                        GroupName = dr["GroupName"].ToString(),
+                        Login = UInt64.Parse(dr["Login"].ToString()),
+                        Symbol = dr["SymbolName"].ToString(),
+                        IntervalTime = UInt64.Parse(dr["IntervalTime"].ToString()),
+                        SummaryType = (RiskManage_AdvTransFreq_SummaryType)int.Parse(dr["SummaryType"].ToString()),
+                        SettingType = (RiskManage_AdvTransFreq_SettingType)int.Parse(dr["SettingType"].ToString())
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                new CommonDAL().UploadErrMsg(Server, new ErrMsg { ErrorMsg = ex.Message, RouteName = "MTWebApi/getAdvPOLMTRules" });
+                Result.ReturnCode = ReturnCode.RunningError;
+                Result.CnDescription = "失败";
+                Result.EnDescription = "Failure";
+                lstResult.Clear();
+            }
+            Result.Values = lstResult;
+            return Result;
+        }
+        #endregion
+
         #endregion
 
 

@@ -45,14 +45,28 @@ namespace WebApi.Models
         Both
     }
 
-    public enum RiskMange_AdvPOLMT_SummaryType {
+    public enum RiskManage_AdvPOLMT_SummaryType {
         Merge=1,
         Single
     }
 
-    public enum RiskMange_AdvPOLMT_HedgeType {
+    public enum RiskManage_AdvPOLMT_HedgeType {
         Summary=0,
         Larger,
         Netting
+    }
+
+    public enum RiskManage_AdvTransFreq_SummaryType {
+        All=1,
+        Single
+    }
+
+    public enum RiskManage_AdvTransFreq_SettingType {
+        All=0,
+        OtoO,
+        CtoC,
+        OtoC1,          //Close after Open(One Position)
+        OtoC2,          //Close after Open(Different Position)
+        CtoO
     }
 }

@@ -259,7 +259,7 @@ namespace WebApi.Models
         public List<SlaveAccount> Slaves { get; set; }
     }
     public class SlaveAccount {
-        public UInt64 Login { get; set; }                          
+        public UInt64 Login { get; set; }
         public int Delay { get; set; }                          //延时时长（秒）
         public string ProportionType { get; set; }              //跟随类型：Open，Solid，Euqity
         public double Proportion { get; set; }                  //跟随比例
@@ -427,8 +427,20 @@ namespace WebApi.Models
         public RiskManage_AdvPOLMT_Type POLMTType { get; set; }
         public string Symbol { get; set; }
         public UInt64 VolumeLimit { get; set; }
-        public RiskMange_AdvPOLMT_SummaryType SummaryType { get; set; }
-        public RiskMange_AdvPOLMT_HedgeType HedgeType { get; set; }
+        public RiskManage_AdvPOLMT_SummaryType SummaryType { get; set; }
+        public RiskManage_AdvPOLMT_HedgeType HedgeType { get; set; }
+    }
+    #endregion
+
+    #region AdvTransFreq
+    public class RiskManagementAdvTransFreqInfo
+    {
+        public string GroupName { get; set; }
+        public UInt64 Login { get; set; }
+        public string Symbol { get; set; }
+        public UInt64 IntervalTime { get; set; }
+        public RiskManage_AdvTransFreq_SettingType SettingType { get; set; }
+        public RiskManage_AdvTransFreq_SummaryType SummaryType { get; set; }
     }
     #endregion
 

@@ -362,6 +362,10 @@ namespace WebApi.Dals
                     {
                         lstSql.Add($"INSERT RiskManagement_DynamicLeverageSymbolSummary(`Login`,`Symbol`,`LongDeals`,`LongVolume`,`ShortDeals`,`ShortVolume`,`HedgeVolume`,`RuleID`,`MainLableName`,`MTType`) VALUES({sym.Login},'{sym.Symbol}',{sym.LongDeals},{sym.LongVolume},{sym.ShortDeals},{sym.ShortVolume},{sym.HedgeMargin},{sym.RuleID},'{Server.mainLableName}','{Server.mtType}');");
                     }
+
+                    //以下的是否需要待确定
+                    //lstSql.Add($"DELETE FROM RiskManagement_DynamicLeverageSymbolLevelDetail WHERE MainLableName='{Server.mainLableName.Trim()}' AND MTType='{Server.mtType}' AND Login={sym.Login} AND Symbol='{sym.Symbol}';");
+
                     sym.Details.ForEach(detail => {
                         if (detail.NetVolume != 0)
                         {

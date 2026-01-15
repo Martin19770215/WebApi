@@ -899,7 +899,7 @@ namespace WebApi.Dals
         {
             ReturnModel<List<RiskManagementAdvTransFreqInfo>> Result = new ReturnModel<List<RiskManagementAdvTransFreqInfo>>();
             List<RiskManagementAdvTransFreqInfo> lstResult = new List<RiskManagementAdvTransFreqInfo>();
-            string strCount = $"SELECT COUNT(id) AS iCount FROM PluginOrders WHERE MainLableName='{Server.mainLableName}' AND MTType='{Server.mtType}' AND PluginName='AdvPOLMT' AND ValidDate>='{DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")}';";
+            string strCount = $"SELECT COUNT(id) AS iCount FROM PluginOrders WHERE MainLableName='{Server.mainLableName}' AND MTType='{Server.mtType}' AND PluginName='AdvTransFreq' AND ValidDate>='{DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")}';";
 
             string strSql = $"SELECT * FROM RiskManagement_AdvTransFreqSettings WHERE MTType='{Server.mtType}' AND MainLableName='{Server.mainLableName}' AND Enable=1;";
 
@@ -923,7 +923,7 @@ namespace WebApi.Dals
             }
             catch (Exception ex)
             {
-                new CommonDAL().UploadErrMsg(Server, new ErrMsg { ErrorMsg = ex.Message, RouteName = "MTWebApi/getAdvPOLMTRules" });
+                new CommonDAL().UploadErrMsg(Server, new ErrMsg { ErrorMsg = ex.Message, RouteName = "MTWebApi/getAdvTransFreqRules" });
                 Result.ReturnCode = ReturnCode.RunningError;
                 Result.CnDescription = "失败";
                 Result.EnDescription = "Failure";

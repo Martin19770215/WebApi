@@ -919,7 +919,7 @@ namespace WebApi.Dals
                         GroupName = dr["GroupName"].ToString(),
                         Login = UInt64.Parse(dr["Login"].ToString()),
                         Symbol = dr["SymbolName"].ToString(),
-                        IntervalTime = UInt64.Parse(dr["IntervalTime"].ToString()),
+                        IntervalTime =Convert.ToUInt64( UInt64.Parse(dr["IntervalTime"].ToString())/1e3),
                         SummaryType = (RiskManage_AdvTransFreq_SummaryType)int.Parse(dr["SummaryType"].ToString()),
                         SettingType = (RiskManage_AdvTransFreq_SettingType)int.Parse(dr["SettingType"].ToString())
                     });

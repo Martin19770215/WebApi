@@ -154,6 +154,12 @@ namespace WebApi.Controllers
             return new { Groups = Result.Values.Where(grp => grp.Login == 0), Accounts = Result.Values.Where(acc => acc.GroupName == "*") };
         }
 
+        [HttpPost]
+        public object getAdvABBookExRules(PluginServerInfo Server)
+        {
+            ReturnModel<List<RiskManagementAdvTransFreqInfo>> Result = new MTWebApiDAL().getAdvTransFreqRules(Server);
+            return new { Groups = Result.Values.Where(grp => grp.Login == 0), Accounts = Result.Values.Where(acc => acc.GroupName == "*") };
+        }
 
         #endregion
 

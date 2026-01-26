@@ -823,7 +823,7 @@ namespace WebApi.Dals
         {
             ReturnModel<List<RiskManagementAdvMCSOInfo>> Result = new ReturnModel<List<RiskManagementAdvMCSOInfo>>();
             List<RiskManagementAdvMCSOInfo> lstResult = new List<RiskManagementAdvMCSOInfo>();
-            string strCount = $"SELECT COUNT(id) AS iCount FROM PluginOrders WHERE MainLableName='{Server.mainLableName}' AND MTType='{Server.mtType}' AND PluginName='AdvMCSO' AND ValidDate>='{DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")}';";
+            string strCount = $"SELECT COUNT(id) AS iCount FROM PluginOrders WHERE MainLableName='{Server.mainLableName}' AND MTType='{Server.mtType}' AND PluginName='AdvMCSO' AND IsDelete='N' AND ValidDate>='{DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")}';";
             string strSql = $"SELECT * FROM RiskManagement_AdvMCSOSettings WHERE MTType='{Server.mtType}' AND MainLableName='{Server.mainLableName}' AND Enable=1;";
 
             try
@@ -863,7 +863,7 @@ namespace WebApi.Dals
         {
             ReturnModel<List<RiskManagementAdvPOLMTInfo>> Result = new ReturnModel<List<RiskManagementAdvPOLMTInfo>>();
             List<RiskManagementAdvPOLMTInfo> lstResult = new List<RiskManagementAdvPOLMTInfo>();
-            string strCount = $"SELECT COUNT(id) AS iCount FROM PluginOrders WHERE MainLableName='{Server.mainLableName}' AND MTType='{Server.mtType}' AND PluginName='AdvPOLMT' AND ValidDate>='{DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")}';";
+            string strCount = $"SELECT COUNT(id) AS iCount FROM PluginOrders WHERE MainLableName='{Server.mainLableName}' AND MTType='{Server.mtType}' AND PluginName='AdvPOLMT' AND IsDelete='N' AND ValidDate>='{DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")}';";
 
             string strSql = $"SELECT * FROM RiskManagement_AdvPOLMTSettings WHERE MTType='{Server.mtType}' AND MainLableName='{Server.mainLableName}' AND Enable=1;";
 
@@ -903,7 +903,7 @@ namespace WebApi.Dals
         {
             ReturnModel<List<RiskManagementAdvTransFreqInfo>> Result = new ReturnModel<List<RiskManagementAdvTransFreqInfo>>();
             List<RiskManagementAdvTransFreqInfo> lstResult = new List<RiskManagementAdvTransFreqInfo>();
-            string strCount = $"SELECT COUNT(id) AS iCount FROM PluginOrders WHERE MainLableName='{Server.mainLableName}' AND MTType='{Server.mtType}' AND PluginName='AdvTransFreq' AND ValidDate>='{DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")}';";
+            string strCount = $"SELECT COUNT(id) AS iCount FROM PluginOrders WHERE MainLableName='{Server.mainLableName}' AND MTType='{Server.mtType}' AND PluginName='AdvTransFreq' AND IsDelete='N' AND ValidDate>='{DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")}';";
 
             string strSql = $"SELECT * FROM RiskManagement_AdvTransFreqSettings WHERE MTType='{Server.mtType}' AND MainLableName='{Server.mainLableName}' AND Enable=1;";
 

@@ -938,6 +938,28 @@ namespace WebApi.Dals
         }
         #endregion
 
+        #region AdvMasterSlave
+        public ReturnModel<bool> getAdvMasterSlaveRules(PluginServerInfo Server)
+        {
+            ReturnModel<bool> Result = new ReturnModel<bool>();
+            Result.Values = false;
+
+            string strCount = $"SELECT COUNT(id) AS iCount FROM PluginOrders WHERE MainLableName='{Server.mainLableName}' AND MTType='{Server.mtType}' AND PluginName='AdvMasterSlave' AND IsDelete='N' AND ValidDate>='{DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")}';";
+            try
+            {
+                Result.Values = int.Parse(ws_mysql.ExecuteScalar(param.ToArray(), "", strCount, PublicConst.Database)) > 0;
+            }
+            catch (Exception ex)
+            {
+                new CommonDAL().UploadErrMsg(Server, new ErrMsg { ErrorMsg = ex.Message, RouteName = "MTWebApi/getAdvMasterSlaveRules" });
+                Result.ReturnCode = ReturnCode.RunningError;
+                Result.CnDescription = "失败";
+                Result.EnDescription = "Failure";
+            }
+            return Result;
+        }
+        #endregion
+
         #endregion
 
 

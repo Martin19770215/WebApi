@@ -155,9 +155,9 @@ namespace WebApi.Controllers
         }
 
         [HttpPost]
-        public object getAdvMasterSlvaeRules(PluginServerInfo Server)
+        public object getAdvMasterSlaveRules(PluginServerInfo Server)
         {
-            ReturnModel<bool> Result = new MTWebApiDAL().getAdvMasterSlaveRules(Server);
+            ReturnModel<string> Result = new MTWebApiDAL().getAdvMasterSlaveRules(Server);
             return new { Enable = Result.Values };
         }
 

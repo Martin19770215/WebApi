@@ -939,15 +939,15 @@ namespace WebApi.Dals
         #endregion
 
         #region AdvMasterSlave
-        public ReturnModel<bool> getAdvMasterSlaveRules(PluginServerInfo Server)
+        public ReturnModel<string> getAdvMasterSlaveRules(PluginServerInfo Server)
         {
-            ReturnModel<bool> Result = new ReturnModel<bool>();
-            Result.Values = false;
+            ReturnModel<string> Result = new ReturnModel<string>();
+            Result.Values = "N";
 
             string strCount = $"SELECT COUNT(id) AS iCount FROM PluginOrders WHERE MainLableName='{Server.mainLableName}' AND MTType='{Server.mtType}' AND PluginName='AdvMasterSlave' AND IsDelete='N' AND ValidDate>='{DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")}';";
             try
             {
-                Result.Values = int.Parse(ws_mysql.ExecuteScalar(param.ToArray(), "", strCount, PublicConst.Database)) > 0;
+                Result.Values = int.Parse(ws_mysql.ExecuteScalar(param.ToArray(), "", strCount, PublicConst.Database)) > 0?"Y":"N";
             }
             catch (Exception ex)
             {

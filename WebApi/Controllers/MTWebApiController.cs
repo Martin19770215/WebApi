@@ -143,15 +143,20 @@ namespace WebApi.Controllers
         [HttpPost]
         public object getAdvPOLMTRules(PluginServerInfo Server)
         {
+            Server.moduleName = "AdvPOLMT";
+            PluginModuleInfo Plugin = new CommonDAL().getPluginModuleInfo(Server);
+
             ReturnModel<List<RiskManagementAdvPOLMTInfo>> Result = new MTWebApiDAL().getAdvPOLMTRules(Server);
-            return new { Groups = Result.Values.Where(grp => grp.Login == 0), Accounts = Result.Values.Where(acc => acc.GroupName == "*") };
+            return new {Enable=!Plugin.IsExpired, Groups = Result.Values.Where(grp => grp.Login == 0), Accounts = Result.Values.Where(acc => acc.GroupName == "*") };
         }
 
         [HttpPost]
         public object getAdvTransFreqRules(PluginServerInfo Server)
         {
+            Server.moduleName = "AdvTransFreq";
+            PluginModuleInfo Plugin = new CommonDAL().getPluginModuleInfo(Server);
             ReturnModel<List<RiskManagementAdvTransFreqInfo>> Result = new MTWebApiDAL().getAdvTransFreqRules(Server);
-            return new { Groups = Result.Values.Where(grp => grp.Login == 0), Accounts = Result.Values.Where(acc => acc.GroupName == "*") };
+            return new {Enable=!Plugin.IsExpired, Groups = Result.Values.Where(grp => grp.Login == 0), Accounts = Result.Values.Where(acc => acc.GroupName == "*") };
         }
 
         [HttpPost]
@@ -164,8 +169,15 @@ namespace WebApi.Controllers
         [HttpPost]
         public object getAdvABBookExRules(PluginServerInfo Server)
         {
+            PluginModuleInfo Plugin = new CommonDAL().getPluginModuleInfo(Server);
             ReturnModel<List<RiskManagementAdvTransFreqInfo>> Result = new MTWebApiDAL().getAdvTransFreqRules(Server);
-            return new { Groups = Result.Values.Where(grp => grp.Login == 0), Accounts = Result.Values.Where(acc => acc.GroupName == "*") };
+            return new {Enable=!Plugin.IsExpired, Groups = Result.Values.Where(grp => grp.Login == 0), Accounts = Result.Values.Where(acc => acc.GroupName == "*") };
+        }
+
+        public object getRiskRules(PluginServerInfo Server)
+        {
+
+            return new { };
         }
 
         #endregion

@@ -145,8 +145,10 @@ namespace WebApi.Controllers
         {
             Server.moduleName = "AdvPOLMT";
             PluginModuleInfo Plugin = new CommonDAL().getPluginModuleInfo(Server);
+            ReturnModel<List<RiskManagementAdvPOLMTInfo>> Result = new ReturnModel<List<RiskManagementAdvPOLMTInfo>>();
 
-            ReturnModel<List<RiskManagementAdvPOLMTInfo>> Result = new MTWebApiDAL().getAdvPOLMTRules(Server);
+            if (!Plugin.IsExpired) { Result = new MTWebApiDAL().getAdvPOLMTRules(Server); }
+            else { Result.Values = new List<RiskManagementAdvPOLMTInfo>(); }
             return new {Enable=!Plugin.IsExpired, Groups = Result.Values.Where(grp => grp.Login == 0), Accounts = Result.Values.Where(acc => acc.GroupName == "*") };
         }
 
@@ -155,7 +157,9 @@ namespace WebApi.Controllers
         {
             Server.moduleName = "AdvTransFreq";
             PluginModuleInfo Plugin = new CommonDAL().getPluginModuleInfo(Server);
-            ReturnModel<List<RiskManagementAdvTransFreqInfo>> Result = new MTWebApiDAL().getAdvTransFreqRules(Server);
+            ReturnModel<List<RiskManagementAdvTransFreqInfo>> Result = new ReturnModel<List<RiskManagementAdvTransFreqInfo>>();
+            if (!Plugin.IsExpired) { Result = new MTWebApiDAL().getAdvTransFreqRules(Server); }
+            else { Result.Values = new List<RiskManagementAdvTransFreqInfo>(); }
             return new {Enable=!Plugin.IsExpired, Groups = Result.Values.Where(grp => grp.Login == 0), Accounts = Result.Values.Where(acc => acc.GroupName == "*") };
         }
 

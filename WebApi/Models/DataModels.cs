@@ -444,6 +444,18 @@ namespace WebApi.Models
     }
     #endregion
 
+    #region AdvSwapFee
+    public class AdvSwapFeePositionInfo
+    {
+        public ulong Position { get; set; }                                     //持仓单号
+        public ulong TimeStamp { get; set; }                                    //结算时间
+        public ulong Volume { get; set; }                                       //结算头寸（持仓量）
+        public string Entry { get; set; }                                      //持仓方向（BUY/SELL）
+        public double StorageBefore { get; set; }                               //结算前已有隔夜息
+        public double Storage { get; set; }                                     //即将新增的隔夜息（当天）  
+    }
+    #endregion
+
     #region QuoteControl
     public class SymbolPriceRule {
         public uint RuleID { get; set; }
@@ -514,6 +526,12 @@ namespace WebApi.Models
     public class DynamicLeverageAccountSummary {
         public PluginServerInfo Server { get; set; }
         public List<DynamicLeverageAccountSummaryInfo> Accounts { get; set; }
+    }
+
+    public class Riskmanage_AdvSwapFeePosition {
+        public string MainLableName { get; set; }
+        public string MTType { get; set; }
+        public List<AdvSwapFeePositionInfo> PositionList { get; set; }
     }
 
     public class QuoteControlSymbolTickInfo {

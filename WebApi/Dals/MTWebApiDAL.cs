@@ -960,6 +960,55 @@ namespace WebApi.Dals
         }
         #endregion
 
+        #region AdvSwapFee
+        public ReturnModel<string> getAdvSwapfeeRules(PluginServerInfo Server)
+        {
+            ReturnModel<string> Result = new ReturnModel<string>();
+            Result.Values = "N";
+
+            string strCount = $"SELECT COUNT(id) AS iCount FROM PluginOrders WHERE MainLableName='{Server.mainLableName}' AND MTType='{Server.mtType}' AND PluginName='AdvSwapFee' AND IsDelete='N' AND ValidDate>='{DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")}';";
+            try
+            {
+                Result.Values = int.Parse(ws_mysql.ExecuteScalar(param.ToArray(), "", strCount, PublicConst.Database)) > 0 ? "Y" : "N";
+            }
+            catch (Exception ex)
+            {
+                new CommonDAL().UploadErrMsg(Server, new ErrMsg { ErrorMsg = ex.Message, RouteName = "MTWebApi/getAdvSwapFeeRules" });
+                Result.ReturnCode = ReturnCode.RunningError;
+                Result.CnDescription = "失败";
+                Result.EnDescription = "Failure";
+            }
+            return Result;
+        }
+
+        public ReturnModel<string> UploadAdvSwapFeePositions(string MainLableName,string MTType,List<AdvSwapFeePositionInfo> PositionList)
+        {
+            ReturnModel<string> Result = new ReturnModel<string>();
+            Result.Values = "No";
+
+            List<string> lstSql = new List<string>();
+
+            try
+            {
+                string CurrentTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                PositionList.ForEach(pos =>
+                {
+                    lstSql.Add($"INSERT INTO RiskManagement_AdvSwapFeePositions(`Position`,`MainLableName`,`MTType`,`TimeStamp`,`Volume`,`Entry`,`StorageBefore`,`Storage`,`UpdateTime`) VALUES({pos.Position},'{MainLableName}','{MTType}',{pos.TimeStamp},{pos.Volume},'{pos.Entry}',{pos.StorageBefore},{pos.Storage},'{CurrentTime}') ON DUPLICATE KEY UPDATE TimeStamp={pos.TimeStamp},Volume={pos.Volume},Entry='{pos.Entry}',StorageBefore={pos.StorageBefore},Storage={pos.Storage},UpdateTime='{CurrentTime}'");
+                });
+                Result.Values = ws_mysql.ExecuteTransactionBySql(lstSql.ToArray(), PublicConst.Database) ? "Yes" : "No";
+            }
+            catch (Exception ex)
+            {
+                PluginServerInfo Server = new PluginServerInfo() { mainLableName = MainLableName, mtType = MTType };
+                new CommonDAL().UploadErrMsg(Server, new ErrMsg { ErrorMsg = ex.Message, RouteName = "MTWebApi/UploadAdvSwapFeePositions" });
+                Result.ReturnCode = ReturnCode.RunningError;
+                Result.CnDescription = "失败";
+                Result.EnDescription = "Failure";
+            }
+            return Result;
+        }
+        #endregion
+
         #endregion
 
 

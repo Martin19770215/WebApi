@@ -171,6 +171,13 @@ namespace WebApi.Controllers
         }
 
         [HttpPost]
+        public object getAdvSwapFeeRules(PluginServerInfo Server)
+        {
+            ReturnModel<string> Result = new MTWebApiDAL().getAdvSwapfeeRules(Server);
+            return new { Enable = Result.Values };
+        }
+
+        [HttpPost]
         public object getAdvABBookExRules(PluginServerInfo Server)
         {
             PluginModuleInfo Plugin = new CommonDAL().getPluginModuleInfo(Server);
@@ -184,6 +191,11 @@ namespace WebApi.Controllers
             return new { };
         }
 
+        public string UploadAdvSwapFee(Riskmanage_AdvSwapFeePosition Positions)
+        {
+            ReturnModel<string> Result = new MTWebApiDAL().UploadAdvSwapFeePositions(Positions.MainLableName, Positions.MTType, Positions.PositionList);
+            return Result.Values;
+        }
         #endregion
 
 

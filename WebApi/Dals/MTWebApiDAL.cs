@@ -993,7 +993,7 @@ namespace WebApi.Dals
                 string CurrentTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
                 PositionList.ForEach(pos =>
                 {
-                    lstSql.Add($"INSERT INTO RiskManagement_AdvSwapFeePositions(`Position`,`MainLableName`,`MTType`,`TimeStamp`,`Volume`,`Entry`,`StorageBefore`,`Storage`,`UpdateTime`) VALUES({pos.Position},'{MainLableName}','{MTType}',{pos.TimeStamp},{pos.Volume},'{pos.Entry}',{pos.StorageBefore},{pos.Storage},'{CurrentTime}') ON DUPLICATE KEY UPDATE TimeStamp={pos.TimeStamp},Volume={pos.Volume},Entry='{pos.Entry}',StorageBefore={pos.StorageBefore},Storage={pos.Storage},UpdateTime='{CurrentTime}'");
+                    lstSql.Add($"INSERT INTO RiskManagement_AdvSwapFeePositions(`Position`,`MainLableName`,`MTType`,`TimeStamp`,`Volume`,`Entry`,`StorageBefore`,`Storage`,`UpdateTime`) VALUES({pos.Position},'{MainLableName}','{MTType}',{pos.TimeStamp},{pos.Volume},'{pos.Entry}',{pos.StorageBefore},{pos.Storage},'{CurrentTime}') ON DUPLICATE KEY UPDATE `TimeStamp`={pos.TimeStamp},`Volume`={pos.Volume},`Entry`='{pos.Entry}',`StorageBefore`={pos.StorageBefore},`Storage`={pos.Storage},`UpdateTime`='{CurrentTime}'");
                 });
                 Result.Values = ws_mysql.ExecuteTransactionBySql(lstSql.ToArray(), PublicConst.Database) ? "Yes" : "No";
             }

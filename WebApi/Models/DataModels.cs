@@ -451,6 +451,9 @@ namespace WebApi.Models
         public ulong TimeStamp { get; set; }                                    //结算时间
         public ulong Volume { get; set; }                                       //结算头寸（持仓量）
         public string Entry { get; set; }                                      //持仓方向（BUY/SELL）
+        public uint StorageMode { get; set; }                                   //隔夜息计算模式
+        public double StorageLong { get; set; }                                 //隔夜息收费标准（Long）
+        public double StorageShort { get; set; }                                //隔夜息收费标准（Short）
         public double StorageBefore { get; set; }                               //结算前已有隔夜息
         public double Storage { get; set; }                                     //即将新增的隔夜息（当天）  
     }

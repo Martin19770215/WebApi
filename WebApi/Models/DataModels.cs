@@ -449,6 +449,8 @@ namespace WebApi.Models
     {
         public ulong Position { get; set; }                                     //持仓单号
         public ulong TimeStamp { get; set; }                                    //结算时间
+        public ulong Login { get; set; }                                        //交易账号
+        public string Symbol { get; set; }                                      //交易商品
         public ulong Volume { get; set; }                                       //结算头寸（持仓量）
         public string Entry { get; set; }                                      //持仓方向（BUY/SELL）
         public uint StorageMode { get; set; }                                   //隔夜息计算模式
@@ -456,6 +458,18 @@ namespace WebApi.Models
         public double StorageShort { get; set; }                                //隔夜息收费标准（Short）
         public double StorageBefore { get; set; }                               //结算前已有隔夜息
         public double Storage { get; set; }                                     //即将新增的隔夜息（当天）  
+    }
+
+    public class AdvSwapFeePositionCRMInfo {
+        public ulong positionID { get; set; }
+        public ulong login { get; set; }
+        public string symbol { get; set; }
+        public int cmd { get; set; }                                            //买 - 0，卖 -1 
+        public double volume { get; set; }
+        public double swap { get; set; }                                        
+        public string swapDate { get; set; }                                    //日期：yyyyMMdd
+        public string swapType { get; set; }                                    //类型：1 - 点值，2 - 固定值，3 - 百分比
+        public double swapTypeValue { get; set; }                               //Symbol中的设置值：对应cmd=0为BUY，cmd=1为SELL
     }
     #endregion
 

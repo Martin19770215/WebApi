@@ -987,7 +987,8 @@ namespace WebApi.Dals
             Result.Values = "No";
 
             List<string> lstSql = new List<string>();
-
+            Riskmanage_AdvSwapFeeCrmPosition CRMPositions = new Riskmanage_AdvSwapFeeCrmPosition();
+            CRMPositions.data = new List<AdvSwapFeePositionCRMInfo>();
             try
             {
                 string CurrentTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
@@ -995,7 +996,12 @@ namespace WebApi.Dals
                 {
                     lstSql.Add($"INSERT INTO RiskManagement_AdvSwapFeePositions(`Position`,`MainLableName`,`MTType`,`TimeStamp`,`Login`,`Symbol`,`Volume`,`Entry`,`StorageMode`,`StorageLong`,`StorageShort`,`StorageBefore`,`Storage`,`UpdateTime`) VALUES({pos.Position},'{MainLableName}','{MTType}',{pos.TimeStamp},{pos.Login},'{pos.Symbol}',{pos.Volume},'{pos.Entry}',{pos.StorageMode},{pos.StorageLong},{pos.StorageShort},{pos.StorageBefore},{pos.Storage},'{CurrentTime}') ON DUPLICATE KEY UPDATE `Login`={pos.Login},`Symbol`='{pos.Symbol}',`Volume`={pos.Volume},`Entry`='{pos.Entry}',`StorageMode`={pos.StorageMode},`StorageLong`={pos.StorageLong},`StorageShort`={pos.StorageShort},`StorageBefore`={pos.StorageBefore},`Storage`={pos.Storage},`UpdateTime`='{CurrentTime}'");
                 });
-                Result.Values = ws_mysql.ExecuteTransactionBySql(lstSql.ToArray(), PublicConst.Database) ? "Yes" : "No";
+
+                if (ws_mysql.ExecuteTransactionBySql(lstSql.ToArray(), PublicConst.Database)) {
+
+                }
+                Result = new CRMWebApiDAL().UploadPositionList(MainLableName, MTType);
+
             }
             catch (Exception ex)
             {
@@ -1007,6 +1013,8 @@ namespace WebApi.Dals
             }
             return Result;
         }
+
+
         #endregion
 
         #endregion

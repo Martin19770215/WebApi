@@ -236,7 +236,10 @@ namespace WebApi.Models
     #endregion
 
     #region CRM
-
+    public class AdvSwapFeeCRMReturnInfo {
+        public int code { get; set; }
+        public string message { get; set; }
+    }
     #endregion
 
     #region MT SYSTEM
@@ -461,7 +464,7 @@ namespace WebApi.Models
     }
 
     public class AdvSwapFeePositionCRMInfo {
-        public ulong positionID { get; set; }
+        public ulong positionId { get; set; }
         public ulong login { get; set; }
         public string symbol { get; set; }
         public int cmd { get; set; }                                            //买 - 0，卖 -1 
@@ -549,6 +552,12 @@ namespace WebApi.Models
         public string MainLableName { get; set; }
         public string MTType { get; set; }
         public List<AdvSwapFeePositionInfo> PositionList { get; set; }
+    }
+
+    public class Riskmanage_AdvSwapFeeCrmPosition {
+        public string owner { get; set; }
+        public string mType { get; set; }
+        public List<AdvSwapFeePositionCRMInfo> data { get; set; }
     }
 
     public class QuoteControlSymbolTickInfo {

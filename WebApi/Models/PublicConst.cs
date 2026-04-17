@@ -32,6 +32,7 @@ namespace WebApi.Models
         //        public readonly static string Sys_WSUserPWD = MD5Helper.DESDecrypt(WebConfigurationManager.AppSettings["UserPwd"].ToString(), key).Replace("\0", "");
 
         //Get和Post转发URL
+        public readonly static string TransferURL_SwapCRM = "http://service.itskangaroo.com/plugin/saveOwnerSwapRecord";
         ////public readonly static string TransferURL = WebConfigurationManager.AppSettings["TransferURL"];
         ////public readonly static string MonirotTransferURL = WebConfigurationManager.AppSettings["MonitorTransferURL"];
 

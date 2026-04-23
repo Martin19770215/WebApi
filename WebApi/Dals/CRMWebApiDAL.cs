@@ -38,6 +38,10 @@ namespace WebApi.Dals
                         symbol = dr["Symbol"].ToString(),
                         cmd = (dr["Entry"].ToString().ToUpper() == "BUY") ? 0 : 1,
                         volume = ulong.Parse(dr["Volume"].ToString()) / 10e7 * 1.0,
+                        openPrice = double.Parse(dr["PriceOpen"].ToString()),
+                        currentPrice = double.Parse(dr["PriceCurrent"].ToString()),
+                        rate = double.Parse(dr["ProfitRate"].ToString()),
+                        currency = dr["ProfitCurrency"].ToString().ToUpper(),
                         swap = double.Parse(dr["Storage"].ToString()),
                         swapDate = DateTimeOffset.FromUnixTimeSeconds(long.Parse(dr["TimeStamp"].ToString()) - 28801).UtcDateTime.ToString("yyyyMMdd"), //-3600*8+1
                         swapType = dr["StorageMode"].ToString(),

@@ -454,9 +454,13 @@ namespace WebApi.Models
         public ulong TimeStamp { get; set; }                                    //结算时间
         public ulong Login { get; set; }                                        //交易账号
         public string Symbol { get; set; }                                      //交易商品
+        public string ProfitCurrency { get; set; }                              //盈利货币
+        public double ProfitRate { get; set; }                                  //盈利汇率（盈利货币/结算货币）
         public ulong Volume { get; set; }                                       //结算头寸（持仓量）
         public string Entry { get; set; }                                      //持仓方向（BUY/SELL）
         public uint StorageMode { get; set; }                                   //隔夜息计算模式
+        public double PriceOpen { get; set; }                                   //开盘价
+        public double PriceCurrent { get; set; }                                //当前价
         public double StorageLong { get; set; }                                 //隔夜息收费标准（Long）
         public double StorageShort { get; set; }                                //隔夜息收费标准（Short）
         public double StorageBefore { get; set; }                               //结算前已有隔夜息
@@ -469,6 +473,10 @@ namespace WebApi.Models
         public string symbol { get; set; }
         public int cmd { get; set; }                                            //买 - 0，卖 -1 
         public double volume { get; set; }
+        public double openPrice { get; set; }
+        public double currentPrice { get; set; }
+        public double rate { get; set; }
+        public string currency { get; set; }
         public double swap { get; set; }                                        
         public string swapDate { get; set; }                                    //日期：yyyyMMdd
         public string swapType { get; set; }                                    //类型：1 - 点值，2 - 固定值，3 - 百分比

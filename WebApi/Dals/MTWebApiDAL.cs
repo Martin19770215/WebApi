@@ -1017,6 +1017,29 @@ namespace WebApi.Dals
 
         #endregion
 
+        #region AdvDelay
+        public ReturnModel<string> getAdvDelayRules(PluginServerInfo Server)
+        {
+            ReturnModel<string> Result = new ReturnModel<string>();
+            Result.Values = "N";
+
+            string strCount = $"SELECT COUNT(id) AS iCount FROM PluginOrders WHERE MainLableName='{Server.mainLableName}' AND MTType='{Server.mtType}' AND PluginName='AdvDelay' AND IsDelete='N' AND ValidDate>='{DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")}';";
+            try
+            {
+                Result.Values = int.Parse(ws_mysql.ExecuteScalar(param.ToArray(), "", strCount, PublicConst.Database)) > 0 ? "Y" : "N";
+            }
+            catch (Exception ex)
+            {
+                new CommonDAL().UploadErrMsg(Server, new ErrMsg { ErrorMsg = ex.Message, RouteName = "MTWebApi/getAdvDelayRules" });
+                Result.ReturnCode = ReturnCode.RunningError;
+                Result.CnDescription = "失败";
+                Result.EnDescription = "Failure";
+            }
+            return Result;
+        }
+
+        #endregion
+
         #endregion
 
 

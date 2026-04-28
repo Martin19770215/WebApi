@@ -178,6 +178,13 @@ namespace WebApi.Controllers
         }
 
         [HttpPost]
+        public object getAdvDelayRules(PluginServerInfo Server)
+        {
+            ReturnModel<string> Result = new MTWebApiDAL().getAdvDelayRules(Server);
+            return new { Enable = Result.Values };
+        }
+
+        [HttpPost]
         public object getAdvABBookExRules(PluginServerInfo Server)
         {
             PluginModuleInfo Plugin = new CommonDAL().getPluginModuleInfo(Server);

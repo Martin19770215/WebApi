@@ -212,5 +212,12 @@ namespace WebApi.Controllers
             ReturnCodeInfo Result = new MTWebApiDAL().UploadErrorMsg(MsgList.Server, MsgList.Messages);
             return Result.code;
         }
+
+        [HttpPost]
+        public object PluginHeartBeet(PluginServerInfo Server)
+        {
+            ReturnModel<string> Result = new MTWebApiDAL().PluginHeartBeet(Server);
+            return Result.Values;
+        }
     }
 }

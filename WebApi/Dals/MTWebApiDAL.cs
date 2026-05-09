@@ -104,6 +104,26 @@ namespace WebApi.Dals
         }
         #endregion
 
+        public ReturnModel<string> PluginHeartBeet(PluginServerInfo Server)
+        {
+            ReturnModel<string> Result = new ReturnModel<string>();
+            Result.Values = "Failure";
+
+            string sSqlInsert = $"INSERT INTO PluginHeartBeet(`MainLableName`,`MTType`,`PluginName`,`ModuleName`) VALUES('{Server.mainLableName}','{Server.mtType}','{Server.pluginName}','{Server.moduleName}');SELECT @@IDENTITY;";
+            try
+            {
+                Result.Values= int.Parse(ws_mysql.ExecuteScalar(param.ToArray(), "", sSqlInsert, PublicConst.Database)) > 0 ? "Success" : "Failure";
+            }
+            catch (Exception ex)
+            {
+                new CommonDAL().UploadErrMsg(Server, new ErrMsg { ErrorMsg = ex.Message, RouteName = "MTWebApi/PluginHeartBeet/" + Server.mainLableName + "/" + Server.moduleName });
+                Result.ReturnCode = ReturnCode.RunningError;
+                Result.CnDescription = "失败";
+                Result.EnDescription = "Failure";
+            }
+            return Result;
+        }
+
         #endregion
 
         #region DynamicLeverage

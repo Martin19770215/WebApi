@@ -465,6 +465,17 @@ namespace WebApi.Models
         public double StorageShort { get; set; }                                //隔夜息收费标准（Short）
         public double StorageBefore { get; set; }                               //结算前已有隔夜息
         public double Storage { get; set; }                                     //即将新增的隔夜息（当天）  
+        public uint GatewayEntry { get; set; }                                  //网关交易方向
+        public ulong GatewayVolume { get; set; }                                //网关交易量
+        public double GatewayPrice { get; set; }                                //网关价格
+        public uint Reason { get; set; }                                        //成交原因
+        public ulong OpenTimeStamp { get; set; }                                //开仓时间（毫秒时间戳）
+        public string ExternalID { get; set; }                                  //外部ID
+        public string Comment { get; set; }                                     //注释
+        public double PriceSL { get; set; }                                     //止损价
+        public double PriceTP { get; set; }                                     //止盈价
+        public double Profit { get; set; }                                      //盈亏
+        public double PriceMargin { get; set; }                                 //预付款比率
     }
 
     public class AdvSwapFeePositionCRMInfo {

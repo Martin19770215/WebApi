@@ -471,6 +471,7 @@ namespace WebApi.Models
         public uint Reason { get; set; }                                        //成交原因
         public ulong OpenTimeStamp { get; set; }                                //开仓时间（毫秒时间戳）
         public string ExternalID { get; set; }                                  //外部ID
+        public ulong ExpertID { get; set; }                                     // EA ID
         public string Comment { get; set; }                                     //注释
         public double PriceSL { get; set; }                                     //止损价
         public double PriceTP { get; set; }                                     //止盈价

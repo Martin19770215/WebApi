@@ -1021,11 +1021,14 @@ namespace WebApi.Dals
                     lstSql.Add($"INSERT INTO RiskManagement_AdvSwapFeePositions(`Position`,`MainLableName`,`MTType`,`TimeStamp`,`Login`,`Symbol`,`ProfitCurrency`,`Volume`,`Entry`,`StorageMode`,`StorageLong`,`StorageShort`,`PriceOpen`,`PriceCurrent`,`ProfitRate`,`StorageBefore`,`Storage`,`GatewayEntry`,`GatewayVolume`,`GatewayPrice`,`Reason`,`OpenTimeStamp`,`OpenTime`,`ExpertID`,`ExternalID`,`Comment`,`PriceSL`,`PriceTP`,`Profit`,`PriceMargin`,`UpdateTime`) VALUES({pos.Position},'{MainLableName}','{MTType}',{pos.TimeStamp},{pos.Login},'{pos.Symbol}','{pos.ProfitCurrency}',{pos.Volume},'{pos.Entry}',{pos.StorageMode},{pos.StorageLong},{pos.StorageShort},{pos.PriceOpen},{pos.PriceCurrent},{pos.ProfitRate},{pos.StorageBefore},{pos.Storage},{pos.GatewayEntry},{pos.GatewayVolume},{pos.GatewayPrice},{pos.Reason},{pos.OpenTimeStamp},'{openTime.ToString("yyyy-MM-dd HH:mm:ss:ffff")}',{pos.ExpertID},'{pos.ExternalID}','{pos.Comment}',{pos.PriceSL},{pos.PriceTP},{pos.Profit},{pos.PriceMargin},'{CurrentTime}') ON DUPLICATE KEY UPDATE `Login`={pos.Login},`Symbol`='{pos.Symbol}',`ProfitCurrency`='{pos.ProfitCurrency}',`Volume`={pos.Volume},`Entry`='{pos.Entry}',`StorageMode`={pos.StorageMode},`StorageLong`={pos.StorageLong},`StorageShort`={pos.StorageShort},`PriceOpen`={pos.PriceOpen},`PriceCurrent`={pos.PriceCurrent},`ProfitRate`={pos.ProfitRate},`StorageBefore`={pos.StorageBefore},`Storage`={pos.Storage},`GatewayEntry`={pos.GatewayEntry},`GatewayVolume`={pos.GatewayVolume},`GatewayPrice`={pos.GatewayPrice},`Reason`={pos.Reason},`OpenTimeStamp`={pos.OpenTimeStamp},`OpenTime`='{openTime.ToString("yyyy-MM-dd HH:mm:ss:ffff")}',`ExpertID`={pos.ExpertID},`ExternalID`='{pos.ExternalID}',`Comment`='{pos.Comment}',`PriceSL`={pos.PriceSL},`PriceTP`={pos.PriceTP},`Profit`={pos.Profit},`PriceMargin`={pos.PriceMargin},`UpdateTime`='{CurrentTime}'");
                 });
 
-                if (ws_mysql.ExecuteTransactionBySql(lstSql.ToArray(), PublicConst.Database)) {
-
+                if (lstSql.Count > 0)
+                {
+                    ws_mysql.ExecuteTransactionBySql(lstSql.ToArray(), PublicConst.Database);
+                    Result = new CRMWebApiDAL().UploadPositionList(MainLableName, MTType);
                 }
-                Result = new CRMWebApiDAL().UploadPositionList(MainLableName, MTType);
-
+                else {
+                    Result.Values = "Empty PositionList";
+                }
             }
             catch (Exception ex)
             {

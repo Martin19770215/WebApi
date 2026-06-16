@@ -1045,15 +1045,25 @@ namespace WebApi.Dals
         #endregion
 
         #region AdvDelay
-        public ReturnModel<string> getAdvDelayRules(PluginServerInfo Server)
+        public ReturnModel<List<RiskManagementAdvDelayInfo>> getAdvDelayRules(PluginServerInfo Server)
         {
-            ReturnModel<string> Result = new ReturnModel<string>();
-            Result.Values = "N";
+            ReturnModel<List<RiskManagementAdvDelayInfo>> Result = new ReturnModel<List<RiskManagementAdvDelayInfo>>();
+            List<RiskManagementAdvDelayInfo> lstResult = new List<RiskManagementAdvDelayInfo>();
 
             string strCount = $"SELECT COUNT(id) AS iCount FROM PluginOrders WHERE MainLableName='{Server.mainLableName}' AND MTType='{Server.mtType}' AND PluginName='AdvDelay' AND IsDelete='N' AND ValidDate>='{DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")}';";
+            string strSql = $"SELECT * FROM RiskManagement_AdvDelaySettings WHERE MTType='{Server.mtType}' AND MainLableName='{Server.mainLableName}' AND Enable=1;";
             try
             {
-                Result.Values = int.Parse(ws_mysql.ExecuteScalar(param.ToArray(), "", strCount, PublicConst.Database)) > 0 ? "Y" : "N";
+                if (int.Parse(ws_mysql.ExecuteScalar(param.ToArray(), "", strCount, PublicConst.Database)) == 0) { Result.Values = lstResult; return Result; }
+
+                DataSet ds = ws_mysql.ExecuteDataSetBySQL(strSql, PublicConst.Database);
+                foreach (DataRow dr in ds.Tables[0].Rows)
+                {
+                    lstResult.Add(new RiskManagementAdvDelayInfo() {
+                        Login=UInt64.Parse(dr["Login"].ToString()),
+                        DelayType=(RiskManage_AdvDelay_DelayType)int.Parse(dr["DelayType"].ToString())
+                    });
+                }
             }
             catch (Exception ex)
             {
@@ -1061,7 +1071,9 @@ namespace WebApi.Dals
                 Result.ReturnCode = ReturnCode.RunningError;
                 Result.CnDescription = "失败";
                 Result.EnDescription = "Failure";
+                lstResult.Clear();
             }
+            Result.Values = lstResult;
             return Result;
         }
 

@@ -69,4 +69,9 @@ namespace WebApi.Models
         OtoC2,          //Close after Open(Different Position)
         CtoO
     }
+
+    public enum RiskManage_AdvDelay_DelayType {
+        ConfirmWorstPrice=1,                //使用较差价格成交
+        RejectBetterPrice                   //价格变好，拒绝交易
+    }
 }

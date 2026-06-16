@@ -447,6 +447,13 @@ namespace WebApi.Models
     }
     #endregion
 
+    #region AdvDelay
+    public class RiskManagementAdvDelayInfo {
+        public UInt64 Login { get; set; }
+        public RiskManage_AdvDelay_DelayType DelayType { get; set; }
+    }
+    #endregion
+
     #region AdvSwapFee
     public class AdvSwapFeePositionInfo
     {

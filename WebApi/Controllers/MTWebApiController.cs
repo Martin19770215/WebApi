@@ -180,8 +180,14 @@ namespace WebApi.Controllers
         [HttpPost]
         public object getAdvDelayRules(PluginServerInfo Server)
         {
-            ReturnModel<string> Result = new MTWebApiDAL().getAdvDelayRules(Server);
-            return new { Enable = Result.Values };
+            Server.moduleName = "AdvDelay";
+            PluginModuleInfo Plugin = new CommonDAL().getPluginModuleInfo(Server);
+
+            ReturnModel<List<RiskManagementAdvDelayInfo>> Result = new ReturnModel<List<RiskManagementAdvDelayInfo>>();
+            if (!Plugin.IsExpired) { Result = new MTWebApiDAL().getAdvDelayRules(Server); }
+            else { Result.Values = new List<RiskManagementAdvDelayInfo>(); }
+
+            return new { Enable = !Plugin.IsExpired ? "Y" : "N", Accounts = Result.Values };
         }
 
         [HttpPost]

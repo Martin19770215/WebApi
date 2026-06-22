@@ -962,12 +962,16 @@ namespace WebApi.Dals
         public ReturnModel<string> getAdvMasterSlaveRules(PluginServerInfo Server)
         {
             ReturnModel<string> Result = new ReturnModel<string>();
+            ReturnModel<RiskManagementAdvMasterSlaveCRMInfo> lstCrmResult = new ReturnModel<RiskManagementAdvMasterSlaveCRMInfo>();
             Result.Values = "N";
 
             string strCount = $"SELECT COUNT(id) AS iCount FROM PluginOrders WHERE MainLableName='{Server.mainLableName}' AND MTType='{Server.mtType}' AND PluginName='AdvMasterSlave' AND IsDelete='N' AND ValidDate>='{DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")}';";
             try
             {
-                Result.Values = int.Parse(ws_mysql.ExecuteScalar(param.ToArray(), "", strCount, PublicConst.Database)) > 0?"Y":"N";
+                if (int.Parse(ws_mysql.ExecuteScalar(param.ToArray(), "", strCount, PublicConst.Database)) == 0) { Result.Values = "";return Result; }
+
+                lstCrmResult.Values = new CRMWebApiDAL().getMasterSlaveList(Server.mainLableName, Server.mtType);
+                //Result.Values = int.Parse(ws_mysql.ExecuteScalar(param.ToArray(), "", strCount, PublicConst.Database)) > 0?"Y":"N";
             }
             catch (Exception ex)
             {

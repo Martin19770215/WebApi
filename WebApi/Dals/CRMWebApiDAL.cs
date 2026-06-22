@@ -75,5 +75,22 @@ namespace WebApi.Dals
 
             return Result;
         }
+
+        public RiskManagementAdvMasterSlaveCRMInfo getMasterSlaveList(string MainLableName, string MTType)
+        {
+            RiskManagementAdvMasterSlaveCRMInfo Result = new RiskManagementAdvMasterSlaveCRMInfo();
+            string PostString = "owner=" + MainLableName.Trim() + "&mType=" + MTType;
+
+            try
+            {
+                string PostResult = ws_comm.Get(PublicConst.TransFerURL_MasterSlaveCRM, PostString);
+                Result = JsonConvert.DeserializeObject<RiskManagementAdvMasterSlaveCRMInfo>(PostResult);
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return Result;
+        }
     }
 }

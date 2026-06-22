@@ -33,6 +33,7 @@ namespace WebApi.Models
 
         //Get和Post转发URL
         public readonly static string TransferURL_SwapCRM = "http://service.itskangaroo.com/plugin/saveOwnerSwapRecord";
+        public readonly static string TransFerURL_MasterSlaveCRM = "http://service.itskangaroo.com/plugin/getJinhuoSettings";
         ////public readonly static string TransferURL = WebConfigurationManager.AppSettings["TransferURL"];
         ////public readonly static string MonirotTransferURL = WebConfigurationManager.AppSettings["MonitorTransferURL"];
 

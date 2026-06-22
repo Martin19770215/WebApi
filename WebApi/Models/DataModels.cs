@@ -503,6 +503,17 @@ namespace WebApi.Models
     }
     #endregion
 
+    #region MasterSlave
+    public class RiskManagementAdvMasterSlaveInfo {
+
+    }
+
+    public class RiskManagementAdvMasterSlaveCRMInfo {
+        public List<string> gatewayList { get; set; }
+        public List<string> clientList { get; set; }
+    }
+    #endregion
+
     #region QuoteControl
     public class SymbolPriceRule {
         public uint RuleID { get; set; }

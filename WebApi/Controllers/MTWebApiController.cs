@@ -170,8 +170,8 @@ namespace WebApi.Controllers
             Server.moduleName = "AdvMasterSlave";
             PluginModuleInfo Plugin = new CommonDAL().getPluginModuleInfo(Server);
 
-            ReturnModel<string> Result = new MTWebApiDAL().getAdvMasterSlaveRules(Server);
-            return new { Enable = !Plugin.IsExpired ? "Y" : "N" };
+            ReturnModel<RiskManagementAdvMasterSlaveInfo> Result = new MTWebApiDAL().getAdvMasterSlaveRules(Server);
+            return new { Enable = !Plugin.IsExpired ? "Y" : "N",Manager=Result.Values.Manager, SlaveLogins = Result.Values.SlaveLogins };
         }
 
         [HttpPost]

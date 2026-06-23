@@ -505,12 +505,18 @@ namespace WebApi.Models
 
     #region MasterSlave
     public class RiskManagementAdvMasterSlaveInfo {
+        public UInt64 Manager { get; set; }
+        public List<RiskManagementAdvMasterSlaveLoginInfo> SlaveLogins { get; set; }
+    }
 
+    public class RiskManagementAdvMasterSlaveLoginInfo {
+        public UInt64 Login;
+        public uint Gateway;
     }
 
     public class RiskManagementAdvMasterSlaveCRMInfo {
-        public List<string> gatewayList { get; set; }
-        public List<string> clientList { get; set; }
+        public string manager { get; set; }
+        public List<RiskManage_AdvMasterSlaveCrmGateway> gatewayList { get; set; }
     }
     #endregion
 
@@ -603,5 +609,11 @@ namespace WebApi.Models
         public List<PriceTickInfo> PriceData { get; set; }
         public List<PriceSymbolVolumeInfo> PriceVolumeData { get; set; }
     }
+
+    public class RiskManage_AdvMasterSlaveCrmGateway {
+        public string gatewayId { get; set; }
+        public List<string> clientList { get; set; }
+    }
+
     #endregion
 }

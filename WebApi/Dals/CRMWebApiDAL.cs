@@ -90,10 +90,10 @@ namespace WebApi.Dals
                 string PostResult = ws_comm.Get(PublicConst.TransFerURL_MasterSlaveCRM, PostString);
                 lstResult = JsonConvert.DeserializeObject<RiskManagementAdvMasterSlaveCRMInfo>(PostResult);
 
-                RiskManagementAdvMasterSlaveLoginInfo LoginInfo = new RiskManagementAdvMasterSlaveLoginInfo();
                 Result.Manager = UInt64.Parse(lstResult.manager);
                 lstResult.gatewayList.ForEach(info => {
                     info.clientList.ForEach(cl => {
+                        RiskManagementAdvMasterSlaveLoginInfo LoginInfo = new RiskManagementAdvMasterSlaveLoginInfo();
                         LoginInfo.Login = UInt64.Parse(cl);
                         LoginInfo.Gateway = uint.Parse(info.gatewayId);
                         Result.SlaveLogins.Add(LoginInfo);

@@ -1024,8 +1024,8 @@ namespace WebApi.Dals
 
                 if (lstSql.Count > 0)
                 {
-                    ws_mysql.ExecuteTransactionBySql(lstSql.ToArray(), PublicConst.Database);
-                    Result = new CRMWebApiDAL().UploadPositionList(MainLableName, MTType);
+                    if (ws_mysql.ExecuteTransactionBySql(lstSql.ToArray(), PublicConst.Database)) { Result = new CRMWebApiDAL().UploadPositionList(MainLableName, MTType); }
+                    else { Result.Values = "Upload data failure"; }
                 }
                 else {
                     Result.Values = "Empty PositionList";
@@ -1038,6 +1038,7 @@ namespace WebApi.Dals
                 Result.ReturnCode = ReturnCode.RunningError;
                 Result.CnDescription = "失败";
                 Result.EnDescription = "Failure";
+                Result.Values = ex.Message;
             }
             return Result;
         }

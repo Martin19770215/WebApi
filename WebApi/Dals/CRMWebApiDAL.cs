@@ -36,7 +36,7 @@ namespace WebApi.Dals
                         positionId = ulong.Parse(dr["Position"].ToString()),
                         login = ulong.Parse(dr["Login"].ToString()),
                         symbol = dr["Symbol"].ToString(),
-                        cmd = (dr["Entry"].ToString().ToUpper() == "BUY") ? 0 : 1,
+                        cmd = (dr["Entry"].ToString().ToUpper() == "SELL") ? 0 : 1,
                         volume = ulong.Parse(dr["Volume"].ToString()) / 10e7 * 1.0,
                         openPrice = double.Parse(dr["PriceOpen"].ToString()),
                         currentPrice = double.Parse(dr["PriceCurrent"].ToString()),

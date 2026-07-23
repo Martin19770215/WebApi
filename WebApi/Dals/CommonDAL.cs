@@ -112,7 +112,7 @@ namespace WebApi.Dals
         public PluginModuleInfo getPluginModuleInfo(PluginServerInfo Server)
         {
             PluginModuleInfo Result = new PluginModuleInfo();
-            string PluginName = Server.moduleName == "CopyTrader" ? "PAMM" : Server.moduleName;
+            string PluginName = Server.moduleName == "AdvCopyTrade" ? "PAMM" : Server.moduleName;
             List<string> lstAccount = new List<string>();
 
             string strSqlSelect = $"SELECT * FROM MT_PluginModule WHERE MainLableName='{Server.mainLableName}' AND MTType='{Server.mtType}' AND PluginName='{Server.pluginName}' AND ModuleName='{Server.moduleName}' AND SettingName='{Server.settingName}';";

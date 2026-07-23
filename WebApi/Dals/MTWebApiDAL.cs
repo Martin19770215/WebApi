@@ -693,6 +693,41 @@ namespace WebApi.Dals
         }
 
         #endregion
+
+        #region 获取配置信息
+        public ReturnModel<List<SlaveAccount>> getAdvCopyTradeRules(PluginServerInfo Server)
+        {
+            ReturnModel<List<SlaveAccount>> Result = new ReturnModel<List<SlaveAccount>>();
+            List<SlaveAccount> lstResult = new List<SlaveAccount>();
+            try
+            {
+                PluginModuleInfo ModuleInfo = new CommonDAL().getPluginModuleInfo(Server);
+                switch (ModuleInfo.PluginType)
+                {
+                    case "Monitor":
+
+                        break;
+                    case "CRM":
+
+                        break;
+                    default:
+                        //自身系统，通过AccountName获取设置信息
+                        Result = new CustomerDAL().getAdvCopyTradeRules(ModuleInfo.AccountName, Server);
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                new CommonDAL().UploadErrMsg(Server, new ErrMsg { ErrorMsg = ex.Message, RouteName = "MTWebApi/getAdvCopyTradeRules" });
+                Result.ReturnCode = ReturnCode.RunningError;
+                Result.CnDescription = "失败";
+                Result.EnDescription = "Failure";
+                Result.Values.Clear();
+            }
+
+            return Result;
+        }
+        #endregion
         #endregion
 
         #region QuoteControl

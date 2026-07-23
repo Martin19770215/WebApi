@@ -114,6 +114,20 @@ namespace WebApi.Controllers
             ReturnModel<List<MasterAccount>> lstCopyTraderResult = new MTWebApiDAL().COPYTRADER_GetMasterList(Server, true);
             return new { MasterAccounts = lstCopyTraderResult.Values };
         }
+
+        [HttpPost]
+        public object getAdvCopyTradeRules(PluginServerInfo Server)
+        {
+            Server.moduleName = "AdvCopyTrade";
+            PluginModuleInfo Plugin = new CommonDAL().getPluginModuleInfo(Server);
+
+            ReturnModel<List<SlaveAccount>> lstCopyTradeResult = new MTWebApiDAL().getAdvCopyTradeRules(Server);
+            int RulesCount = 0;
+            lstCopyTradeResult.Values.ForEach(rule => {
+                RulesCount += rule.Symbols.Count();
+            });
+            return new { Enable = !Plugin.IsExpired ? "Y" : "N", RulesCount =RulesCount, Rules = lstCopyTradeResult.Values };
+        }
         #endregion
         
         #region QuoteControl

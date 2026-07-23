@@ -251,6 +251,13 @@ namespace WebApi.Models
     #endregion
 
     #region Copy Trader
+    public enum ModeType
+    {
+        open=1,
+        solid=2,
+        equity=3
+    }
+
     public class MasterAccount
     {
         public UInt64 Login { get; set; }
@@ -262,10 +269,10 @@ namespace WebApi.Models
         public List<SlaveAccount> Slaves { get; set; }
     }
     public class SlaveAccount {
-        public UInt64 Login { get; set; }
+        public UInt64 SlaveLogin { get; set; }
         public int Delay { get; set; }                          //延时时长（秒）
-        public string ProportionType { get; set; }              //跟随类型：Open，Solid，Euqity
-        public double Proportion { get; set; }                  //跟随比例
+        public int Mode { get; set; }              //跟随类型：1-Open，2-Solid，3-Euqity
+        public UInt64 Rate { get; set; }                  //跟随比例：1=0.0001（1/10000）
         public bool Reverse { get; set; }                       //是否反向跟单
         public bool Pedding { get; set; }                       //是否跟随挂单
         public bool SL { get; set; }                            //是否跟随止损
@@ -273,11 +280,16 @@ namespace WebApi.Models
         public bool IsFollowClosedOrder { get; set; }           //是否跟随平仓订单（MT4）
         public bool Tradable { get; set; }                       //在跟随状态下，是否允许自行操作
         public UInt64 MasterLogin { get; set; }                    //跟随的主账号
-        public List<SymbolRelations> Symbols { get; set; }
+        public List<SymbolRelationsFinal> Symbols { get; set; }
     }
     public class SymbolRelations {
         public UInt64 MasterAcc { get; set; }
         public UInt64 SlaveAcc { get; set; }
+        public string MasterSymbol { get; set; }
+        public string SlaveSymbol { get; set; }
+    }
+    public class SymbolRelationsFinal {
+        public string Key { get; set; }                 //用于插件标识：KEY=MasterLogin+","+MasterSymbol
         public string MasterSymbol { get; set; }
         public string SlaveSymbol { get; set; }
     }

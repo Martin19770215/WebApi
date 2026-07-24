@@ -93,7 +93,7 @@ namespace WebApi.Dals
             string sSqlSelectSlave = $"SELECT * FROM PAMM_SlaveAcc WHERE AccountName in ({AccountName}) AND IsDelete='N';";
             string sSqlSelectSymbols = $"SELECT * FROM PAMM_SymbolRelations WHERE AccountName in ({AccountName}) AND IsDelete='N';";
 
-            MasterAccount masteracc = new MasterAccount();
+            //MasterAccount masteracc = new MasterAccount();
 
             try
             {

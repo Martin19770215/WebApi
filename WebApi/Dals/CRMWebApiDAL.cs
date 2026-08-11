@@ -45,7 +45,7 @@ namespace WebApi.Dals
                         swap = double.Parse(dr["Storage"].ToString()),
                         swapDate = DateTimeOffset.FromUnixTimeSeconds(long.Parse(dr["TimeStamp"].ToString()) - 28801).UtcDateTime.ToString("yyyyMMdd"), //-3600*8+1
                         swapType = dr["StorageMode"].ToString(),
-                        swapTypeValue = (dr["Entry"].ToString().ToUpper() == "BUY") ? double.Parse(dr["StorageLong"].ToString()) : double.Parse(dr["StorageShort"].ToString())
+                        swapTypeValue = (dr["Entry"].ToString().ToUpper() == "SELL") ? double.Parse(dr["StorageLong"].ToString()) : double.Parse(dr["StorageShort"].ToString())
                     });
 
                     lstSqlUpdate.Add($"UPDATE RiskManagement_AdvSwapFeePositions SET `AlreadyUpload`='Y' WHERE `MainLableName`='{MainLableName}' AND `MTType`='{MTType}' AND `Position`=" + dr["Position"].ToString());

@@ -36,7 +36,7 @@ namespace WebApi.Dals
                         positionId = ulong.Parse(dr["Position"].ToString()),
                         login = ulong.Parse(dr["Login"].ToString()),
                         symbol = dr["Symbol"].ToString(),
-                        cmd = (dr["Entry"].ToString().ToUpper() == "SELL") ? 0 : 1,
+                        cmd = (dr["Entry"].ToString().ToUpper() == "BUY") ? 0 : 1,
                         volume = ulong.Parse(dr["Volume"].ToString()) / 10e7 * 1.0,
                         openPrice = double.Parse(dr["PriceOpen"].ToString()),
                         currentPrice = double.Parse(dr["PriceCurrent"].ToString()),
@@ -45,7 +45,7 @@ namespace WebApi.Dals
                         swap = double.Parse(dr["Storage"].ToString()),
                         swapDate = DateTimeOffset.FromUnixTimeSeconds(long.Parse(dr["TimeStamp"].ToString()) - 28801).UtcDateTime.ToString("yyyyMMdd"), //-3600*8+1
                         swapType = dr["StorageMode"].ToString(),
-                        swapTypeValue = (dr["Entry"].ToString().ToUpper() == "SELL") ? double.Parse(dr["StorageLong"].ToString()) : double.Parse(dr["StorageShort"].ToString())
+                        swapTypeValue = (dr["Entry"].ToString().ToUpper() == "BUY") ? double.Parse(dr["StorageLong"].ToString()) : double.Parse(dr["StorageShort"].ToString())
                     });
 
                     lstSqlUpdate.Add($"UPDATE RiskManagement_AdvSwapFeePositions SET `AlreadyUpload`='Y' WHERE `MainLableName`='{MainLableName}' AND `MTType`='{MTType}' AND `Position`=" + dr["Position"].ToString());

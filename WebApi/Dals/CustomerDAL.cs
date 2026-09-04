@@ -184,7 +184,11 @@ namespace WebApi.Dals
             return Result;
         }
 
+        public ReturnModel<List<SlaveAccount>> getAdvCopyTradeRules() {
+            ReturnModel<List<SlaveAccount>> Result = new ReturnModel<List<SlaveAccount>>() { ReturnCode = ReturnCode.OK, CnDescription = "成功", EnDescription = "Successfully" };
 
+            return Result;
+        }
 
 
         public ReturnModel< List<MasterAccount>> COPYTRADER_GetMasterList(string AccountName, PluginServerInfo Server, bool isIncludeSlave)

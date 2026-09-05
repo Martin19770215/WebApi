@@ -121,7 +121,8 @@ namespace WebApi.Controllers
             Server.moduleName = "AdvCopyTrade";
             PluginModuleInfo Plugin = new CommonDAL().getPluginModuleInfo(Server);
 
-            ReturnModel<List<SlaveAccount>> lstCopyTradeResult = new MTWebApiDAL().getAdvCopyTradeRules(Server);
+//            ReturnModel<List<SlaveAccount>> lstCopyTradeResult = new MTWebApiDAL().getAdvCopyTradeRules(Server);
+            ReturnModel<List<SlaveAccount>> lstCopyTradeResult = new MTWebApiDAL().getAdvCopyTradeRules(Plugin);
             int RulesCount = 0;
             lstCopyTradeResult.Values.ForEach(rule => {
                 RulesCount += rule.Symbols.Count();

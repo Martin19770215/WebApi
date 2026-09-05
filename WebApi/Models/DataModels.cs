@@ -258,6 +258,12 @@ namespace WebApi.Models
         equity=3
     }
 
+    public class PluginRemoteInfo {
+        public string Company { get; set; }
+        public string endTime { get; set; }
+        public string fileUrl { get; set; }
+        public string secretKey { get; set; }
+    }
     public class MasterAccount
     {
         public UInt64 Login { get; set; }

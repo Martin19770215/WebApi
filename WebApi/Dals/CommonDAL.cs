@@ -6,6 +6,9 @@ using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Web;
 using WebApi.Models;
+using System.Xml;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace WebApi.Dals
 {
@@ -18,6 +21,20 @@ namespace WebApi.Dals
         public void UploadErrMsg(PluginServerInfo Server,ErrMsg ErrMsg)
         {
             string sSqlUpload = $"INSERT INTO RunningErrorMsg(`PluginName`,`MainLableName`,`ErrorMsg`,`RouteName`) VALUES('{Server.moduleName}','{Server.mainLableName}','{ErrMsg.ErrorMsg.Replace("\'","\"")}','{ErrMsg.RouteName}');";
+
+            try
+            {
+                ws_mysql.ExecuteNonQuery(param.ToArray(), PublicConst.CommandTypeDefault, sSqlUpload, PublicConst.Database);
+            }
+            catch
+            {
+
+            }
+        }
+
+        public void UploadErrMsg(PluginModuleInfo Module, ErrMsg ErrMsg)
+        {
+            string sSqlUpload = $"INSERT INTO RunningErrorMsg(`PluginName`,`MainLableName`,`ErrorMsg`,`RouteName`) VALUES('{Module.ModuleName}','{Module.MainLableName}','{ErrMsg.ErrorMsg.Replace("\'", "\"")}','{ErrMsg.RouteName}');";
 
             try
             {
@@ -164,6 +181,80 @@ namespace WebApi.Dals
             File.WriteAllText(sUserFile, Settings);
         }
 
+        public List<SlaveAccount> getJsonFromXML(string XMLSettings,PluginModuleInfo info)
+        {
+            List<SlaveAccount> Result = new List<SlaveAccount>();
+
+            try
+            {
+                XmlDocument xml = new XmlDocument();
+                xml.Load(XMLSettings);
+
+                string rawJson = JsonConvert.SerializeXmlNode(xml, Newtonsoft.Json.Formatting.None);
+                JObject root = JObject.Parse(rawJson);
+
+                var mainAccountsRaw = root["Account"]["MainAccount"];
+                var mainAccounts = mainAccountsRaw is JArray ? (JArray)mainAccountsRaw : new JArray(mainAccountsRaw);
+
+                var rules = new List<JObject>();
+
+                foreach (var ma in mainAccounts) {
+                    var slaveAccountRaw = ma["FromAccount"];
+                    var slaveAccounts = slaveAccountRaw is JArray ? (JArray)slaveAccountRaw : new JArray(slaveAccountRaw);
+
+                    UInt64 masterLogin = UInt64.Parse(ma["@login"].ToString());
+                    foreach (var slave in slaveAccounts) {
+                        UInt64 slaveLogin = UInt64.Parse(slave["@login"].ToString());
+                        int delay = int.Parse(slave["@delay"].ToString());
+                        bool reverse = ParseYn(slave["@reverse"]);
+                        bool sl = ParseYn(slave["@sl"]);
+                        bool tp = ParseYn(slave["tp"]);
+                        bool isFollowClosedOrder = ParseYn(slave["@IsFollowClosedOrder"]);
+                        decimal proportion = decimal.Parse(slave["@proportion"].ToString()) * 10000;
+
+                        string modeRaw = slave["@proportion_type"]?.ToString() ?? "open";
+                        ModeType slaveMode = (ModeType)Enum.Parse(typeof(ModeType), modeRaw);
+                        string symbolRaw = slave["@symbol"]?.ToString() ?? "*";
+                        string[] symbolArray = symbolRaw.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+
+                        // 兜底处理：如果拆分结果为空，默认使用“*”
+                        if (symbolArray.Length == 0) symbolArray = new[] { "*" };
+
+                        List<SymbolRelationsFinal> lstSymbols = new List<SymbolRelationsFinal>(); 
+                        foreach (string sym in symbolArray) {
+                            lstSymbols.Add(new SymbolRelationsFinal {
+                                Key = $"{masterLogin},{sym.Trim()}",
+                                MasterSymbol=sym.Trim(),
+                                SlaveSymbol=sym.Trim()
+                            });
+                        }
+
+                        Result.Add(new SlaveAccount {
+                            SlaveLogin = slaveLogin,
+                            Delay = delay,
+                            Mode = (int)slaveMode,
+                            Rate =Convert.ToUInt64( proportion),
+                            Reverse = ParseYn(slave["@reverse"]),
+                            Pedding = false,
+                            SL = ParseYn(slave["@sl"]),
+                            TP = ParseYn(slave["tp"]),
+                            Tradable = false,
+                            MasterLogin = masterLogin,
+                            Symbols=lstSymbols
+                        });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                new CommonDAL().UploadErrMsg(info, new ErrMsg { ErrorMsg = ex.Message, RouteName = "MTWebApi/COPYTRADER_GetMasterList" });
+                Result.Clear();
+            }
+
+
+            return Result;
+        }
+
         #region 类深拷贝
         public T DeepCopy<T>(T obj)
         {
@@ -179,6 +270,11 @@ namespace WebApi.Dals
             return (T)retval;
         }
         #endregion
+
+        private static bool ParseYn(JToken token)
+        {
+            return string.Equals(token?.ToString(), "Y", StringComparison.OrdinalIgnoreCase);
+        }
 
     }
 }

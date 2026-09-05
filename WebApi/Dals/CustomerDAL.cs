@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Web;
+using System.Web.Script.Serialization;
 using WebApi.Models;
 
 namespace WebApi.Dals
@@ -12,6 +13,7 @@ namespace WebApi.Dals
     {
         List<string> param = new List<string>();
         com.logicnx.ws.mysql.WS_MYSQL ws_mysql = new com.logicnx.ws.mysql.WS_MYSQL();
+        com.logicnx.ws.common.WS_COMMON ws_comm = new com.logicnx.ws.common.WS_COMMON();
 
         #region Dynamic Leverage
         public ReturnModel<List<DynamicLeverageSetting>> DYNAMICLEVERAGE_GetSettingList(PluginServerInfo Server)
@@ -154,7 +156,7 @@ namespace WebApi.Dals
                             Pedding = mDr["IsPedding"].ToString() == "Y",
                             SL = mDr["IsSL"].ToString() == "Y",
                             TP = mDr["IsTP"].ToString() == "Y",
-                            IsFollowClosedOrder = mDr["IsFollowClosedOrder"].ToString() == "Y",
+                            //IsFollowClosedOrder = mDr["IsFollowClosedOrder"].ToString() == "Y",
                             //Tradable = mDr["IsTradable"].ToString() == "Y",
                             MasterLogin = UInt64.Parse(mDr["MasterAcc"].ToString()),
                             Symbols = lstSymbolFinal
@@ -184,13 +186,38 @@ namespace WebApi.Dals
             return Result;
         }
 
-        public ReturnModel<List<SlaveAccount>> getAdvCopyTradeRules() {
+        public ReturnModel<List<SlaveAccount>> getAdvCopyTradeRules(PluginModuleInfo ModuleInfo) {
             ReturnModel<List<SlaveAccount>> Result = new ReturnModel<List<SlaveAccount>>() { ReturnCode = ReturnCode.OK, CnDescription = "成功", EnDescription = "Successfully" };
+            List<SlaveAccount> lstResult = new List<SlaveAccount>();
 
+            try
+            {
+                if (!string.IsNullOrEmpty(ModuleInfo.SettingURL))
+                {
+                    //string responseString = ws_comm.Get(ModuleInfo.SettingURL, $"owner={ModuleInfo.MainLableName}&mType={ModuleInfo.MTType}&delayFlag=1");
+                    //string responseString = ws_comm.Get(ModuleInfo.SettingURL, $"PluginName=PAMM&MainLableName={ModuleInfo.MainLableName}&MTType=MT5");
+                    //JavaScriptSerializer Serializer = new JavaScriptSerializer();
+                    //List<PluginRemoteInfo> pluginList = Serializer.Deserialize<List<PluginRemoteInfo>>(responseString);
+                    //pluginList.ForEach(info => {
+                    //    lstResult = new CommonDAL().getJsonFromXML(ws_comm.Get(info.fileUrl, ""), ModuleInfo);
+                    //});
+                    //lstResult = new CommonDAL().getJsonFromXML(ws_comm.Get("http://portal.logicnx.com/Content/UploadFile/PLUGIN/Dragonstone_Forex_Trading_Limited/PAMM_Delay_Config.xml", ""), ModuleInfo);
+                    lstResult = new CommonDAL().getJsonFromXML("http://portal.logicnx.com/Content/UploadFile/PLUGIN/pamm12/PAMM_Config.xml", ModuleInfo);
+                }
+            }
+            catch (Exception ex)
+            {
+                new CommonDAL().UploadErrMsg(ModuleInfo, new ErrMsg { ErrorMsg = ex.Message, RouteName = "MTWebApi/COPYTRADER_GetMasterList" });
+                Result.ReturnCode = ReturnCode.RunningError;
+                Result.CnDescription = "失败";
+                Result.EnDescription = "Failure";
+                lstResult.Clear();
+            }
+
+            Result.Values = lstResult;
             return Result;
         }
-
-
+        
         public ReturnModel< List<MasterAccount>> COPYTRADER_GetMasterList(string AccountName, PluginServerInfo Server, bool isIncludeSlave)
         {
             ReturnModel<List<MasterAccount>> Result = new ReturnModel<List<MasterAccount>>() { ReturnCode = ReturnCode.OK, CnDescription = "成功", EnDescription = "Successfully" };
@@ -287,6 +314,7 @@ namespace WebApi.Dals
             Result.Values = lstResult;
             return Result;
         }
+
         #endregion
     }
 }

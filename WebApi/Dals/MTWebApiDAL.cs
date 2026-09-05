@@ -727,6 +727,26 @@ namespace WebApi.Dals
 
             return Result;
         }
+
+        public ReturnModel<List<SlaveAccount>> getAdvCopyTradeRules(PluginModuleInfo ModuleInfo)
+        {
+            ReturnModel<List<SlaveAccount>> Result = new ReturnModel<List<SlaveAccount>>();
+            List<SlaveAccount> lstResult = new List<SlaveAccount>();
+            try
+            {
+                Result = new CustomerDAL().getAdvCopyTradeRules(ModuleInfo);
+            }
+            catch (Exception ex)
+            {
+                new CommonDAL().UploadErrMsg(ModuleInfo, new ErrMsg { ErrorMsg = ex.Message, RouteName = "MTWebApi/getAdvCopyTradeRules" });
+                Result.ReturnCode = ReturnCode.RunningError;
+                Result.CnDescription = "失败";
+                Result.EnDescription = "Failure";
+                Result.Values.Clear();
+            }
+
+            return Result;
+        }
         #endregion
         #endregion
 

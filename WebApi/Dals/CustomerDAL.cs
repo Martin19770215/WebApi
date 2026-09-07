@@ -200,7 +200,13 @@ namespace WebApi.Dals
                     List<PluginRemoteInfo> pluginList = Serializer.Deserialize<List<PluginRemoteInfo>>(responseString);
                     pluginList.ForEach(info =>
                     {
-                        lstResult = new CommonDAL().getJsonFromXML(ws_comm.Get(info.fileUrl, ""), ModuleInfo);
+                        DateTime dtPlugin;
+                        if (DateTime.TryParse(info.endTime, out dtPlugin))
+                        {
+                            if (dtPlugin > DateTime.Now) {
+                                lstResult = new CommonDAL().getJsonFromXML(ws_comm.Get(info.fileUrl, ""), ModuleInfo);
+                            }
+                        }
                     });
                     //lstResult = new CommonDAL().getJsonFromXML(ws_comm.Get("http://portal.logicnx.com/Content/UploadFile/PLUGIN/Dragonstone_Forex_Trading_Limited/PAMM_Delay_Config.xml", ""), ModuleInfo);
                     //lstResult = new CommonDAL().getJsonFromXML("http://portal.logicnx.com/Content/UploadFile/PLUGIN/pamm12/PAMM_Config.xml", ModuleInfo);

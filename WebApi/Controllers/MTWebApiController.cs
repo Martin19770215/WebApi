@@ -127,7 +127,7 @@ namespace WebApi.Controllers
             lstCopyTradeResult.Values.ForEach(rule => {
                 RulesCount += rule.Symbols.Count();
             });
-            return new { Enable = !Plugin.IsExpired ? "Y" : "N", RulesCount =RulesCount, Rules = lstCopyTradeResult.Values };
+            return new { Enable = (!Plugin.IsExpired) ? "Y" : "N", RulesCount =RulesCount, Rules = lstCopyTradeResult.Values };
         }
         #endregion
         

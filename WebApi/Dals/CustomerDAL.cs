@@ -393,7 +393,7 @@ namespace WebApi.Dals
                         Delay = int.Parse(mDr["Delay"].ToString()),
                         //ProportionType = mDr["ProportionType"].ToString(),
                         Mode = (int)SlaveMode,
-                        Rate = UInt64.Parse(mDr["Proportion"].ToString()),
+                        Rate = UInt64.Parse(mDr["Proportion"].ToString())*100,          // 原本系统记录是 1=100，现在是1=10000
                         Pedding = mDr["IsPedding"].ToString() == "Y",
                         SL = mDr["IsSL"].ToString() == "Y",
                         TP = mDr["IsTP"].ToString() == "Y",
